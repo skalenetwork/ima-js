@@ -17,6 +17,27 @@
  */
 
 /**
- * @file index.ts
+ * @file BaseChain.ts
  * @copyright SKALE Labs 2021-Present
  */
+
+import Web3 from 'web3';
+import { Contract } from 'web3-eth-contract';
+
+
+export interface ContractsStringMap { [key: string]: Contract; }
+
+export abstract class BaseChain {
+    readonly web3: Web3;
+    abi: any;
+    contracts: ContractsStringMap;
+  
+    constructor(web3: Web3, abi: any) {
+      this.web3 = web3;
+      this.abi = abi;
+      this.contracts = this.initContracts();
+    }
+
+    abstract ethBalance(address: string): Promise<string>;
+    abstract initContracts(): ContractsStringMap;
+}

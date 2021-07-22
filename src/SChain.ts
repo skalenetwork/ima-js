@@ -17,6 +17,26 @@
  */
 
 /**
- * @file index.ts
+ * @file SChain.ts
  * @copyright SKALE Labs 2021-Present
  */
+
+import { BaseChain, ContractsStringMap } from '../src/BaseChain';
+
+
+class SChain extends BaseChain {
+    initContracts(): ContractsStringMap {
+        return {
+            'ethERC20': new this.web3.eth.Contract(
+                this.abi.eth_erc20_abi,
+                this.abi.eth_erc20_address
+            )
+        };
+    }
+
+    async ethBalance(address: string) : Promise<string> {
+        return await this.contracts.ethERC20.methods.balanceOf(address).call({from: address});
+    }
+}
+
+export default SChain;

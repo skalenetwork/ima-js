@@ -17,6 +17,15 @@
  */
 
 /**
- * @file index.ts
+ * @file transaction_utils.ts
  * @copyright SKALE Labs 2021-Present
  */
+
+import Web3 from "web3";
+
+
+export namespace transaction_utils {
+    export function dryRun(web3: Web3) {
+
+    }
+}
