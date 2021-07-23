@@ -1,17 +1,18 @@
 import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
+import * as dotenv from "dotenv";
+
 let Web3 = require('web3');
 
 import SChain from '../src/SChain';
 import * as helper from '../src/helper';
 
-import * as dotenv from "dotenv";
+import * as test_utils from './test_utils';
+
+
 dotenv.config();
 
-const SCHAIN_ENDPOINT = process.env["SCHAIN_ENDPOINT"];
 const SCHAIN_PRIVATE_KEY = helper.add0x(process.env.SCHAIN_PRIVATE_KEY);
-
-const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../abis/proxySchain.json';
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -22,11 +23,8 @@ describe("sChain test", () => {
   let sChain: SChain;
 
   before(async () => {
-    let provider = new Web3.providers.HttpProvider(SCHAIN_ENDPOINT);
-    web3 = new Web3(provider);
-    address = helper.privateKeyToAddress(web3, SCHAIN_PRIVATE_KEY);
-    let abi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
-    sChain = new SChain(web3, abi);
+    sChain = test_utils.initTestSChain();
+    address = helper.privateKeyToAddress(sChain.web3, SCHAIN_PRIVATE_KEY);
   });
 
   it("Requests ERC20 ETH balance for sChain", async () => {

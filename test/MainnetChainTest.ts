@@ -1,11 +1,15 @@
 import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
+import * as dotenv from "dotenv";
+
 let Web3 = require('web3');
 
 import MainnetChain from '../src/MainnetChain';
+import SChain from '../src/SChain';
+
 import * as helper from '../src/helper';
 
-import * as dotenv from "dotenv";
+import * as test_utils from './test_utils';
 
 dotenv.config();
 
@@ -22,16 +26,14 @@ const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
 
 
 describe("Mainnet chain test", () => {
-    let web3: typeof Web3;
     let address: string;
     let mainnetChain: MainnetChain;
+    let sChain: SChain;
 
     before(async () => {
-        let provider = new Web3.providers.HttpProvider(MAINNET_ENDPOINT);
-        web3 = new Web3(provider);
-        address = helper.privateKeyToAddress(web3, MAINNET_PRIVATE_KEY);
-        let abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
-        mainnetChain = new MainnetChain(web3, abi);
+        mainnetChain = test_utils.initTestMainnet();
+        sChain = test_utils.initTestSChain();
+        address = helper.privateKeyToAddress(mainnetChain.web3, MAINNET_PRIVATE_KEY);
     });
 
     it("Requests ETH balance for Mainnet chain", async () => {
@@ -41,15 +43,20 @@ describe("Mainnet chain test", () => {
 
     it("Deposits ETH from Mainnet to sChain", async () => {
         let mainnetBalanceBefore = await mainnetChain.ethBalance(address);
-        let res = await mainnetChain.depositETHtoSChain(
+        let sChainBalanceBefore = await sChain.ethBalance(address);
+
+        await mainnetChain.depositETHtoSChain(
             CHAIN_NAME_SCHAIN,
             address,
             TEST_WEI_TRANSFER_VALUE,
             address,
             MAINNET_PRIVATE_KEY
         );
-        console.log(res);
+
         let mainnetBalanceAfter = await mainnetChain.ethBalance(address);
+        let sChainBalanceAfter = await sChain.ethBalance(address);
+
         console.log(mainnetBalanceBefore, mainnetBalanceAfter);
+        console.log(sChainBalanceBefore, sChainBalanceAfter);
     });
 });
