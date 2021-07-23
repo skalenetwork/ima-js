@@ -22,6 +22,8 @@
  */
 
 import { BaseChain, ContractsStringMap } from '../src/BaseChain';
+import * as transactions from '../src/transactions';
+
 
 class MainnetChain extends BaseChain {
     async ethBalance(address: string): Promise<string> {
@@ -36,16 +38,18 @@ class MainnetChain extends BaseChain {
             )
         };
     }
-    
-    depositETHtoSChain(chainName: string, recipientAddress: string, weiValue: string): any {
-        let method = this.contracts.depositBoxEth.methods.deposit(
+
+    async depositETHtoSChain(chainName: string, recipientAddress: string, weiValue: string,
+        address: string, privateKey?: string): Promise<any> {
+        const txData = this.contracts.depositBoxEth.methods.deposit(
             chainName,
             recipientAddress
         );
-        let encodedTx = method.encodeABI();
-        console.log(encodedTx);
-        // let gasPrice = await transactionCustomizer.computeGasPrice( this.web3, 200000000000 );
 
+        const estimatedGas = '3000000'; // todo - add estimate gas!
+        const gasPrice = '10000000000'; // todo - add get gasPrice!
+
+        return await transactions.send(this.web3, address, txData, estimatedGas, weiValue, privateKey);
     }
 }
 

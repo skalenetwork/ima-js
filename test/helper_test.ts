@@ -2,7 +2,7 @@ import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
 let Web3 = require('web3');
 
-import { helper } from '../src/helper';
+import * as helper from '../src/helper';
 
 import * as dotenv from "dotenv";
 dotenv.config();

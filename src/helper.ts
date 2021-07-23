@@ -24,45 +24,51 @@
 import Web3 from 'web3';
 import fs from 'fs';
 
+import * as constants from '../src/constants';
+import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
-export namespace helper {
-    export function privateKeyToAccount(web3: Web3, privateKey: string) {
-        return web3.eth.accounts.privateKeyToAccount(privateKey);
+
+export function privateKeyToAccount(web3: Web3, privateKey: string) {
+    return web3.eth.accounts.privateKeyToAccount(privateKey);
+}
+
+export function privateKeyToAddress(web3: Web3, privateKey: string) {
+    const account = privateKeyToAccount(web3, privateKey);
+    return account.address;
+}
+
+export function add0x(s: any) {
+    if (!s.startsWith('0x')) {
+        return '0x' + s
     }
+    return s;
+}
 
-    export function privateKeyToAddress(web3: Web3, privateKey: string) {
-        let account = helper.privateKeyToAccount(web3, privateKey);
-        return account.address;
+export function remove0x(s: any) {
+    if (!s.startsWith('0x')) return s;
+    return s.slice(2);
+}
+
+export function jsonFileLoad(path: string) {
+    if (!fileExists(path)) {
+        return {}
     }
+    const s = fs.readFileSync(path);
+    const jo = JSON.parse(s.toString());
+    return jo;
+}
 
-    export function add0x(s: any) {
-        if (!s.startsWith('0x')) {
-            return '0x' + s
-        }
-        return s;
+export function fileExists(strPath: string) {
+    if (fs.existsSync(strPath)) {
+        const stats = fs.statSync(strPath);
+        if (stats.isFile())
+            return true;
     }
+    return false;
+}
 
-    export function jsonFileLoad(path: string) {
-        if(!fileExists(path)){
-            return {}
-        }
-        try {
-            let s = fs.readFileSync(path);
-            let jo = JSON.parse(s.toString());
-            return jo;
-        } catch ( err ) {
-        }
-        return {};
-    }
-
-    export function fileExists(strPath: string) {
-        try {
-            if(fs.existsSync(strPath)) {
-                const stats = fs.statSync(strPath);
-                if(stats.isFile())
-                    return true;
-            }
-        } catch (err) {}
-        return false;
+export function validatePrivateKey(privateKey: string) {
+    if (!constants.PRIVATE_KEY_REGEX.test(privateKey)) {
+        throw new InvalidCredentialsException(constants.errorMessages.INVALID_PRIVATEKEY);
     }
 }

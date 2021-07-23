@@ -17,30 +17,14 @@
  */
 
 /**
- * @file BaseChain.ts
+ * @file InvalidCredentialsException.ts
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
-
-
-export interface ContractsStringMap { [key: string]: Contract; }
-
-export abstract class BaseChain {
-    readonly web3: Web3;
-    chainId?: number;
-    abi: any;
-    contracts: ContractsStringMap;
-
-    constructor(web3: Web3, abi: any, chainId?: number) {
-        this.web3 = web3;
-        this.abi = abi;
-        if (chainId) this.chainId = chainId;
-        this.contracts = this.initContracts();
+export default class InvalidCredentialsException extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+        Error.captureStackTrace(this, this.constructor);
     }
-
-    abstract ethBalance(address: string): Promise<string>;
-    abstract initContracts(): ContractsStringMap;
-
 }

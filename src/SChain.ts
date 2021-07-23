@@ -34,8 +34,8 @@ class SChain extends BaseChain {
         };
     }
 
-    async ethBalance(address: string) : Promise<string> {
-        return await this.contracts.ethERC20.methods.balanceOf(address).call({from: address});
+    async ethBalance(address: string): Promise<string> {
+        return await this.contracts.ethERC20.methods.balanceOf(address).call({ from: address });
     }
 }
 

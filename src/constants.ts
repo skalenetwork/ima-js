@@ -17,15 +17,15 @@
  */
 
 /**
- * @file transaction_utils.ts
+ * @file constants.ts
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from "web3";
+export const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-f]{64}$/i;
 
-
-export namespace transaction_utils {
-    export function dryRun(web3: Web3) {
-
-    }
-}
+export const errorMessages = {
+    FAILED_TRANSACTION: 'Transaction has been failed',
+    REVERTED_TRANSACTION: 'Transaction has been reverted by the EVM:',
+    INVALID_KEYPAIR: 'Keypair mismatch',
+    INVALID_PRIVATEKEY: 'Incorrect privateKey'
+};
