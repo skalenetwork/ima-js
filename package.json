@@ -1,5 +1,5 @@
 {
-  "name": "ima-js-v2",
+  "name": "ima-js",
   "version": "0.0.1",
   "description": "Library to interact with SKALE IMA",
   "main": "build/src/index.js",
