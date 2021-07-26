@@ -15,6 +15,12 @@ const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + 
 const SCHAIN_ENDPOINT = process.env["SCHAIN_ENDPOINT"];
 const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../abis/proxySchain.json';
 
+export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.MAINNET_PRIVATE_KEY);
+export const SCHAIN_PRIVATE_KEY = helper.add0x(process.env.SCHAIN_PRIVATE_KEY);
+
+export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
+export const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
+
 
 export function initTestSChain() {
     const provider = new Web3.providers.HttpProvider(SCHAIN_ENDPOINT);
@@ -30,3 +36,7 @@ export function initTestMainnet() {
     const abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
     return new MainnetChain(web3, abi);
 }
+
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }

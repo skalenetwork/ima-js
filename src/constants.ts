@@ -29,3 +29,7 @@ export const errorMessages = {
     INVALID_KEYPAIR: 'Keypair mismatch',
     INVALID_PRIVATEKEY: 'Incorrect privateKey'
 };
+
+export const DEFAULT_GAS_LIMIT = 10000000;
+export const DEFAULT_GAS_MULTIPLIER = 1.5;
+export const GAS_PRICE_MULTIPLIER = 1.3;

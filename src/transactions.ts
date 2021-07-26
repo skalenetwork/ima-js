@@ -37,8 +37,8 @@ export async function signAndSend(web3: Web3, address: string, transactionData: 
     if (address !== accountFromPrivateKey && address !== helper.remove0x(accountFromPrivateKey)) {
         throw new InvalidCredentialsException(constants.errorMessages.INVALID_KEYPAIR);
     }
-    const nonce = await web3.eth.getTransactionCount(address);
     const chainId = await web3.eth.getChainId(); // todo: use chainID from the outside!
+    const nonce = await web3.eth.getTransactionCount(address);
     const tx = {
         from: address,
         data: encoded,
@@ -56,30 +56,40 @@ export async function signAndSend(web3: Web3, address: string, transactionData: 
 
 export async function sendWithExternalSigning(web3: Web3, address: string, transactionData: any,
     gas: string, value: string) {
-    const nonce = await web3.eth.getTransactionCount(address);
+    // const nonce = await web3.eth.getTransactionCount(address);
     return await transactionData.send({
         from: address,
         gas,
-        nonce
+        value
+        // nonce
     });
 }
 
 
-export async function send(web3: Web3, address: string, transactionData: any, gas: string,
-    value: string='0', privateKey?: string) {
+export async function send(web3: Web3, address: string, transactionData: any, value: string='0',
+    gas?: string, privateKey?: string) {
     let result;
+    let gasLimit: string;
+
+    if (gas) {
+        gasLimit = gas;
+    } else {
+        gasLimit = await estimateGasLimit(web3, address, transactionData, value);
+    }
+
     try {
         if (privateKey && typeof privateKey === 'string' && privateKey.length > 0) {
             const pk = (helper.add0x(privateKey) as string);
             helper.validatePrivateKey(pk);
-            result = await signAndSend(web3, address, transactionData, gas, value, pk);
+            result = await signAndSend(web3, address, transactionData, gasLimit, value, pk);
         } else {
-            result = await sendWithExternalSigning(web3, address, transactionData, gas, value);
+            result = await sendWithExternalSigning(web3, address, transactionData, gasLimit, value);
         }
         return result;
     } catch (error) {
         if (error.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
-            const errorMessage = error.message.substr(constants.errorMessages.REVERTED_TRANSACTION.length);
+            const errorMessage = error.message.substr(
+                constants.errorMessages.REVERTED_TRANSACTION.length);
             const revertReason = JSON.parse(errorMessage).revertReason;
             if (revertReason) {
                 throw new IMAContractException(revertReason);
@@ -90,4 +100,37 @@ export async function send(web3: Web3, address: string, transactionData: any, ga
             throw error;
         }
     }
+}
+
+export async function estimateGasLimit(web3: Web3, address: string, transactionData: any,
+    value: string='0', gasMultiplier: number=constants.DEFAULT_GAS_MULTIPLIER){
+    let estimatedGas = 0;
+    const blockGasLimit = await currentBlockGasLimit(web3);
+    try {
+        estimatedGas = await transactionData.estimateGas({
+            from: address,
+            value
+        });
+    } catch ( err ) {
+        estimatedGas = 0;
+    }
+    estimatedGas *= gasMultiplier;
+    estimatedGas = Math.ceil(estimatedGas);
+    if( estimatedGas === 0 ) estimatedGas = constants.DEFAULT_GAS_LIMIT;
+    if ( estimatedGas > blockGasLimit ) estimatedGas = blockGasLimit;
+    return estimatedGas.toString();
+}
+
+export async function currentBlockGasLimit(web3: Web3): Promise<number> {
+    const latestBlockNumber = await web3.eth.getBlockNumber();
+    const latestBlock = await web3.eth.getBlock(latestBlockNumber);
+    return latestBlock.gasLimit;
+}
+
+export async function currentGasPrice(web3: Web3): Promise<string> {
+    const ethGasPrice = await web3.eth.getGasPrice();
+    const ethGasPriceBN = web3.utils.toBN(ethGasPrice);
+    const gasMultBN = web3.utils.toBN(constants.GAS_PRICE_MULTIPLIER);
+    ethGasPriceBN.mul(gasMultBN);
+    return ethGasPriceBN.toString(10);
 }

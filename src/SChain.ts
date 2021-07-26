@@ -22,6 +22,7 @@
  */
 
 import { BaseChain, ContractsStringMap } from '../src/BaseChain';
+import * as transactions from '../src/transactions';
 
 
 class SChain extends BaseChain {
@@ -30,6 +31,10 @@ class SChain extends BaseChain {
             'ethERC20': new this.web3.eth.Contract(
                 this.abi.eth_erc20_abi,
                 this.abi.eth_erc20_address
+            ),
+            'tokenManagerEth': new this.web3.eth.Contract(
+                this.abi.token_manager_eth_abi,
+                this.abi.token_manager_eth_address
             )
         };
     }
@@ -37,6 +42,15 @@ class SChain extends BaseChain {
     async ethBalance(address: string): Promise<string> {
         return await this.contracts.ethERC20.methods.balanceOf(address).call({ from: address });
     }
+
+    async withdrawETH(recipientAddress: string, weiValue: string,
+        address: string, customGasLimit?: any, privateKey?: string): Promise<any> {
+        const txData = this.contracts.tokenManagerEth.methods.exitToMain(
+            recipientAddress, weiValue);
+        return await transactions.send(
+            this.web3, address, txData, weiValue, customGasLimit, privateKey);
+    }
+
 }
 
 export default SChain;

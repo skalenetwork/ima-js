@@ -40,16 +40,10 @@ class MainnetChain extends BaseChain {
     }
 
     async depositETHtoSChain(chainName: string, recipientAddress: string, weiValue: string,
-        address: string, privateKey?: string): Promise<any> {
-        const txData = this.contracts.depositBoxEth.methods.deposit(
-            chainName,
-            recipientAddress
-        );
-
-        const estimatedGas = '3000000'; // todo - add estimate gas!
-        const gasPrice = '10000000000'; // todo - add get gasPrice!
-
-        return await transactions.send(this.web3, address, txData, estimatedGas, weiValue, privateKey);
+        address: string, customGasLimit?: any, privateKey?: string): Promise<any> {
+        const txData = this.contracts.depositBoxEth.methods.deposit(chainName, recipientAddress);
+        return await transactions.send(
+            this.web3, address, txData, weiValue, customGasLimit, privateKey);
     }
 }
 
