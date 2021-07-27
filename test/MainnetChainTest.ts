@@ -58,6 +58,6 @@ describe("Mainnet chain test", () => {
         console.log(mainnetBalanceBefore, mainnetBalanceAfter);
         console.log(sChainBalanceBefore, sChainBalanceAfter);
 
-        sChainBalanceAfter.should.be.equal(expectedSChainBalance.toString(10))
+        sChainBalanceAfter.should.be.equal(expectedSChainBalance.toString(10));
     });
 });

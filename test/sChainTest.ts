@@ -28,6 +28,10 @@ describe("sChain test", () => {
         sChain = test_utils.initTestSChain();
         address = helper.privateKeyToAddress(sChain.web3, test_utils.SCHAIN_PRIVATE_KEY);
         mainnet_address = helper.privateKeyToAddress(sChain.web3, test_utils.MAINNET_PRIVATE_KEY);
+
+
+        console.log('address');
+        console.log(address);
     });
 
     it("Requests ERC20 ETH balance for sChain", async () => {

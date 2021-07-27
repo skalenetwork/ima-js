@@ -1,11 +1,11 @@
 {
-  "name": "ima-js-v2",
-  "version": "0.0.1",
+  "name": "@skalenetwork/ima-js",
+  "version": "0.0.2",
   "description": "Library to interact with SKALE IMA",
-  "main": "build/src/index.js",
+  "main": "build/index.js",
   "scripts": {
     "prepare": "tsc",
-    "build": "tsc --build",
+    "prepack": "tsc --build",
     "clean": "tsc --build --clean",
     "start": "ts-node src/index.ts",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 150000 -r ts-node/register 'test/**/*.ts'",

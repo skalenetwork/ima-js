@@ -24,7 +24,7 @@
 import Web3 from 'web3';
 import fs from 'fs';
 
-import * as constants from '../src/constants';
+import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
 

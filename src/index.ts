@@ -20,3 +20,6 @@
  * @file index.ts
  * @copyright SKALE Labs 2021-Present
  */
+
+export { default as MainnetChain } from "./MainnetChain";
+export { default as SChain } from "./SChain";

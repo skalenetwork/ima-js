@@ -23,8 +23,8 @@
 
 import Web3 from 'web3';
 
-import * as helper from '../src/helper';
-import * as constants from '../src/constants';
+import * as helper from './helper';
+import * as constants from './constants';
 import IMAContractException from './exceptions/IMAContractException';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 

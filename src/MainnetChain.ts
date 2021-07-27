@@ -21,8 +21,8 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { BaseChain, ContractsStringMap } from '../src/BaseChain';
-import * as transactions from '../src/transactions';
+import { BaseChain, ContractsStringMap } from './BaseChain';
+import * as transactions from './transactions';
 
 
 class MainnetChain extends BaseChain {
