@@ -1,4 +1,4 @@
-# SKALE IMA-JS v2
+# SKALE IMA-JS
 
 Typescirpt/Javascript library which implements client for SKALE Interchain Messaging Agent (IMA).
 
