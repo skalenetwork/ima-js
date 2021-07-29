@@ -23,6 +23,7 @@
 
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
+import TxOpts from './TxOpts';
 
 
 class SChain extends BaseChain {
@@ -35,6 +36,10 @@ class SChain extends BaseChain {
             'tokenManagerEth': new this.web3.eth.Contract(
                 this.abi.token_manager_eth_abi,
                 this.abi.token_manager_eth_address
+            ),
+            'communityLocker': new this.web3.eth.Contract(
+                this.abi.community_locker_abi,
+                this.abi.community_locker_address
             )
         };
     }
@@ -43,14 +48,16 @@ class SChain extends BaseChain {
         return await this.contracts.ethERC20.methods.balanceOf(address).call({ from: address });
     }
 
-    async withdrawETH(recipientAddress: string, weiValue: string,
-        address: string, customGasLimit?: any, privateKey?: string): Promise<any> {
+    async withdrawETH(recipientAddress: string, withdrawValue: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.tokenManagerEth.methods.exitToMain(
-            recipientAddress, weiValue);
-        return await transactions.send(
-            this.web3, address, txData, weiValue, customGasLimit, privateKey);
+            recipientAddress, withdrawValue);
+        return await transactions.send(this.web3, txData, opts);
     }
 
+    async setTimeLimitPerMessage(limit: number, opts: TxOpts): Promise<any> {
+        const txData = await this.contracts.communityLocker.methods.setTimeLimitPerMessage(limit);
+        return await transactions.send(this.web3, txData, opts);
+    }
 }
 
 export default SChain;

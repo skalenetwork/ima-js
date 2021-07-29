@@ -23,6 +23,7 @@
 
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
+import TxOpts from './TxOpts';
 
 
 class MainnetChain extends BaseChain {
@@ -35,15 +36,41 @@ class MainnetChain extends BaseChain {
             'depositBoxEth': new this.web3.eth.Contract(
                 this.abi.deposit_box_eth_abi,
                 this.abi.deposit_box_eth_address
+            ),
+            'communityPool': new this.web3.eth.Contract(
+                this.abi.community_pool_abi,
+                this.abi.community_pool_address
             )
         };
     }
 
-    async depositETHtoSChain(chainName: string, recipientAddress: string, weiValue: string,
-        address: string, customGasLimit?: any, privateKey?: string): Promise<any> {
+    async depositETHtoSChain(
+        chainName: string, recipientAddress: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.depositBoxEth.methods.deposit(chainName, recipientAddress);
-        return await transactions.send(
-            this.web3, address, txData, weiValue, customGasLimit, privateKey);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async getMyEth(opts: TxOpts): Promise<any> {
+        const txData = this.contracts.depositBoxEth.methods.getMyEth();
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async reimbursementWalletBalance(chainName: string, address: string): Promise<string> {
+        return await this.contracts.communityPool.methods.getBalance(chainName).call( {
+            from: address
+        })
+    }
+
+    async reimbursementWalletRecharge(chainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.communityPool.methods.rechargeUserWallet(chainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async reimbursementWalletWithdraw(
+        chainName: string, withdrawAmountWei: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.communityPool.methods.withdrawFunds(
+            chainName, withdrawAmountWei);
+        return await transactions.send(this.web3, txData, opts);
     }
 }
 
