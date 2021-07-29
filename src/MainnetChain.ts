@@ -61,6 +61,12 @@ class MainnetChain extends BaseChain {
         })
     }
 
+    async lockedETHAmount(address: string): Promise<string> {
+        return await this.contracts.depositBoxEth.methods.approveTransfers(address).call( {
+            from: address
+        })
+    }
+
     async reimbursementWalletRecharge(chainName: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.communityPool.methods.rechargeUserWallet(chainName);
         return await transactions.send(this.web3, txData, opts);
