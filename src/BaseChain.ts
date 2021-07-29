@@ -32,15 +32,40 @@ export abstract class BaseChain {
     chainId?: number;
     abi: any;
     contracts: ContractsStringMap;
+    ERC20tokens: ContractsStringMap;
+    ERC721tokens: ContractsStringMap;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         this.web3 = web3;
         this.abi = abi;
+        this.ERC20tokens = {};
+        this.ERC721tokens = {};
         if (chainId) this.chainId = chainId;
         this.contracts = this.initContracts();
     }
 
     abstract ethBalance(address: string): Promise<string>;
     abstract initContracts(): ContractsStringMap;
+    // abstract getERC20balance(tokenName: string, address: string): Promise<string>;
 
+    addERC20token(tokenName: string, contract: Contract) {
+        this.ERC20tokens[tokenName] = contract;
+    }
+
+    addERC721token(tokenName: string, contract: Contract) {
+        this.ERC721tokens[tokenName] = contract;
+    }
+
+    listERC20tokens() {
+        return Object.keys(this.ERC20tokens);
+    }
+
+    listERC721tokens() {
+        return Object.keys(this.ERC721tokens);
+    }
+
+    async getERC20balance(tokenName: string, address: string): Promise<string> {
+        const contract = this.ERC20tokens[tokenName];
+        return await contract.methods.balanceOf(address).call({from: address});
+    }
 }

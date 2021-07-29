@@ -34,7 +34,7 @@ describe("sChain module tests", () => {
         balance.should.be.a('string');
     });
 
-    it.only("Withdraws ETH from sChain to Mainnet", async () => {
+    it("Withdraws ETH from sChain to Mainnet", async () => {
         let txOpts: TxOpts = {
             value: test_utils.TEST_WEI_TRANSFER_VALUE,
             address: address,

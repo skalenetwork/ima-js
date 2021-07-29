@@ -23,3 +23,23 @@
 
 export { default as MainnetChain } from "./MainnetChain";
 export { default as SChain } from "./SChain";
+
+import Web3 from 'web3';
+import { Contract } from 'web3-eth-contract';
+
+import MainnetChain from './MainnetChain';
+import SChain from './SChain';
+
+export default class IMA {
+    mainnet: MainnetChain;
+    schain: SChain;
+    constructor(mainnetWeb3: Web3, sChainWeb3: Web3, mainnetAbi: any, sChainAbi: any) {
+        this.mainnet = new MainnetChain(mainnetWeb3, mainnetAbi);
+        this.schain = new SChain(sChainWeb3, sChainAbi);
+    }
+
+    addERC20token(tokenName: string, mainnetContract: Contract, sChainContact: Contract) {
+        this.mainnet.addERC20token(tokenName, mainnetContract);
+        this.schain.addERC20token(tokenName, sChainContact);
+    }
+}
