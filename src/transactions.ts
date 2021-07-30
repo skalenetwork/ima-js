@@ -22,12 +22,15 @@
  */
 
 import Web3 from 'web3';
+import { Logger } from "tslog";
 
 import * as helper from './helper';
 import * as constants from './constants';
 import IMAContractException from './exceptions/IMAContractException';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 import TxOpts from './TxOpts';
+
+const log: Logger = new Logger();
 
 
 export async function signAndSend(web3: Web3, address: string, transactionData: any, gas: string,
@@ -81,10 +84,12 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
 
     try {
         if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
+            log.info("Private key found, signing...");
             const pk = (helper.add0x(opts.privateKey) as string);
             helper.validatePrivateKey(pk);
             result = await signAndSend(web3, opts.address, transactionData, gasLimit, opts.value, pk);
         } else {
+            log.info("No private key found, trying to sign with external provider...");
             result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
         }
         return result;

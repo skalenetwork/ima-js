@@ -37,6 +37,10 @@ class SChain extends BaseChain {
                 this.abi.token_manager_eth_abi,
                 this.abi.token_manager_eth_address
             ),
+            'tokenManagerERC20': new this.web3.eth.Contract(
+                this.abi.token_manager_erc20_abi,
+                this.abi.token_manager_erc20_address
+            ),
             'communityLocker': new this.web3.eth.Contract(
                 this.abi.community_locker_abi,
                 this.abi.community_locker_address
@@ -58,6 +62,39 @@ class SChain extends BaseChain {
         const txData = await this.contracts.communityLocker.methods.setTimeLimitPerMessage(limit);
         return await transactions.send(this.web3, txData, opts);
     }
+
+    // todo: split - sChain owner admin functions
+
+    async addERC20TokenByOwner(erc20OnMainnet: string, erc20OnSchain: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.tokenManagerERC20.methods.addERC20TokenByOwner(
+            erc20OnMainnet,
+            erc20OnSchain
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc20 transfers
+
+    async approveERC20Transfers(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC20tokens[tokenName];
+        const tokenManagerERC20Address = this.contracts.tokenManagerERC20.options.address;
+        const txData = tokenContract.methods.approve(tokenManagerERC20Address, amount);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async withdrawERC20(tokenName: string, to: string, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC20tokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+
+        const txData = this.contracts.tokenManagerERC20.methods.exitToMainERC20(
+            tokenContractAddress, // todo: mainnet address?
+            to,
+            amount
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
 }
 
 export default SChain;

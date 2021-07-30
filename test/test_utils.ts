@@ -20,7 +20,9 @@ export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.MAINNET_PRIVATE_KEY)
 export const SCHAIN_PRIVATE_KEY = helper.add0x(process.env.SCHAIN_PRIVATE_KEY);
 
 export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
+
 export const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
+export const TEST_TOKENS_TRANSFER_VALUE = '1000';
 
 
 export const MAINNET_TOKENS_ABI_FILEPATH = __dirname +  '/test_tokens/data/TestTokens.abi.mn.json';

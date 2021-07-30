@@ -29,6 +29,8 @@ import { Contract } from 'web3-eth-contract';
 
 import MainnetChain from './MainnetChain';
 import SChain from './SChain';
+import TxOpts from './TxOpts';
+
 
 export default class IMA {
     mainnet: MainnetChain;
@@ -41,5 +43,17 @@ export default class IMA {
     addERC20token(tokenName: string, mainnetContract: Contract, sChainContact: Contract) {
         this.mainnet.addERC20token(tokenName, mainnetContract);
         this.schain.addERC20token(tokenName, sChainContact);
+    }
+
+    depositERC20() {
+       // todo: approve
+       // todo: deposit
+    }
+
+    // todo: move to .admin or .owner namespace
+
+    async linkERC20Token(chainName: string, erc20OnMainnet: string, erc20OnSchain: string, opts: TxOpts) {
+        await this.mainnet.addERC20TokenByOwner(chainName, erc20OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
+        await this.schain.addERC20TokenByOwner(erc20OnMainnet, erc20OnSchain, opts); // todo: run only if not linked yet!
     }
 }

@@ -23,6 +23,7 @@
 
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
+import * as constants from './constants';
 import TxOpts from './TxOpts';
 
 
@@ -37,12 +38,26 @@ class MainnetChain extends BaseChain {
                 this.abi.deposit_box_eth_abi,
                 this.abi.deposit_box_eth_address
             ),
+            'depositBoxERC20': new this.web3.eth.Contract(
+                this.abi.deposit_box_erc20_abi,
+                this.abi.deposit_box_erc20_address
+            ),
+            'depositBoxERC721': new this.web3.eth.Contract(
+                this.abi.deposit_box_erc721_abi,
+                this.abi.deposit_box_erc721_address
+            ),
+            'depositBoxERC1155': new this.web3.eth.Contract(
+                this.abi.deposit_box_erc1155_abi,
+                this.abi.deposit_box_erc1155_address
+            ),
             'communityPool': new this.web3.eth.Contract(
                 this.abi.community_pool_abi,
                 this.abi.community_pool_address
             )
         };
     }
+
+    // todo: split - eth
 
     async depositETHtoSChain(
         chainName: string, recipientAddress: string, opts: TxOpts): Promise<any> {
@@ -54,6 +69,8 @@ class MainnetChain extends BaseChain {
         const txData = this.contracts.depositBoxEth.methods.getMyEth();
         return await transactions.send(this.web3, txData, opts);
     }
+
+    // todo: split - reimbursement wallet
 
     async reimbursementWalletBalance(chainName: string, address: string): Promise<string> {
         return await this.contracts.communityPool.methods.getBalance(chainName).call( {
@@ -76,6 +93,64 @@ class MainnetChain extends BaseChain {
         chainName: string, withdrawAmountWei: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.communityPool.methods.withdrawFunds(
             chainName, withdrawAmountWei);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc20 transfers
+
+    async approveERC20Transfers(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC20tokens[tokenName];
+        const depositBoxAddress = this.contracts.depositBoxERC20.options.address;
+        const txData = tokenContract.methods.approve(depositBoxAddress, amount);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async depositERC20(chainName: string, tokenName: string, to: string, amount: string,
+        opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC20tokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+
+        const txData = this.contracts.depositBoxERC20.methods.depositERC20(
+            chainName,
+            tokenContractAddress,
+            to,
+            amount
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - sChain owner admin functions
+
+    async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts[depositBoxContractName].methods.enableWhitelist(chainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async disableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts[depositBoxContractName].methods.disableWhitelist(chainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async disableWhitelistERC20(chainName: string, opts: TxOpts): Promise<any> {
+        return await this.disableWhitelist('depositBoxERC20', chainName, opts);
+    }
+
+    async disableWhitelistERC721(chainName: string, opts: TxOpts): Promise<any> {
+        return await this.disableWhitelist('depositBoxERC721', chainName, opts);
+    }
+
+    async disableWhitelistERC1155(chainName: string, opts: TxOpts): Promise<any> {
+        return await this.disableWhitelist('depositBoxERC1155', chainName, opts);
+    }
+
+    async addERC20TokenByOwner(chainName: string, erc20OnMainnet: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.depositBoxERC20.methods.addERC20TokenByOwner(
+            chainName,
+            erc20OnMainnet
+        );
         return await transactions.send(this.web3, txData, opts);
     }
 }

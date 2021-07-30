@@ -33,3 +33,5 @@ export const errorMessages = {
 export const DEFAULT_GAS_LIMIT = 10000000;
 export const DEFAULT_GAS_MULTIPLIER = 1.5;
 export const GAS_PRICE_MULTIPLIER = 1.3;
+
+export const MAX_APPROVAL_AMOUNT = '999999999999000000000000000000' // todo: replace with max uint256!
