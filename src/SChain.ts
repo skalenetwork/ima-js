@@ -41,6 +41,10 @@ class SChain extends BaseChain {
                 this.abi.token_manager_erc20_abi,
                 this.abi.token_manager_erc20_address
             ),
+            'tokenManagerERC721': new this.web3.eth.Contract(
+                this.abi.token_manager_erc721_abi,
+                this.abi.token_manager_erc721_address
+            ),
             'communityLocker': new this.web3.eth.Contract(
                 this.abi.community_locker_abi,
                 this.abi.community_locker_address
@@ -74,23 +78,47 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async addERC721TokenByOwner(erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.tokenManagerERC721.methods.addERC721TokenByOwner(
+            erc721OnMainnet,
+            erc721OnSchain
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
     // todo: split - erc20 transfers
 
     async approveERC20Transfers(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.ERC20tokens[tokenName];
-        const tokenManagerERC20Address = this.contracts.tokenManagerERC20.options.address;
-        const txData = tokenContract.methods.approve(tokenManagerERC20Address, amount);
+        const address = this.contracts.tokenManagerERC20.options.address;
+        const txData = tokenContract.methods.approve(address, amount);
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async withdrawERC20(tokenName: string, to: string, amount: string, opts: TxOpts): Promise<any> {
-        const tokenContract = this.ERC20tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
-
+    async withdrawERC20(mainnetTokenAddress: string, to: string, amount: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.tokenManagerERC20.methods.exitToMainERC20(
-            tokenContractAddress, // todo: mainnet address?
+            mainnetTokenAddress,
             to,
             amount
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc20 transfers
+
+    async approveERC721Transfer(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC721tokens[tokenName];
+        const address = this.contracts.tokenManagerERC721.options.address;
+        const txData = tokenContract.methods.approve(address, tokenId);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async withdrawERC721(mainnetTokenAddress: string, to: string, tokenId: number, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.tokenManagerERC721.methods.exitToMainERC721(
+            mainnetTokenAddress,
+            to,
+            tokenId
         );
         return await transactions.send(this.web3, txData, opts);
     }

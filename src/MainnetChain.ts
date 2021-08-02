@@ -119,6 +119,29 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    // todo: split - erc721 transfers
+
+    async approveERC721Transfer(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC721tokens[tokenName];
+        const depositBoxAddress = this.contracts.depositBoxERC721.options.address;
+        const txData = tokenContract.methods.approve(depositBoxAddress, tokenId);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async depositERC721(chainName: string, tokenName: string, to: string, tokenId: number,
+        opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC721tokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+
+        const txData = this.contracts.depositBoxERC721.methods.depositERC721(
+            chainName,
+            tokenContractAddress,
+            to,
+            tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
     // todo: split - sChain owner admin functions
 
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
@@ -150,6 +173,15 @@ class MainnetChain extends BaseChain {
         const txData = this.contracts.depositBoxERC20.methods.addERC20TokenByOwner(
             chainName,
             erc20OnMainnet
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async addERC721TokenByOwner(chainName: string, erc721OnMainnet: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.depositBoxERC721.methods.addERC721TokenByOwner(
+            chainName,
+            erc721OnMainnet
         );
         return await transactions.send(this.web3, txData, opts);
     }

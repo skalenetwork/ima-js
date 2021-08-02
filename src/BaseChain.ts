@@ -24,6 +24,8 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 
+import * as constants from './constants';
+
 
 export interface ContractsStringMap { [key: string]: Contract; }
 
@@ -48,24 +50,33 @@ export abstract class BaseChain {
     abstract initContracts(): ContractsStringMap;
     // abstract getERC20balance(tokenName: string, address: string): Promise<string>;
 
-    addERC20token(tokenName: string, contract: Contract) {
+    addERC20Token(tokenName: string, contract: Contract) {
         this.ERC20tokens[tokenName] = contract;
     }
 
-    addERC721token(tokenName: string, contract: Contract) {
+    addERC721Token(tokenName: string, contract: Contract) {
         this.ERC721tokens[tokenName] = contract;
     }
 
-    listERC20tokens() {
+    listERC20Tokens() {
         return Object.keys(this.ERC20tokens);
     }
 
-    listERC721tokens() {
+    listERC721Tokens() {
         return Object.keys(this.ERC721tokens);
     }
 
-    async getERC20balance(tokenName: string, address: string): Promise<string> {
+    async getERC20Balance(tokenName: string, address: string): Promise<string> {
         const contract = this.ERC20tokens[tokenName];
         return await contract.methods.balanceOf(address).call({from: address});
+    }
+
+    async getERC721OwnerOf(tokenName: string, tokenId: number): Promise<string> {
+        const contract = this.ERC721tokens[tokenName];
+        try {
+            return await contract.methods.ownerOf(tokenId).call();
+        } catch (err) {
+            return constants.ZERO_ADDRESS; // todo: replace with IMA-ERC721 exception: no such token
+        }
     }
 }

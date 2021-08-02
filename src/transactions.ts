@@ -70,6 +70,7 @@ export async function sendWithExternalSigning(web3: Web3, address: string, trans
 }
 
 
+
 export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
     let result;
     let gasLimit: string;
@@ -82,16 +83,26 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
 
     if (!opts.value) opts.value = '0';
 
+    log.info(
+        'sending tx: ' + transactionData._method.name +
+        ', gasLimit: ' + gasLimit +
+        ', to: ' + transactionData._parent._address +
+        ', value: ' + opts.value
+    );
+
     try {
         if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
-            log.info("Private key found, signing...");
             const pk = (helper.add0x(opts.privateKey) as string);
             helper.validatePrivateKey(pk);
             result = await signAndSend(web3, opts.address, transactionData, gasLimit, opts.value, pk);
         } else {
-            log.info("No private key found, trying to sign with external provider...");
             result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
         }
+        log.info(
+            'mined tx: ' + transactionData._method.name +
+            ', txHash: ' + result.transactionHash +
+            ', status: ' + result.status
+        );
         return result;
     } catch (error) {
         if (error.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
