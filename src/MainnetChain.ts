@@ -168,6 +168,12 @@ class MainnetChain extends BaseChain {
         return await this.disableWhitelist('depositBoxERC1155', chainName, opts);
     }
 
+    async isERC20Added(chainName: string, erc20OnMainnet: string) {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.depositBoxERC20.methods.schainToERC20(
+            chainHash, erc20OnMainnet).call();
+    }
+
     async addERC20TokenByOwner(chainName: string, erc20OnMainnet: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts.depositBoxERC20.methods.addERC20TokenByOwner(

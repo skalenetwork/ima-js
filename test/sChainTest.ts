@@ -86,7 +86,7 @@ describe("sChain module tests", () => {
         // mainnetBalanceAfterWithdraw.should.be.equal(expectedMainnetBalanceAfterWithdraw.toString(10));
     });
 
-    it.only("Tests enableAutomaticDeploy/disableAutomaticDeploy", async () => {
+    it("Tests enableAutomaticDeploy/disableAutomaticDeploy", async () => {
         let txOpts: TxOpts = {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY

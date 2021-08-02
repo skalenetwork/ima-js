@@ -76,8 +76,15 @@ export default class IMA {
     // todo: move to .admin or .owner namespace
 
     async linkERC20Token(chainName: string, erc20OnMainnet: string, erc20OnSchain: string, opts: TxOpts) {
-        await this.mainnet.addERC20TokenByOwner(chainName, erc20OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
-        await this.schain.addERC20TokenByOwner(erc20OnMainnet, erc20OnSchain, opts); // todo: run only if not linked yet!
+        const isERC20AddedMainnet = await this.mainnet.isERC20Added(chainName, erc20OnMainnet);
+        if (!isERC20AddedMainnet){
+            await this.mainnet.addERC20TokenByOwner(chainName, erc20OnMainnet, opts);
+        }
+
+        const isERC20AddedSchain = await this.schain.isERC20Added(erc20OnMainnet);
+        if (!isERC20AddedSchain) {
+            await this.schain.addERC20TokenByOwner(erc20OnMainnet, erc20OnSchain, opts);
+        }
     }
 
     async linkERC721Token(chainName: string, erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts) {

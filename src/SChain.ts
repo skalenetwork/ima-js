@@ -79,6 +79,10 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async isERC20Added(erc20OnMainnet: string) {
+        return await this.contracts.tokenManagerERC20.methods.clonesErc20(erc20OnMainnet).call();
+    }
+
     async addERC721TokenByOwner(erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts.tokenManagerERC721.methods.addERC721TokenByOwner(

@@ -31,7 +31,7 @@ describe("ERC20/ERC721 tokens tests", () => {
         erc721TokenId = 1;        
     });
 
-    it("Test ERC20 deposit/withdraw", async () => {
+    it.only("Test ERC20 deposit/withdraw", async () => {
         let txOpts: TxOpts = {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
@@ -41,12 +41,12 @@ describe("ERC20/ERC721 tokens tests", () => {
 
         ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.sChainERC20);
 
-        // await ima.linkERC20Token(
-        //     test_utils.CHAIN_NAME_SCHAIN,
-        //     testTokens.mainnetERC20.options.address,
-        //     testTokens.sChainERC20.options.address,
-        //     txOpts
-        // )
+        await ima.linkERC20Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            testTokens.mainnetERC20.options.address,
+            testTokens.sChainERC20.options.address,
+            txOpts
+        )
 
         const erc20balanceMainnet1 = await ima.mainnet.getERC20Balance(erc20Name, address);
         const erc20balanceSChain1 = await ima.schain.getERC20Balance(erc20Name, address);
