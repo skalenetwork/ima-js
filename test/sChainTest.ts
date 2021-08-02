@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 import TxOpts from "../src/TxOpts";
+import TokenType from '../src/TokenType';
 
 import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
@@ -83,5 +84,22 @@ describe("sChain module tests", () => {
 
         // TODO: improve test - check mainnet balance after!
         // mainnetBalanceAfterWithdraw.should.be.equal(expectedMainnetBalanceAfterWithdraw.toString(10));
+    });
+
+    it.only("Tests enableAutomaticDeploy/disableAutomaticDeploy", async () => {
+        let txOpts: TxOpts = {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        };
+        let automaticDeploy;
+
+        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        automaticDeploy.should.be.equal(false);
+        await sChain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
+        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        automaticDeploy.should.be.equal(true);
+        await sChain.disableAutomaticDeploy(TokenType.ERC20, txOpts);
+        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        automaticDeploy.should.be.equal(false);
     });
 });

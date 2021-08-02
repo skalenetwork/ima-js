@@ -30,6 +30,7 @@ import { Contract } from 'web3-eth-contract';
 import MainnetChain from './MainnetChain';
 import SChain from './SChain';
 import TxOpts from './TxOpts';
+import TokenType from './TokenType';
 
 
 export default class IMA {
@@ -82,5 +83,13 @@ export default class IMA {
     async linkERC721Token(chainName: string, erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts) {
         await this.mainnet.addERC721TokenByOwner(chainName, erc721OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
         await this.schain.addERC721TokenByOwner(erc721OnMainnet, erc721OnSchain, opts); // todo: run only if not linked yet!
+    }
+
+    async enableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
+        return await this.schain.enableAutomaticDeploy(tokenType, opts);
+    }
+
+    async disableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
+        return await this.schain.disableAutomaticDeploy(tokenType, opts);
     }
 }

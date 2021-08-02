@@ -79,7 +79,7 @@ describe("ERC20/ERC721 tokens tests", () => {
     });
 
 
-    it.only("Test ERC721 deposit/withdraw", async () => {
+    it("Test ERC721 deposit/withdraw", async () => {
         let txOpts: TxOpts = {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY

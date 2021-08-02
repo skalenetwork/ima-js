@@ -24,6 +24,7 @@
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
+import TokenType from './TokenType';
 
 
 class SChain extends BaseChain {
@@ -87,6 +88,23 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async enableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
+        const contractName = 'tokenManager' + tokenType;
+        const txData = this.contracts[contractName].methods.enableAutomaticDeploy();
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async disableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
+        const contractName = 'tokenManager' + tokenType;
+        const txData = this.contracts[contractName].methods.disableAutomaticDeploy();
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async automaticDeploy(tokenType: TokenType): Promise<string> {
+        const contractName = 'tokenManager' + tokenType;
+        return await this.contracts[contractName].methods.automaticDeploy().call();
+    }
+
     // todo: split - erc20 transfers
 
     async approveERC20Transfers(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
@@ -122,7 +140,6 @@ class SChain extends BaseChain {
         );
         return await transactions.send(this.web3, txData, opts);
     }
-
 }
 
 export default SChain;
