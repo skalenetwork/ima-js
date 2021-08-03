@@ -9,6 +9,7 @@
     "clean": "tsc --build --clean",
     "start": "ts-node src/index.ts",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 150000 -r ts-node/register 'test/**/*Test.ts'",
+    "deploy-tokens": "bash ./scripts/deploy_test_tokens.sh",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "keywords": [
