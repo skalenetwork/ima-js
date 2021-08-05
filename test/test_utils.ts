@@ -1,9 +1,13 @@
 import Web3 from 'web3';
+import {AbiItem} from 'web3-utils';
+
 import * as dotenv from "dotenv";
 
 import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 import IMA from '../src/index';
+import TokenType from '../src/TokenType';
+import { ContractsStringMap } from '../src/BaseChain';
 
 import * as helper from '../src/helper';
 
@@ -25,8 +29,10 @@ export const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
 export const TEST_TOKENS_TRANSFER_VALUE = '1000';
 
 
-export const MAINNET_TOKENS_ABI_FILEPATH = __dirname +  '/test_tokens/data/TestTokens.abi.mn.json';
-export const SCHAIN_TOKENS_ABI_FILEPATH = __dirname +  '/test_tokens/data/TestTokens.abi.sc.json';
+const TOKENS_ABI_FOLDER = __dirname + '/../test-tokens/data/';
+
+const NETWORKS = ['mainnet', 'schain'];
+const TOKEN_NAME = 'TEST';
 
 
 export function initTestIMA() {
@@ -59,12 +65,27 @@ export function sleep(ms: number) {
 
 
 export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
-    const mainnetTokensMeta = helper.jsonFileLoad(MAINNET_TOKENS_ABI_FILEPATH);
-    const sChainTokensMeta = helper.jsonFileLoad(SCHAIN_TOKENS_ABI_FILEPATH);
-    return {
-        'mainnetERC20': new mainnetWeb3.eth.Contract(mainnetTokensMeta.ERC20_abi, mainnetTokensMeta.ERC20_address),
-        'mainnetERC721': new mainnetWeb3.eth.Contract(mainnetTokensMeta.ERC721_abi, mainnetTokensMeta.ERC721_address),
-        'sChainERC20': new sChainWeb3.eth.Contract(sChainTokensMeta.ERC20_abi, sChainTokensMeta.ERC20_address),
-        'sChainERC721': new sChainWeb3.eth.Contract(sChainTokensMeta.ERC721_abi, sChainTokensMeta.ERC721_address)
+    let testTokens: ContractsStringMap = {};
+    for (let tokenName in TokenType) {
+        for (let i in NETWORKS) {
+            let network = NETWORKS[i];
+            let filepath = TOKENS_ABI_FOLDER + tokenName + 'Example-' + TOKEN_NAME + '-' + network + '.json';
+            let tokenMeta = helper.jsonFileLoad(filepath);
+            let keyName = network + tokenName;
+
+            let abiKey = tokenName.toLowerCase() + '_abi';
+            let abi: AbiItem = tokenMeta[abiKey];
+           
+            let addressKey = tokenName.toLowerCase() + '_address';
+            let address = tokenMeta[addressKey];
+
+            if (network == 'mainnet') {
+                testTokens[keyName] = new mainnetWeb3.eth.Contract(abi, address);
+            } else {
+                testTokens[keyName] = new sChainWeb3.eth.Contract(abi, address);
+            }
+        }
+           
     }
+    return testTokens;
 }

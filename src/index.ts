@@ -31,6 +31,7 @@ import MainnetChain from './MainnetChain';
 import SChain from './SChain';
 import TxOpts from './TxOpts';
 import TokenType from './TokenType';
+import * as constants from './constants';
 
 
 export default class IMA {
@@ -82,7 +83,7 @@ export default class IMA {
         }
 
         const isERC20AddedSchain = await this.schain.isERC20Added(erc20OnMainnet);
-        if (!isERC20AddedSchain) {
+        if (isERC20AddedSchain === constants.ZERO_ADDRESS) {
             await this.schain.addERC20TokenByOwner(erc20OnMainnet, erc20OnSchain, opts);
         }
     }
