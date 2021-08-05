@@ -53,7 +53,7 @@ This method returns real ETH balance locked on the sChain
 Deploy test tokens:
 
 ```bash
-bash ./scripts/deploy_test_tokens.sh 
+yarn deploy-tokens
 ```
 
 Run tests:

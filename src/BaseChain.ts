@@ -36,19 +36,20 @@ export abstract class BaseChain {
     contracts: ContractsStringMap;
     ERC20tokens: ContractsStringMap;
     ERC721tokens: ContractsStringMap;
+    ERC1155tokens: ContractsStringMap;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         this.web3 = web3;
         this.abi = abi;
         this.ERC20tokens = {};
         this.ERC721tokens = {};
+        this.ERC1155tokens = {};
         if (chainId) this.chainId = chainId;
         this.contracts = this.initContracts();
     }
 
     abstract ethBalance(address: string): Promise<string>;
     abstract initContracts(): ContractsStringMap;
-    // abstract getERC20balance(tokenName: string, address: string): Promise<string>;
 
     addERC20Token(tokenName: string, contract: Contract) {
         this.ERC20tokens[tokenName] = contract;
@@ -58,12 +59,20 @@ export abstract class BaseChain {
         this.ERC721tokens[tokenName] = contract;
     }
 
+    addERC1155Token(tokenName: string, contract: Contract) {
+        this.ERC1155tokens[tokenName] = contract;
+    }
+
     listERC20Tokens() {
         return Object.keys(this.ERC20tokens);
     }
 
     listERC721Tokens() {
         return Object.keys(this.ERC721tokens);
+    }
+
+    listERC1155Tokens() {
+        return Object.keys(this.ERC1155tokens);
     }
 
     async getERC20Balance(tokenName: string, address: string): Promise<string> {
@@ -78,5 +87,10 @@ export abstract class BaseChain {
         } catch (err) {
             return constants.ZERO_ADDRESS; // todo: replace with IMA-ERC721 exception: no such token
         }
+    }
+
+    async getERC1155Balance(tokenName: string, address: string, tokenId: number): Promise<string> {
+        const contract = this.ERC1155tokens[tokenName];
+        return await contract.methods.balanceOf(address, tokenId).call({from: address});
     }
 }

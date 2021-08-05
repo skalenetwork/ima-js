@@ -66,7 +66,7 @@ describe("Mainnet chain tests", () => {
         sChainBalanceAfter.should.be.equal(expectedSChainBalance.toString(10));
     });
 
-    it.only("Tests reimbursement wallet deposit/withdraw/balance", async () => {
+    it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
         let balanceBefore = await mainnetChain.reimbursementWalletBalance(
             test_utils.CHAIN_NAME_SCHAIN, address);
 

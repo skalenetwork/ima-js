@@ -23,7 +23,6 @@
 
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
-import * as constants from './constants';
 import TxOpts from './TxOpts';
 
 
@@ -142,6 +141,32 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    // todo: split - erc1155 transfers
+
+    async approveAllERC1155(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC1155tokens[tokenName];
+        const depositBoxAddress = this.contracts.depositBoxERC1155.options.address;
+        const txData = tokenContract.methods.setApprovalForAll(depositBoxAddress, true);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async depositERC1155(
+        chainName: string, tokenName: string, to: string, tokenIds: number | number[],
+        amounts: string | string[], opts: TxOpts):Promise<any> {
+        const tokenContract = this.ERC1155tokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+
+        const txData = this.contracts.depositBoxERC1155.methods.depositERC1155(
+            chainName,
+            tokenContractAddress,
+            to,
+            tokenIds,
+            amounts
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+
     // todo: split - sChain owner admin functions
 
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
@@ -188,6 +213,15 @@ class MainnetChain extends BaseChain {
         const txData = this.contracts.depositBoxERC721.methods.addERC721TokenByOwner(
             chainName,
             erc721OnMainnet
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async addERC1155TokenByOwner(chainName: string, erc1155OnMainnet: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.depositBoxERC1155.methods.addERC1155TokenByOwner(
+            chainName,
+            erc1155OnMainnet
         );
         return await transactions.send(this.web3, txData, opts);
     }

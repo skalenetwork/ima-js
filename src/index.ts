@@ -52,6 +52,11 @@ export default class IMA {
         this.schain.addERC721Token(tokenName, sChainContact);
     }
 
+    addERC1155Token(tokenName: string, mainnetContract: Contract, sChainContact: Contract) {
+        this.mainnet.addERC1155Token(tokenName, mainnetContract);
+        this.schain.addERC1155Token(tokenName, sChainContact);
+    }
+
     async depositERC20(chainName: string, tokenName: string, to: string, amount: string,
         opts: TxOpts): Promise<any> {
         return await this.mainnet.depositERC20(chainName, tokenName, to, amount, opts);
@@ -74,6 +79,18 @@ export default class IMA {
         return await this.schain.withdrawERC721(tokenContractAddress, to, tokenId, opts);
     }
 
+    async depositERC1155(chainName: string, tokenName: string, to: string, tokenIds: number | number[],
+        amounts: string | string[], opts: TxOpts): Promise<any> {
+        return await this.mainnet.depositERC1155(chainName, tokenName, to, tokenIds, amounts, opts);
+    }
+
+    async withdrawERC1155(tokenName: string, to: string, tokenIds: number | number[],
+        amounts: string | string[], opts: TxOpts): Promise<any> {
+        const tokenContract = this.mainnet.ERC1155tokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+        return await this.schain.withdrawERC1155(tokenContractAddress, to, tokenIds, amounts, opts);
+    }
+
     // todo: move to .admin or .owner namespace
 
     async linkERC20Token(chainName: string, erc20OnMainnet: string, erc20OnSchain: string, opts: TxOpts) {
@@ -91,6 +108,11 @@ export default class IMA {
     async linkERC721Token(chainName: string, erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts) {
         await this.mainnet.addERC721TokenByOwner(chainName, erc721OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
         await this.schain.addERC721TokenByOwner(erc721OnMainnet, erc721OnSchain, opts); // todo: run only if not linked yet!
+    }
+
+    async linkERC1155Token(chainName: string, erc1155OnMainnet: string, erc1155OnSchain: string, opts: TxOpts) {
+        await this.mainnet.addERC1155TokenByOwner(chainName, erc1155OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
+        await this.schain.addERC1155TokenByOwner(erc1155OnMainnet, erc1155OnSchain, opts); // todo: run only if not linked yet!
     }
 
     async enableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {

@@ -46,6 +46,10 @@ class SChain extends BaseChain {
                 this.abi.token_manager_erc721_abi,
                 this.abi.token_manager_erc721_address
             ),
+            'tokenManagerERC1155': new this.web3.eth.Contract(
+                this.abi.token_manager_erc1155_abi,
+                this.abi.token_manager_erc1155_address
+            ),
             'communityLocker': new this.web3.eth.Contract(
                 this.abi.community_locker_abi,
                 this.abi.community_locker_address
@@ -88,6 +92,15 @@ class SChain extends BaseChain {
         const txData = this.contracts.tokenManagerERC721.methods.addERC721TokenByOwner(
             erc721OnMainnet,
             erc721OnSchain
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async addERC1155TokenByOwner(erc1155OnMainnet: string, erc1155OnSchain: string, opts: TxOpts):
+        Promise<any> {
+        const txData = this.contracts.tokenManagerERC1155.methods.addERC1155TokenByOwner(
+            erc1155OnMainnet,
+            erc1155OnSchain
         );
         return await transactions.send(this.web3, txData, opts);
     }
@@ -141,6 +154,26 @@ class SChain extends BaseChain {
             mainnetTokenAddress,
             to,
             tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc1155 transfers
+
+    async approveAllERC1155(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC1155tokens[tokenName];
+        const address = this.contracts.tokenManagerERC1155.options.address;
+        const txData = tokenContract.methods.setApprovalForAll(address, tokenId);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async withdrawERC1155(mainnetTokenAddress: string, to: string, tokenIds: number | number[],
+        amounts: string | string[], opts: TxOpts): Promise<any> {
+        const txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155(
+            mainnetTokenAddress,
+            to,
+            tokenIds,
+            amounts
         );
         return await transactions.send(this.web3, txData, opts);
     }
