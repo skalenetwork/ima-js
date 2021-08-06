@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "Library to interact with SKALE IMA",
   "main": "build/index.js",
   "scripts": {
@@ -34,8 +34,8 @@
     "bignumber.js": "^9.0.0",
     "chai": "^4.2.0",
     "chai-almost": "^1.0.1",
-    "chai-as-promised": "^7.1.1",
     "chai-arrays": "^2.2.0",
+    "chai-as-promised": "^7.1.1",
     "dotenv": "^10.0.0",
     "husky": "^5.0.9",
     "prettier": "^2.2.1",
