@@ -23,8 +23,13 @@
 
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
+import { Logger } from "tslog";
 
 import * as constants from './constants';
+import * as helper from './helper';
+
+
+const log: Logger = new Logger();
 
 
 export interface ContractsStringMap { [key: string]: Contract; }
@@ -92,5 +97,16 @@ export abstract class BaseChain {
     async getERC1155Balance(tokenName: string, address: string, tokenId: number): Promise<string> {
         const contract = this.ERC1155tokens[tokenName];
         return await contract.methods.balanceOf(address, tokenId).call({from: address});
+    }
+
+    async waitERC1155BalanceChange(tokenName: string, address: string, tokenId: number, initialBalance: string, sleepInterval: number): Promise<any> {
+        const contract = this.ERC1155tokens[tokenName];
+        for (let i = 1; i <= 50; i++) {
+            if (initialBalance !== await this.getERC1155Balance(tokenName, address, tokenId)) {
+                break;
+            }
+            log.info('Waiting for balance of ' + tokenName + ' (' + contract.options.address + ') - address: ' + address + ', sleeping for ' + sleepInterval + 'ms');
+            await helper.sleep(sleepInterval);
+        }
     }
 }

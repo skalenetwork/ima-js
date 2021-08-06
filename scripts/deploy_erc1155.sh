@@ -11,7 +11,7 @@ cd $DIR/../test-tokens
 TOKEN_MANAGER_ERC_1155_ADDRESS=$(cat $DIR/../abis/proxySchain.json | jq -r ".token_manager_erc1155_address")
 
 TEST_TOKEN_IDS='[1,2,3]'
-TEST_TOKEN_AMOUNTS='[10000,10000,10000]'
+TEST_TOKEN_AMOUNTS='[100000,100000,100000]'
 
 npx hardhat erc1155 --uri $TOKEN_NAME --network mainnet
 npx hardhat erc1155 --uri $TOKEN_NAME --network schain

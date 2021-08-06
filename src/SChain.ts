@@ -26,6 +26,8 @@ import * as transactions from './transactions';
 import TxOpts from './TxOpts';
 import TokenType from './TokenType';
 
+import InvalidArgsException from './exceptions/InvalidArgsException';
+
 
 class SChain extends BaseChain {
     initContracts(): ContractsStringMap {
@@ -169,12 +171,26 @@ class SChain extends BaseChain {
 
     async withdrawERC1155(mainnetTokenAddress: string, to: string, tokenIds: number | number[],
         amounts: string | string[], opts: TxOpts): Promise<any> {
-        const txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155(
-            mainnetTokenAddress,
-            to,
-            tokenIds,
-            amounts
-        );
+        let txData: any;
+
+        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
+            txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155(
+                mainnetTokenAddress,
+                to,
+                tokenIds,
+                amounts
+            );
+        } else if (tokenIds instanceof Array && amounts instanceof Array) {
+            txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155Batch(
+                mainnetTokenAddress,
+                to,
+                tokenIds,
+                amounts
+            );
+        } else {
+            throw new InvalidArgsException(
+                'tokenIds and amounts should both be arrays of single objects');
+        }
         return await transactions.send(this.web3, txData, opts);
     }
 }

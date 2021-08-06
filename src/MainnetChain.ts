@@ -25,6 +25,8 @@ import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
 
+import InvalidArgsException from './exceptions/InvalidArgsException';
+
 
 class MainnetChain extends BaseChain {
     async ethBalance(address: string): Promise<string> {
@@ -143,7 +145,9 @@ class MainnetChain extends BaseChain {
 
     // todo: split - erc1155 transfers
 
-    async approveAllERC1155(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    // todo: add approve single ERC1155!
+
+    async approveAllERC1155(tokenName: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.ERC1155tokens[tokenName];
         const depositBoxAddress = this.contracts.depositBoxERC1155.options.address;
         const txData = tokenContract.methods.setApprovalForAll(depositBoxAddress, true);
@@ -156,16 +160,30 @@ class MainnetChain extends BaseChain {
         const tokenContract = this.ERC1155tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
 
-        const txData = this.contracts.depositBoxERC1155.methods.depositERC1155(
-            chainName,
-            tokenContractAddress,
-            to,
-            tokenIds,
-            amounts
-        );
+        let txData: any;
+
+        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
+            txData = this.contracts.depositBoxERC1155.methods.depositERC1155(
+                chainName,
+                tokenContractAddress,
+                to,
+                tokenIds,
+                amounts
+            );
+        } else if (tokenIds instanceof Array && amounts instanceof Array) {
+            txData = this.contracts.depositBoxERC1155.methods.depositERC1155Batch(
+                chainName,
+                tokenContractAddress,
+                to,
+                tokenIds,
+                amounts
+            );
+        } else {
+            throw new InvalidArgsException(
+                'tokenIds and amounts should both be arrays of single objects');
+        }
         return await transactions.send(this.web3, txData, opts);
     }
-
 
     // todo: split - sChain owner admin functions
 

@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 
 import IMA from '../src/index';
 import TxOpts from "../src/TxOpts";
-import { ContractsStringMap } from '../src/BaseChain';
+import { ContractsStringMap, BaseChain } from '../src/BaseChain';
 
 import * as helper from '../src/helper';
 import * as constants from '../src/constants';
@@ -16,12 +16,49 @@ dotenv.config();
 chai.should();
 chai.use(chaiAsPromised);
 
-export function getERC1155Balances(tokenIds: number | Array<number>, amounts: string | Array<string>) {
-    if (typeof tokenIds === number) {
+const assertArrays = require('chai-arrays');
+chai.use(assertArrays);
+let expect = require('chai').expect;
 
+const DEFAULT_SLEEP = 3000;
+
+
+async function getERC1155Balances(chain: BaseChain, erc1155Name: string,
+    address: string, tokenIds: number | number[], print: boolean = true): Promise<string[]>{
+    let ids: number[];
+    let balances: string[] = [];
+    if (typeof tokenIds == 'number') {
+        ids = [tokenIds as number];
+    } else {
+        ids = tokenIds as number[];
     }
+    for (let i in ids) {
+        let balance = await chain.getERC1155Balance(erc1155Name, address, ids[i]);
+        balances.push(balance);
+        if (print) {
+            console.log(chain.constructor.name + ' - ' + erc1155Name + 'balance for ' + address + ': ' + balance)
+        }
+    }
+    if (print) {
+        console.log();
+    }
+    return balances;
 }
 
+const toNumbers = (arr: string[]) => arr.map(Number);
+const toStrings = (arr: number[]) => arr.map(String);
+
+function addArrays(array1: number[], array2: number[]): number[] {
+    return array1.map(function (num: number, idx: number) {
+        return num + array2[idx];
+    });
+}
+
+function subArrays(array1: number[], array2: number[]): number[] {
+    return array1.map(function (num: number, idx: number) {
+        return num - array2[idx];
+    });
+}
 
 describe("ERC20/ERC721/ERC1155 tokens tests", () => {
     let opts: TxOpts;
@@ -152,13 +189,13 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
             opts
         );
 
-        const balanceMainnet1 = await ima.mainnet.getERC1155Balance(erc1155Name, address, erc1155TokenId);
-        const balanceSchain1 = await ima.schain.getERC1155Balance(erc1155Name, address, erc1155TokenId);
+        const balanceMainnet1 = await getERC1155Balances(ima.mainnet, erc1155Name, address, erc1155TokenId);
+        const balanceSchain1 = await getERC1155Balances(ima.schain, erc1155Name, address, erc1155TokenId);
 
         console.log(balanceMainnet1);
         console.log(balanceSchain1);
 
-        await ima.mainnet.approveAllERC1155(erc1155Name, erc1155TokenId, opts);
+        await ima.mainnet.approveAllERC1155(erc1155Name, opts);
         
         await ima.depositERC1155(test_utils.CHAIN_NAME_SCHAIN, erc1155Name, address,
             erc1155TokenId, test_utils.TEST_TOKENS_TRANSFER_VALUE, opts);
@@ -184,8 +221,33 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         console.log(balanceSchain3);
     });
 
-    it("Test ERC1155 batch deposit/withdraw", async () => {
+    it.only("Test ERC1155 batch deposit/withdraw", async () => {
         ima.addERC1155Token(erc1155Name, testTokens.mainnetERC1155, testTokens.schainERC1155);
+
+        const balancesMainnet1 = await getERC1155Balances(ima.mainnet, erc1155Name, address, erc1155TokenIds);
+        const balancesSchain1 = await getERC1155Balances(ima.schain, erc1155Name, address, erc1155TokenIds);
+
+        await ima.depositERC1155(test_utils.CHAIN_NAME_SCHAIN, erc1155Name, address,
+            erc1155TokenIds, erc1155Amounts, opts);
+        await ima.schain.waitERC1155BalanceChange(erc1155Name, address, erc1155TokenIds[0], balancesSchain1[0], DEFAULT_SLEEP);
+
+        let expectedMainnetBalances = subArrays(toNumbers(balancesMainnet1), toNumbers(erc1155Amounts));
+        let expectedSchainBalances = addArrays(toNumbers(balancesSchain1), toNumbers(erc1155Amounts));
+
+        const balancesMainnet2 = await getERC1155Balances(ima.mainnet, erc1155Name, address, erc1155TokenIds);
+        const balancesSchain2 = await getERC1155Balances(ima.schain, erc1155Name, address, erc1155TokenIds);
+
+        expect(balancesMainnet2).to.be.equalTo(toStrings(expectedMainnetBalances));
+        expect(balancesSchain2).to.be.equalTo(toStrings(expectedSchainBalances));
+
+        await ima.withdrawERC1155(erc1155Name, address, erc1155TokenIds, erc1155Amounts, opts);
+        await ima.mainnet.waitERC1155BalanceChange(erc1155Name, address, erc1155TokenIds[0], balancesMainnet2[0], DEFAULT_SLEEP);
+
+        const balancesMainnet3 = await getERC1155Balances(ima.mainnet, erc1155Name, address, erc1155TokenIds);
+        const balancesSchain3 = await getERC1155Balances(ima.schain, erc1155Name, address, erc1155TokenIds);
+
+        expect(balancesMainnet3).to.be.equalTo(balancesMainnet1);
+        expect(balancesSchain3).to.be.equalTo(balancesSchain1);
     });
 
 });
