@@ -2,7 +2,8 @@
   "name": "@skalenetwork/ima-js",
   "version": "0.0.5",
   "description": "Library to interact with SKALE IMA",
-  "main": "build/index.js",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
     "prepare": "tsc",
     "prepack": "tsc --build",
