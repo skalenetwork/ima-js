@@ -2,7 +2,7 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  test_manager:
+  test_ima_js:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,9 +18,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node }}
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@master
+      with:
+        remote: true
     - name: Install dependencies
       run: |
-        yarn install
+        yarn install --production=false
     - name: Lint code
       run: |
         yarn lint
