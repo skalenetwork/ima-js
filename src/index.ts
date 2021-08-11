@@ -23,6 +23,7 @@
 
 export { default as MainnetChain } from "./MainnetChain";
 export { default as SChain } from "./SChain";
+export * as helper from './helper';
 
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';

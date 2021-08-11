@@ -31,6 +31,7 @@ import * as helper from './helper';
 
 const log: Logger = new Logger();
 
+const DEFAULT_SLEEP = 3000;
 
 export interface ContractsStringMap { [key: string]: Contract; }
 
@@ -94,12 +95,34 @@ export abstract class BaseChain {
         }
     }
 
+    async waitERC20BalanceChange(tokenName: string, address: string, initialBalance: string, sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        const contract = this.ERC20tokens[tokenName];
+        for (let i = 1; i <= 50; i++) {
+            if (initialBalance !== await this.getERC20Balance(tokenName, address)) {
+                break;
+            }
+            log.info('Waiting for balance of ' + tokenName + ' (' + contract.options.address + ') - address: ' + address + ', sleeping for ' + sleepInterval + 'ms');
+            await helper.sleep(sleepInterval);
+        }
+    }
+
+    async waitERC721OwnerChange(tokenName: string, tokenId: number, initialOwner: string, sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        const contract = this.ERC721tokens[tokenName];
+        for (let i = 1; i <= 50; i++) {
+            if (initialOwner !== await this.getERC721OwnerOf(tokenName, tokenId)) {
+                break;
+            }
+            log.info('Waiting for owner change: ' + tokenName + ' (' + contract.options.address + ') initial: ' + initialOwner + ', sleeping for ' + sleepInterval + 'ms');
+            await helper.sleep(sleepInterval);
+        }
+    }
+
     async getERC1155Balance(tokenName: string, address: string, tokenId: number): Promise<string> {
         const contract = this.ERC1155tokens[tokenName];
         return await contract.methods.balanceOf(address, tokenId).call({from: address});
     }
 
-    async waitERC1155BalanceChange(tokenName: string, address: string, tokenId: number, initialBalance: string, sleepInterval: number): Promise<any> {
+    async waitERC1155BalanceChange(tokenName: string, address: string, tokenId: number, initialBalance: string, sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
         const contract = this.ERC1155tokens[tokenName];
         for (let i = 1; i <= 50; i++) {
             if (initialBalance !== await this.getERC1155Balance(tokenName, address, tokenId)) {

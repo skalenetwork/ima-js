@@ -7,7 +7,7 @@ import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 import IMA from '../src/index';
 import TokenType from '../src/TokenType';
-import { ContractsStringMap } from '../src/BaseChain';
+import { ContractsStringMap, BaseChain } from '../src/BaseChain';
 
 import * as helper from '../src/helper';
 
@@ -88,4 +88,42 @@ export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
            
     }
     return testTokens;
+}
+
+
+export async function getERC1155Balances(chain: BaseChain, erc1155Name: string,
+    address: string, tokenIds: number | number[], print: boolean = true): Promise<string[]>{
+    let ids: number[];
+    let balances: string[] = [];
+    if (typeof tokenIds == 'number') {
+        ids = [tokenIds as number];
+    } else {
+        ids = tokenIds as number[];
+    }
+    for (let i in ids) {
+        let balance = await chain.getERC1155Balance(erc1155Name, address, ids[i]);
+        balances.push(balance);
+        if (print) {
+            console.log(chain.constructor.name + ' - ' + erc1155Name + 'balance for ' + address + ': ' + balance)
+        }
+    }
+    if (print) {
+        console.log();
+    }
+    return balances;
+}
+
+export const toNumbers = (arr: string[]) => arr.map(Number);
+export const toStrings = (arr: number[]) => arr.map(String);
+
+export function addArrays(array1: number[], array2: number[]): number[] {
+    return array1.map(function (num: number, idx: number) {
+        return num + array2[idx];
+    });
+}
+
+export function subArrays(array1: number[], array2: number[]): number[] {
+    return array1.map(function (num: number, idx: number) {
+        return num - array2[idx];
+    });
 }
