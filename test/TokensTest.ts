@@ -59,7 +59,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155Amounts = ['1000', '2000', '3000'];
     });
 
-    it.only("Test ERC20 approve/balance/deposit/withdraw", async () => {
+    it("Test ERC20 approve/balance/deposit/withdraw", async () => {
         ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
 
         await ima.linkERC20Token(
@@ -103,7 +103,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         balanceSchain3.should.be.equal(balanceSchain1);
     });
 
-    it("Test ERC721 approve/balance/deposit/withdraw", async () => {
+    it.only("Test ERC721 approve/balance/deposit/withdraw", async () => {
         ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
 
         await ima.linkERC721Token(
