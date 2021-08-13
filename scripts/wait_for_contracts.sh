@@ -40,4 +40,4 @@ while [ ! -f $SCHAIN_CONTRACTS_ABI_PATH ]; do
 done
 echo "sChain contracts deployed: $SCHAIN_CONTRACTS_ABI_PATH"
 
-sudo cp $SCHAIN_CONTRACTS_ABI_PATH $IMA_SDK_DIR/contracts_data/proxySchain.json
+cp $SCHAIN_CONTRACTS_ABI_PATH $IMA_SDK_DIR/contracts_data/proxySchain.json || sudo cp $SCHAIN_CONTRACTS_ABI_PATH $IMA_SDK_DIR/contracts_data/proxySchain.json
