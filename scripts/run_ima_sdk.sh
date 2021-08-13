@@ -11,4 +11,4 @@ export IMA_SDK_DIR=$DIR/../skale-ima-sdk
 : "${PRIVATE_KEY_FOR_SCHAIN?Need to set PRIVATE_KEY_FOR_SCHAIN}"
 : "${ACCOUNT_FOR_SCHAIN?Need to set ACCOUNT_FOR_SCHAIN}"
 
-bash $IMA_SDK_DIR/run_compose.sh
+URL_W3_ETHEREUM=http://ganache:8545 bash $IMA_SDK_DIR/run_compose.sh
