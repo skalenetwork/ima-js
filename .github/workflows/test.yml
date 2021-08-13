@@ -15,7 +15,7 @@ jobs:
 
       MAINNET_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_ETHEREUM }}
       MAINNET_ADDRESS: ${{ secrets.ACCOUNT_FOR_ETHEREUM }}
-      MAINNET_ENDPOINT: http://ganache:8545
+      MAINNET_ENDPOINT: http://127.0.0.1:8545
 
       SCHAIN_ADDRESS: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
       SCHAIN_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
