@@ -6,3 +6,7 @@
 	path = test-tokens
 	url = https://github.com/skalenetwork/test-tokens.git
 	branch = develop
+[submodule "skale-ima-sdk"]
+	path = skale-ima-sdk
+	url = https://github.com/skalenetwork/skale-ima-sdk.git
+	branch = feature/SKALE-4458-modify-sdk

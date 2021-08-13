@@ -27,4 +27,12 @@ jobs:
         yarn install --production=false
     - name: Lint code
       run: |
+        yarn global add tslint typescript
         yarn lint
+    - name: Run ima-sdk
+      run: |
+        bash scripts/run_ima_sdk.sh
+    - name: Wait for contracts
+      run: |
+        bash scripts/wait_for_contracts.sh
+    
