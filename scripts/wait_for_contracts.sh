@@ -6,8 +6,8 @@ export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export IMA_SDK_DIR=$DIR/../skale-ima-sdk
 
 COUNTER=0
-RETRIES_COUNT=50
-SLEEP_TIMEOUT=5
+RETRIES_COUNT=100
+SLEEP_TIMEOUT=10
 
 MAINNET_CONTRACTS_ABI_PATH=$IMA_SDK_DIR/contracts_data/proxyMainnet.json
 SCHAIN_CONTRACTS_ABI_PATH=$IMA_SDK_DIR/contracts_data/proxySchain_Bob.json
@@ -30,6 +30,10 @@ while [ ! -f $SCHAIN_CONTRACTS_ABI_PATH ]; do
     if [ $COUNTER -ge $RETRIES_COUNT ]; then
         echo "Contracts wasn't deployed on time :("
         exit 1;
+    fi
+    if [ $COUNTER -ge 50 ]; then
+        echo "Contracts deployment taking too much time, printing deployment logs"
+        cat $IMA_SDK_DIR/data_dir/all_ima_deploy_sc.txt || true
     fi
     COUNTER=$[COUNTER + 1];
     sleep $SLEEP_TIMEOUT;
