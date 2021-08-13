@@ -6,7 +6,7 @@ export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export IMA_SDK_DIR=$DIR/../skale-ima-sdk
 
 COUNTER=0
-RETRIES_COUNT=30
+RETRIES_COUNT=40
 SLEEP_TIMEOUT=5
 
 MAINNET_CONTRACTS_ABI_PATH=$IMA_SDK_DIR/contracts_data/proxyMainnet.json
@@ -29,7 +29,7 @@ while [ ! -f $SCHAIN_CONTRACTS_ABI_PATH ]; do
     echo "Waiting for sChain contracts $COUNTER/$RETRIES_COUNT";
     cat $IMA_SDK_DIR/data_dir/all_ima_deploy_sc.txt || true
     echo "------"
-    cat $IMA_SDK_DIR/data_dir/all_skaled_output.txt || true
+    # cat $IMA_SDK_DIR/data_dir/all_skaled_output.txt || true
     if [ $COUNTER -ge $RETRIES_COUNT ]; then
         echo "Contracts wasn't deployed on time :("
         exit 1;
