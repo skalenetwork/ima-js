@@ -47,7 +47,7 @@ jobs:
         bash scripts/wait_for_contracts.sh
     - name: Deploy test tokens
       run: |
-        yarn deploy-tokens
+        sudo -E yarn deploy-tokens
     - name: Run tests
       run: |
-        yarn test
+        sudo -E yarn test
