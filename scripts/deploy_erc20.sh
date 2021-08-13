@@ -8,7 +8,7 @@ set_vars
 
 cd $DIR/../test-tokens
 
-TOKEN_MANAGER_ERC_20_ADDRESS=$(cat $DIR/../abis/proxySchain.json | jq -r ".token_manager_erc20_address")
+TOKEN_MANAGER_ERC_20_ADDRESS=$(cat $DIR/../skale-ima-sdk/contracts_data/proxySchain.json | jq -r ".token_manager_erc20_address")
 
 npx hardhat erc20 --name $TOKEN_NAME --symbol $TOKEN_SYMBOL --network mainnet
 npx hardhat erc20 --name $TOKEN_NAME --symbol $TOKEN_SYMBOL --network schain

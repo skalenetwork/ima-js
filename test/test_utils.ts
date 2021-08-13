@@ -13,17 +13,16 @@ import * as helper from '../src/helper';
 
 dotenv.config();
 
+export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
 
 const MAINNET_ENDPOINT = (process.env["MAINNET_ENDPOINT"] as string);
-const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + '/../abis/proxyMainnet.json';
+const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxyMainnet.json';
 
 const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
-const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../abis/proxySchain.json';
+const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxySchain.json';
 
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.MAINNET_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = helper.add0x(process.env.SCHAIN_PRIVATE_KEY);
-
-export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
 
 export const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
 export const TEST_TOKENS_TRANSFER_VALUE = '1000';

@@ -12,6 +12,15 @@ jobs:
       ACCOUNT_FOR_ETHEREUM: ${{ secrets.ACCOUNT_FOR_ETHEREUM }}
       ACCOUNT_FOR_SCHAIN: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
       PRIVATE_KEY_FOR_SCHAIN: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
+
+      MAINNET_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_ETHEREUM }}
+      MAINNET_ADDRESS: ${{ secrets.ACCOUNT_FOR_ETHEREUM }}
+      MAINNET_ENDPOINT: http://ganache:8545
+
+      SCHAIN_ADDRESS: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
+      SCHAIN_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
+      SCHAIN_ENDPOINT: http://127.0.0.1:15000
+      CHAIN_NAME_SCHAIN: Bob
     steps:
     - uses: actions/checkout@v2
     - name: Set up Node ${{ matrix.node }}
@@ -35,4 +44,9 @@ jobs:
     - name: Wait for contracts
       run: |
         bash scripts/wait_for_contracts.sh
-    
+    - name: Deploy test tokens
+      run: |
+        yarn deploy-tokens
+    - name: Run tests
+      run: |
+        yarn test
