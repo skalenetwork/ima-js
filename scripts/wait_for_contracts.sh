@@ -28,7 +28,7 @@ COUNTER=0
 while [ ! -f $SCHAIN_CONTRACTS_ABI_PATH ]; do
     echo "Waiting for sChain contracts $COUNTER/$RETRIES_COUNT";
     cat $IMA_SDK_DIR/data_dir/all_ima_deploy_sc.txt || true
-    cat "----- - - - - -"
+    echo "------"
     cat $IMA_SDK_DIR/data_dir/all_skaled_output.txt || true
     if [ $COUNTER -ge $RETRIES_COUNT ]; then
         echo "Contracts wasn't deployed on time :("
