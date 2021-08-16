@@ -6,7 +6,7 @@ export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 cd $DIR/../test-tokens
 
-if [ $INSTALL_PACKAGES == 'True' ]; then
+if [ $INSTALL_PACKAGES -eq 'True' ]; then
     yarn install
 fi
 

@@ -49,6 +49,9 @@ describe("Mainnet chain tests", () => {
             privateKey: test_utils.MAINNET_PRIVATE_KEY
         };
 
+        console.log('test_utils.CHAIN_NAME_SCHAIN test_utils.CHAIN_NAME_SCHAIN test_utils.CHAIN_NAME_SCHAIN');
+        console.log(test_utils.CHAIN_NAME_SCHAIN);
+
         await mainnetChain.depositETHtoSChain(
             test_utils.CHAIN_NAME_SCHAIN,
             address,

@@ -20,7 +20,7 @@ jobs:
       SCHAIN_ADDRESS: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
       SCHAIN_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
       SCHAIN_ENDPOINT: http://127.0.0.1:15000
-      CHAIN_NAME_SCHAIN: Bob
+      CHAIN_NAME_SCHAIN: "Bob"
       INSTALL_PACKAGES: "True"
     steps:
     - uses: actions/checkout@v2
