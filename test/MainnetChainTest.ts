@@ -73,6 +73,15 @@ describe("Mainnet chain tests", () => {
         let balanceBeforeBN = mainnetChain.web3.utils.toBN(balanceBefore);
         let expectedBalanceBN = balanceBeforeBN.add(transferValBN);
 
+        await mainnetChain.reimbursementWalletRecharge(
+            test_utils.CHAIN_NAME_SCHAIN,
+            {
+                value: test_utils.TEST_WEI_TRANSFER_VALUE,
+                address: address,
+                privateKey: test_utils.MAINNET_PRIVATE_KEY
+            }
+        );
+
         let balanceAfter = await mainnetChain.reimbursementWalletBalance(
             test_utils.CHAIN_NAME_SCHAIN, address);
 
