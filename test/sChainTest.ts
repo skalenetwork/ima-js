@@ -2,13 +2,13 @@ import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
 import * as dotenv from "dotenv";
 
-import MainnetChain from '../src/MainnetChain';
-import SChain from '../src/SChain';
 import TxOpts from "../src/TxOpts";
 import TokenType from '../src/TokenType';
+import IMA from '../src/index';
 
 import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
+import { test } from "mocha";
 
 
 dotenv.config();
@@ -19,19 +19,23 @@ chai.use(chaiAsPromised);
 
 describe("sChain module tests", () => {
     let address: string;
-    let mainnetChain: MainnetChain;
-    let sChain: SChain;
+    let ima: IMA;
     let transferValBN: any;
 
     before(async () => {
-        mainnetChain = test_utils.initTestMainnet();
-        sChain = test_utils.initTestSChain();
-        address = helper.privateKeyToAddress(sChain.web3, test_utils.SCHAIN_PRIVATE_KEY);
-        transferValBN = mainnetChain.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
+        ima = test_utils.initTestIMA();
+        address = helper.privateKeyToAddress(ima.schain.web3, test_utils.SCHAIN_PRIVATE_KEY);
+        transferValBN = ima.mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
+        await test_utils.grantPermissions(ima);
+        await ima.schain.setTimeLimitPerMessage(1, {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        });
+        await test_utils.reimburseWallet(ima);
     });
 
     it("Requests ERC20 ETH balance for sChain", async () => {
-        let balance = await sChain.ethBalance(address);
+        let balance = await ima.schain.ethBalance(address);
         balance.should.be.a('string');
     });
 
@@ -42,19 +46,24 @@ describe("sChain module tests", () => {
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
 
-        let mainnetBalanceBefore = await mainnetChain.ethBalance(address);
-        let sChainBalanceBefore = await sChain.ethBalance(address);
+        let mainnetBalanceBefore = await ima.mainnet.ethBalance(address);
+        let sChainBalanceBefore = await ima.schain.ethBalance(address);
 
-        await mainnetChain.depositETHtoSChain(
+         await ima.mainnet.reimbursementWalletRecharge(
+            test_utils.CHAIN_NAME_SCHAIN,
+            txOpts
+        );
+
+        await ima.mainnet.depositETHtoSChain(
             test_utils.CHAIN_NAME_SCHAIN,
             address,
             txOpts
         );
         await test_utils.sleep(10000);
-        let mainnetBalanceAfterDeposit = await mainnetChain.ethBalance(address);
-        let sChainBalanceAfterDeposit = await sChain.ethBalance(address);
+        let mainnetBalanceAfterDeposit = await ima.mainnet.ethBalance(address);
+        let sChainBalanceAfterDeposit = await ima.schain.ethBalance(address);
 
-        await sChain.withdrawETH(
+        await ima.schain.withdrawETH(
             address,
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
@@ -64,22 +73,22 @@ describe("sChain module tests", () => {
         );
 
         await test_utils.sleep(10000);
-        await mainnetChain.getMyEth(
+        await ima.mainnet.getMyEth(
             {
                 address: address,
                 privateKey: test_utils.SCHAIN_PRIVATE_KEY
             }
         );
 
-        let sChainBalanceAfterWithdraw = await sChain.ethBalance(address);
-        let mainnetBalanceAfterWithdraw = await mainnetChain.ethBalance(address);
+        let sChainBalanceAfterWithdraw = await ima.schain.ethBalance(address);
+        let mainnetBalanceAfterWithdraw = await ima.mainnet.ethBalance(address);
 
         console.log(mainnetBalanceBefore, mainnetBalanceAfterDeposit, mainnetBalanceAfterWithdraw);
         console.log(sChainBalanceBefore, sChainBalanceAfterDeposit, sChainBalanceAfterWithdraw);
 
         sChainBalanceBefore.should.be.equal(sChainBalanceAfterWithdraw);
         
-        let mainnetBalanceAfterDepositBN = mainnetChain.web3.utils.toBN(mainnetBalanceAfterDeposit);
+        let mainnetBalanceAfterDepositBN = ima.mainnet.web3.utils.toBN(mainnetBalanceAfterDeposit);
         let expectedMainnetBalanceAfterWithdraw = mainnetBalanceAfterDepositBN.add(transferValBN);
 
         // TODO: improve test - check mainnet balance after!
@@ -92,14 +101,13 @@ describe("sChain module tests", () => {
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         let automaticDeploy;
-
-        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
         automaticDeploy.should.be.equal(false);
-        await sChain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
-        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
+        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
         automaticDeploy.should.be.equal(true);
-        await sChain.disableAutomaticDeploy(TokenType.ERC20, txOpts);
-        automaticDeploy = await sChain.automaticDeploy(TokenType.ERC20);
+        await ima.schain.disableAutomaticDeploy(TokenType.ERC20, txOpts);
+        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
         automaticDeploy.should.be.equal(false);
     });
 });

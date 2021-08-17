@@ -57,6 +57,13 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155Name = 'testERC1155';
         erc1155TokenIds = [1, 2, 3];
         erc1155Amounts = ['1000', '2000', '3000'];
+
+        await test_utils.grantPermissions(ima);
+        await ima.schain.setTimeLimitPerMessage(1, {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        });
+        await test_utils.reimburseWallet(ima);
     });
 
     it("Test ERC20 approve/balance/deposit/withdraw", async () => {
@@ -115,8 +122,11 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
         const erc721OwnerMainnet1 = await ima.mainnet.getERC721OwnerOf(erc721Name, erc721TokenId);
         const erc721OwnerSchain1 = await ima.schain.getERC721OwnerOf(erc721Name, erc721TokenId);
+        const depositBoxAddress = ima.mainnet.contracts.depositBoxERC721.options.address;
 
-        await ima.mainnet.approveERC721Transfer(erc721Name, erc721TokenId, opts);
+        if (erc721OwnerMainnet1 != depositBoxAddress) {
+            await ima.mainnet.approveERC721Transfer(erc721Name, erc721TokenId, opts);
+        }
         await ima.depositERC721(test_utils.CHAIN_NAME_SCHAIN, erc721Name, address,
             erc721TokenId, opts);
         await ima.schain.waitERC721OwnerChange(erc721Name, erc721TokenId, erc721OwnerSchain1);

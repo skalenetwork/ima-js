@@ -7,6 +7,8 @@ import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 import IMA from '../src/index';
 import TokenType from '../src/TokenType';
+import TxOpts from "../src/TxOpts";
+
 import { ContractsStringMap, BaseChain } from '../src/BaseChain';
 
 import * as helper from '../src/helper';
@@ -21,10 +23,12 @@ const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + 
 const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
 const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxySchain.json';
 
-export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.MAINNET_PRIVATE_KEY);
-export const SCHAIN_PRIVATE_KEY = helper.add0x(process.env.SCHAIN_PRIVATE_KEY);
+export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
+export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
+export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
 
-export const TEST_WEI_TRANSFER_VALUE = '10000000000000000';
+export const TEST_WEI_TRANSFER_VALUE = '20000000000000000';
+export const TEST_WEI_REIMBURSEMENT_VALUE = '500000000000000000';
 export const TEST_TOKENS_TRANSFER_VALUE = '1000';
 
 
@@ -60,6 +64,39 @@ export function initTestMainnet() {
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function reimburseWallet(ima: IMA) {
+    let testAddress = helper.privateKeyToAddress(ima.schain.web3, MAINNET_PRIVATE_KEY);
+    let txOpts: TxOpts = {
+        value: TEST_WEI_REIMBURSEMENT_VALUE,
+        address: testAddress,
+        privateKey: MAINNET_PRIVATE_KEY
+    };
+    await ima.mainnet.reimbursementWalletRecharge(
+        CHAIN_NAME_SCHAIN,
+        txOpts
+    );
+}
+
+
+export async function grantPermissions(ima: IMA): Promise<any> {
+    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
+    let testAddress = helper.privateKeyToAddress(ima.schain.web3, SCHAIN_PRIVATE_KEY);
+    let txOpts: TxOpts = {
+        address: sdkAddress,
+        privateKey: SDK_PRIVATE_KEY
+    };
+    for (let type in TokenType) {
+        let tType = type as TokenType
+        let deployRole = await ima.schain.AUTOMATIC_DEPLOY_ROLE(tType);
+        let registarRole = await ima.schain.TOKEN_REGISTRAR_ROLE(tType);
+        await ima.schain.grantRoleTokenManager(tType, deployRole, testAddress, txOpts);
+        await ima.schain.grantRoleTokenManager(tType, registarRole, testAddress, txOpts);
+    }
+
+    let constantRole = await ima.schain.CONSTANT_SETTER_ROLE();
+    await ima.schain.grantRoleCommunityLocker(constantRole, testAddress, txOpts);
 }
 
 

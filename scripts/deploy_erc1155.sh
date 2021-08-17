@@ -20,4 +20,4 @@ MAINNET_ERC_1155_ADDRESS=$(cat $DIR/../test-tokens/data/ERC1155Example-$TOKEN_NA
 SCHAIN_ERC_1155_ADDRESS=$(cat $DIR/../test-tokens/data/ERC1155Example-$TOKEN_NAME-schain.json | jq -r ".erc1155_address")
 
 npx hardhat add-minter-erc1155 --token-address $SCHAIN_ERC_1155_ADDRESS --address $TOKEN_MANAGER_ERC_1155_ADDRESS --network schain
-npx hardhat mint-erc1155 --token-address $MAINNET_ERC_1155_ADDRESS --receiver-address $MAINNET_ADDRESS --token-id $TEST_TOKEN_IDS --amount $TEST_TOKEN_AMOUNTS --batch true --network mainnet
+npx hardhat mint-erc1155 --token-address $MAINNET_ERC_1155_ADDRESS --receiver-address $TEST_ADDRESS --token-id $TEST_TOKEN_IDS --amount $TEST_TOKEN_AMOUNTS --batch true --network mainnet

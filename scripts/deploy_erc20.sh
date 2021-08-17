@@ -17,4 +17,4 @@ MAINNET_ERC_20_ADDRESS=$(cat $DIR/../test-tokens/data/ERC20Example-$TOKEN_NAME-m
 SCHAIN_ERC_20_ADDRESS=$(cat $DIR/../test-tokens/data/ERC20Example-$TOKEN_NAME-schain.json | jq -r ".erc20_address")
 
 npx hardhat add-minter-erc20 --token-address $SCHAIN_ERC_20_ADDRESS --address $TOKEN_MANAGER_ERC_20_ADDRESS --network schain
-npx hardhat mint-erc20 --token-address $MAINNET_ERC_20_ADDRESS --receiver-address $MAINNET_ADDRESS --amount $MINT_AMOUNT --network mainnet
+npx hardhat mint-erc20 --token-address $MAINNET_ERC_20_ADDRESS --receiver-address $TEST_ADDRESS --amount $MINT_AMOUNT --network mainnet

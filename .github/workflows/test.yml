@@ -8,18 +8,15 @@ jobs:
       matrix:
         node: [12]
     env:
-      PRIVATE_KEY_FOR_ETHEREUM: ${{ secrets.PRIVATE_KEY_FOR_ETHEREUM }}
-      ACCOUNT_FOR_ETHEREUM: ${{ secrets.ACCOUNT_FOR_ETHEREUM }}
-      ACCOUNT_FOR_SCHAIN: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
-      PRIVATE_KEY_FOR_SCHAIN: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
-
-      MAINNET_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_ETHEREUM }}
-      MAINNET_ADDRESS: ${{ secrets.ACCOUNT_FOR_ETHEREUM }}
       MAINNET_ENDPOINT: http://127.0.0.1:8545
-
-      SCHAIN_ADDRESS: ${{ secrets.ACCOUNT_FOR_SCHAIN }}
-      SCHAIN_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_FOR_SCHAIN }}
       SCHAIN_ENDPOINT: http://127.0.0.1:15000
+
+      SDK_PRIVATE_KEY: ${{ secrets.SDK_PRIVATE_KEY }}
+      SDK_ADDRESS: ${{ secrets.SDK_ADDRESS }}
+
+      TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
+      TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
+
       CHAIN_NAME_SCHAIN: "Bob"
       INSTALL_PACKAGES: "True"
     steps:

@@ -18,4 +18,4 @@ MAINNET_ERC_721_ADDRESS=$(cat $DIR/../test-tokens/data/ERC721Example-$TOKEN_NAME
 SCHAIN_ERC_721_ADDRESS=$(cat $DIR/../test-tokens/data/ERC721Example-$TOKEN_NAME-schain.json | jq -r ".erc721_address")
 
 npx hardhat add-minter-erc721 --token-address $SCHAIN_ERC_721_ADDRESS --address $TOKEN_MANAGER_ERC_721_ADDRESS --network schain
-npx hardhat mint-erc721 --token-address $MAINNET_ERC_721_ADDRESS --receiver-address $MAINNET_ADDRESS --token-id $TEST_TOKEN_ID --network mainnet
+npx hardhat mint-erc721 --token-address $MAINNET_ERC_721_ADDRESS --receiver-address $TEST_ADDRESS --token-id $TEST_TOKEN_ID --network mainnet

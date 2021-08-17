@@ -120,8 +120,33 @@ class SChain extends BaseChain {
     }
 
     async automaticDeploy(tokenType: TokenType): Promise<string> {
-        const contractName = 'tokenManager' + tokenType;
-        return await this.contracts[contractName].methods.automaticDeploy().call();
+        return await this.tokenManager(tokenType).methods.automaticDeploy().call();
+    }
+
+    async grantRoleTokenManager(tokenType: TokenType, role: any, address: string, opts: TxOpts) {
+        const txData = this.tokenManager(tokenType).methods.grantRole(role, address);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async AUTOMATIC_DEPLOY_ROLE(tokenType: TokenType): Promise<string> {
+        return await this.tokenManager(tokenType).methods.AUTOMATIC_DEPLOY_ROLE().call();
+    }
+
+    async TOKEN_REGISTRAR_ROLE(tokenType: TokenType): Promise<string> {
+        return await this.tokenManager(tokenType).methods.TOKEN_REGISTRAR_ROLE().call();
+    }
+
+    tokenManager(tokenType: TokenType) {
+        return this.contracts['tokenManager' + tokenType];
+    }
+
+    async CONSTANT_SETTER_ROLE(): Promise<string> {
+        return await this.contracts.communityLocker.methods.CONSTANT_SETTER_ROLE().call();
+    }
+
+    async grantRoleCommunityLocker(role: any, address: string, opts: TxOpts) {
+        const txData = this.contracts.communityLocker.methods.grantRole(role, address);
+        return await transactions.send(this.web3, txData, opts);
     }
 
     // todo: split - erc20 transfers
