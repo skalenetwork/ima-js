@@ -72,3 +72,7 @@ export function validatePrivateKey(privateKey: string) {
         throw new InvalidCredentialsException(constants.errorMessages.INVALID_PRIVATEKEY);
     }
 }
+
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

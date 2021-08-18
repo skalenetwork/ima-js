@@ -22,11 +22,15 @@
  */
 
 import Web3 from 'web3';
+import { Logger } from "tslog";
 
 import * as helper from './helper';
 import * as constants from './constants';
 import IMAContractException from './exceptions/IMAContractException';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
+import TxOpts from './TxOpts';
+
+const log: Logger = new Logger();
 
 
 export async function signAndSend(web3: Web3, address: string, transactionData: any, gas: string,
@@ -49,7 +53,7 @@ export async function signAndSend(web3: Web3, address: string, transactionData: 
         value
     };
     const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-    const rawTx = (signedTx.rawTransaction as string)
+    const rawTx = (signedTx.rawTransaction as string);
     return await web3.eth.sendSignedTransaction(rawTx);
 }
 
@@ -66,25 +70,39 @@ export async function sendWithExternalSigning(web3: Web3, address: string, trans
 }
 
 
-export async function send(web3: Web3, address: string, transactionData: any, value: string='0',
-    gas?: string, privateKey?: string) {
+
+export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
     let result;
     let gasLimit: string;
 
-    if (gas) {
-        gasLimit = gas;
+    if (opts.customGasLimit) {
+        gasLimit = opts.customGasLimit;
     } else {
-        gasLimit = await estimateGasLimit(web3, address, transactionData, value);
+        gasLimit = await estimateGasLimit(web3, opts.address, transactionData, opts.value);
     }
 
+    if (!opts.value) opts.value = '0';
+
+    log.info(
+        'sending tx: ' + transactionData._method.name +
+        ', gasLimit: ' + gasLimit +
+        ', to: ' + transactionData._parent._address +
+        ', value: ' + opts.value
+    );
+
     try {
-        if (privateKey && typeof privateKey === 'string' && privateKey.length > 0) {
-            const pk = (helper.add0x(privateKey) as string);
+        if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
+            const pk = (helper.add0x(opts.privateKey) as string);
             helper.validatePrivateKey(pk);
-            result = await signAndSend(web3, address, transactionData, gasLimit, value, pk);
+            result = await signAndSend(web3, opts.address, transactionData, gasLimit, opts.value, pk);
         } else {
-            result = await sendWithExternalSigning(web3, address, transactionData, gasLimit, value);
+            result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
         }
+        log.info(
+            'mined tx: ' + transactionData._method.name +
+            ', txHash: ' + result.transactionHash +
+            ', status: ' + result.status
+        );
         return result;
     } catch (error) {
         if (error.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {

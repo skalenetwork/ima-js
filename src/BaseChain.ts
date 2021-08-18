@@ -23,7 +23,16 @@
 
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
+import { Logger } from "tslog";
 
+import * as constants from './constants';
+import * as helper from './helper';
+
+
+const log: Logger = new Logger();
+
+const DEFAULT_SLEEP = 3000;
+const DEFAULT_ITERATIONS = 30;
 
 export interface ContractsStringMap { [key: string]: Contract; }
 
@@ -32,10 +41,16 @@ export abstract class BaseChain {
     chainId?: number;
     abi: any;
     contracts: ContractsStringMap;
+    ERC20tokens: ContractsStringMap;
+    ERC721tokens: ContractsStringMap;
+    ERC1155tokens: ContractsStringMap;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         this.web3 = web3;
         this.abi = abi;
+        this.ERC20tokens = {};
+        this.ERC721tokens = {};
+        this.ERC1155tokens = {};
         if (chainId) this.chainId = chainId;
         this.contracts = this.initContracts();
     }
@@ -43,4 +58,87 @@ export abstract class BaseChain {
     abstract ethBalance(address: string): Promise<string>;
     abstract initContracts(): ContractsStringMap;
 
+    addERC20Token(tokenName: string, contract: Contract) {
+        this.ERC20tokens[tokenName] = contract;
+    }
+
+    addERC721Token(tokenName: string, contract: Contract) {
+        this.ERC721tokens[tokenName] = contract;
+    }
+
+    addERC1155Token(tokenName: string, contract: Contract) {
+        this.ERC1155tokens[tokenName] = contract;
+    }
+
+    listERC20Tokens() {
+        return Object.keys(this.ERC20tokens);
+    }
+
+    listERC721Tokens() {
+        return Object.keys(this.ERC721tokens);
+    }
+
+    listERC1155Tokens() {
+        return Object.keys(this.ERC1155tokens);
+    }
+
+    async getERC20Balance(tokenName: string, address: string): Promise<string> {
+        const contract = this.ERC20tokens[tokenName];
+        return await contract.methods.balanceOf(address).call({from: address});
+    }
+
+    async getERC721OwnerOf(tokenName: string, tokenId: number | string): Promise<string> {
+        const contract = this.ERC721tokens[tokenName];
+        try {
+            if (typeof tokenId === 'string') tokenId = Number(tokenId);
+            return await contract.methods.ownerOf(tokenId).call();
+        } catch (err) {
+            return constants.ZERO_ADDRESS; // todo: replace with IMA-ERC721 exception: no such token
+        }
+    }
+
+    async getERC1155Balance(tokenName: string, address: string, tokenId: number): Promise<string> {
+        const contract = this.ERC1155tokens[tokenName];
+        return await contract.methods.balanceOf(address, tokenId).call({from: address});
+    }
+
+    async waitForChange(tokenName: string, getFunc: any, address: string | undefined,
+        initial: string, tokenId: number | undefined, sleepInterval: number=DEFAULT_SLEEP,
+        iterations: number = DEFAULT_ITERATIONS) {
+        for (let i = 1; i <= iterations; i++) {
+            let res;
+            if (tokenId === undefined) res = await getFunc(tokenName, address);
+            if (address === undefined) res = await getFunc(tokenName, tokenId);
+            if (tokenId !== undefined && address !== undefined) {
+                res = await getFunc(tokenName, address, tokenId);
+            }
+            if (initial !== res) {
+                break;
+            }
+            log.info('Waiting for change - ' + tokenName + ' - address: ' + address +
+                ', sleeping for ' + sleepInterval + 'ms');
+            await helper.sleep(sleepInterval);
+        }
+    }
+
+    async waitERC20BalanceChange(tokenName: string, address: string, initialBalance: string,
+        sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        await this.waitForChange(
+            tokenName, this.getERC20Balance.bind(this), address, initialBalance, undefined,
+            sleepInterval);
+    }
+
+    async waitERC721OwnerChange(tokenName: string, tokenId: number, initialOwner: string,
+        sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        await this.waitForChange(
+            tokenName, this.getERC721OwnerOf.bind(this), undefined, initialOwner, tokenId,
+            sleepInterval);
+    }
+
+    async waitERC1155BalanceChange(tokenName: string, address: string, tokenId: number,
+        initialBalance: string, sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        await this.waitForChange(
+            tokenName, this.getERC1155Balance.bind(this), address, initialBalance, tokenId,
+            sleepInterval);
+    }
 }

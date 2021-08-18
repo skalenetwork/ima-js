@@ -1,0 +1,12 @@
+[submodule "helper-scripts"]
+	path = helper-scripts
+	url = https://github.com/skalenetwork/helper-scripts.git
+	branch = develop
+[submodule "test-tokens"]
+	path = test-tokens
+	url = https://github.com/skalenetwork/test-tokens.git
+	branch = develop
+[submodule "skale-ima-sdk"]
+	path = skale-ima-sdk
+	url = https://github.com/skalenetwork/skale-ima-sdk.git
+	branch = master

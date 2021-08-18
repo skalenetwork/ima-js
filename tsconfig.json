@@ -74,6 +74,7 @@
     "dist",
     "test",
     "typings/browser.d.ts",
-    "typings/browser/**"
+    "typings/browser/**",
+    "test-tokens"
   ]
 }

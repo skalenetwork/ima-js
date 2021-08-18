@@ -11,8 +11,8 @@ dotenv.config();
 const MAINNET_ENDPOINT = process.env["MAINNET_ENDPOINT"];
 const SCHAIN_ENDPOINT = process.env["SCHAIN_ENDPOINT"];
 
-const MAINNET_PRIVATE_KEY = helper.add0x(process.env.MAINNET_PRIVATE_KEY);
-const MAINNET_ADDRESS = helper.add0x(process.env.MAINNET_ADDRESS);
+const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
+const MAINNET_ADDRESS = helper.add0x(process.env.TEST_ADDRESS);
 
 chai.should();
 chai.use(chaiAsPromised);

@@ -43,8 +43,13 @@ yarn.lock
 ### custom
 
 abis
-
-build/
 data/
 
 .env-sdk
+
+test-tokens/
+helper-scripts/
+skale-ima-sdk/
+.github/
+.env-sample
+.gitmodules/

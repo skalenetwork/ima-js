@@ -17,23 +17,22 @@
  */
 
 /**
- * @file constants.ts
+ * @file BaseContract.ts
  * @copyright SKALE Labs 2021-Present
  */
 
-export const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-f]{64}$/i;
+import Web3 from 'web3';
+import { Contract } from 'web3-eth-contract';
 
-export const errorMessages = {
-    FAILED_TRANSACTION: 'Transaction has been failed',
-    REVERTED_TRANSACTION: 'Transaction has been reverted by the EVM:',
-    INVALID_KEYPAIR: 'Keypair mismatch',
-    INVALID_PRIVATEKEY: 'Incorrect privateKey'
-};
 
-export const DEFAULT_GAS_LIMIT = 10000000;
-export const DEFAULT_GAS_MULTIPLIER = 1.5;
-export const GAS_PRICE_MULTIPLIER = 1.3;
+export abstract class BaseContract {
+    readonly web3: Web3;
+    address: any;
+    contract?: Contract;
 
-export const MAX_APPROVAL_AMOUNT = '999999999999000000000000000000'; // todo: replace with max uint256!
-
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+    constructor(web3: Web3, address: string, abi: any) {
+        this.web3 = web3;
+        this.address = address;
+        this.contract = new this.web3.eth.Contract(abi, address)
+    }
+}

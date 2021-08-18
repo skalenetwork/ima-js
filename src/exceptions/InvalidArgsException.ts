@@ -17,23 +17,14 @@
  */
 
 /**
- * @file constants.ts
+ * @file IMAContractException.ts
  * @copyright SKALE Labs 2021-Present
  */
 
-export const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-f]{64}$/i;
-
-export const errorMessages = {
-    FAILED_TRANSACTION: 'Transaction has been failed',
-    REVERTED_TRANSACTION: 'Transaction has been reverted by the EVM:',
-    INVALID_KEYPAIR: 'Keypair mismatch',
-    INVALID_PRIVATEKEY: 'Incorrect privateKey'
-};
-
-export const DEFAULT_GAS_LIMIT = 10000000;
-export const DEFAULT_GAS_MULTIPLIER = 1.5;
-export const GAS_PRICE_MULTIPLIER = 1.3;
-
-export const MAX_APPROVAL_AMOUNT = '999999999999000000000000000000'; // todo: replace with max uint256!
-
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+export default class InvalidArgsException extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+        Error.captureStackTrace(this, this.constructor);
+    }
+}

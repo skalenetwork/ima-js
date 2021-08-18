@@ -48,6 +48,20 @@ This method returns real ETH balance locked on the sChain
 
 ## Development
 
+### Testing
+
+Deploy test tokens:
+
+```bash
+yarn deploy-tokens
+```
+
+Run tests:
+
+```bash
+yarn test
+```
+
 ### Linter
 
 Used linter: https://palantir.github.io/tslint/  

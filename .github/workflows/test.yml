@@ -1,0 +1,50 @@
+name: Test
+on: [push, pull_request]
+
+jobs:
+  test_ima_js:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [12]
+    env:
+      MAINNET_ENDPOINT: http://127.0.0.1:8545
+      SCHAIN_ENDPOINT: http://127.0.0.1:15000
+
+      SDK_PRIVATE_KEY: ${{ secrets.SDK_PRIVATE_KEY }}
+      SDK_ADDRESS: ${{ secrets.SDK_ADDRESS }}
+
+      TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
+      TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
+
+      CHAIN_NAME_SCHAIN: "Bob"
+      INSTALL_PACKAGES: "True"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node }}
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@master
+      with:
+        remote: true
+    - name: Install dependencies
+      run: |
+        yarn install --production=false
+    - name: Lint code
+      run: |
+        yarn global add tslint typescript
+        yarn lint
+    - name: Run ima-sdk
+      run: |
+        bash scripts/run_ima_sdk.sh
+    - name: Wait for contracts
+      run: |
+        bash scripts/wait_for_contracts.sh
+    - name: Deploy test tokens
+      run: |
+        sudo -E yarn deploy-tokens
+    - name: Run tests
+      run: |
+        sudo -E yarn test
