@@ -21,11 +21,18 @@
  * @copyright SKALE Labs 2021-Present
  */
 
+import { Logger } from "tslog";
+
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
 
+import * as constants from './constants';
+import * as helper from './helper';
+
 import InvalidArgsException from './exceptions/InvalidArgsException';
+
+const log: Logger = new Logger();
 
 
 class MainnetChain extends BaseChain {
@@ -83,6 +90,23 @@ class MainnetChain extends BaseChain {
         return await this.contracts.depositBoxEth.methods.approveTransfers(address).call( {
             from: address
         })
+    }
+
+    async waitLockedETHAmountChange(address: string, initial: string,
+        sleepInterval: number=constants.DEFAULT_SLEEP,
+        iterations: number = constants.DEFAULT_ITERATIONS) {
+        for (let i = 1; i <= iterations; i++) {
+            let res;
+            res = await this.lockedETHAmount(address);
+            if (initial !== res) {
+                break;
+            }
+            if (helper.isNode()){
+                log.info('Waiting for locked ETH balance change - address: ' + address +
+                    ', sleeping for ' + sleepInterval + 'ms');
+            }
+            await helper.sleep(sleepInterval);
+        }
     }
 
     async reimbursementWalletRecharge(chainName: string, opts: TxOpts): Promise<any> {

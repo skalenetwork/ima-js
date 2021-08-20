@@ -54,8 +54,7 @@ describe("Mainnet chain tests", () => {
             address,
             txOpts
         );
-
-        await test_utils.sleep(10000);
+        await sChain.waitETHBalanceChange(address, sChainBalanceBefore);
 
         let sChainBalanceAfter = await sChain.ethBalance(address);
         let mainnetBalanceAfter = await mainnetChain.ethBalance(address);
