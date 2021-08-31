@@ -4,12 +4,14 @@ Typescirpt/Javascript library which implements client for SKALE Interchain Messa
 
 ## Usage
 
+See main documentation: https://docs.skale.network/ima/1.0.x/
+
 ### Mainnet Chain
 
 #### Initialize a chain
 
 ```typescript
-    import MainnetChain from 'ima-js-v2';
+    import MainnetChain from '@skalenetwork/ima-js';
 
     let provider = new Web3.providers.HttpProvider(MAINNET_ENDPOINT);
     let web3 = new Web3(provider);
@@ -30,7 +32,7 @@ This method returns ETH balance on the Mainnet
 #### Initialize a chain
 
 ```typescript
-    import sChain from 'ima-js-v2';
+    import sChain from '@skalenetwork/ima-js';
 
     let provider = new Web3.providers.HttpProvider(SCHAIN_ENDPOINT);
     let web3 = new Web3(provider);
@@ -52,13 +54,13 @@ This method returns real ETH balance locked on the sChain
 
 Deploy test tokens:
 
-```bash
+```shell
 yarn deploy-tokens
 ```
 
 Run tests:
 
-```bash
+```shell
 yarn test
 ```
 
@@ -76,7 +78,7 @@ yarn global add tslint typescript
 
 Be sure to add pre-commit git hook:
 
-```bash
+```shell
 echo 'yarn lint' > .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
