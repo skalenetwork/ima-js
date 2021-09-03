@@ -109,8 +109,9 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
         }
         return result;
     } catch (error) {
-        if (error.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
-            const errorMessage = error.message.substr(
+        const err = (error as Error)
+        if (err.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
+            const errorMessage = err.message.substr(
                 constants.errorMessages.REVERTED_TRANSACTION.length);
             const revertReason = JSON.parse(errorMessage).revertReason;
             if (revertReason) {
