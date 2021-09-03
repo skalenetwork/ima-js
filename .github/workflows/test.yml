@@ -17,6 +17,7 @@ jobs:
       TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
       TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
 
+      SKALED_LOG_LEVEL: info
       CHAIN_NAME_SCHAIN: "Bob"
       INSTALL_PACKAGES: "True"
     steps:
@@ -38,10 +39,7 @@ jobs:
         yarn lint
     - name: Run ima-sdk
       run: |
-        bash scripts/run_ima_sdk.sh
-    - name: Wait for contracts
-      run: |
-        bash scripts/wait_for_contracts.sh
+        WAIT=True bash skale-ima-sdk/scripts/run_sdk.sh
     - name: Deploy test tokens
       run: |
         sudo -E yarn deploy-tokens
