@@ -123,4 +123,16 @@ export default class IMA {
     async disableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
         return await this.schain.disableAutomaticDeploy(tokenType, opts);
     }
+
+    async connectSchain(chainName: string, opts: TxOpts) {
+        const contractAddresses = [
+            this.schain.contracts.tokenManagerLinker.options.address,
+            this.schain.contracts.communityLocker.options.address,
+            this.schain.contracts.tokenManagerEth.options.address,
+            this.schain.contracts.tokenManagerERC20.options.address,
+            this.schain.contracts.tokenManagerERC721.options.address,
+            this.schain.contracts.tokenManagerERC1155.options.address
+        ];
+        return await this.mainnet.connectSchain(chainName, contractAddresses, opts);
+    }
 }

@@ -55,6 +55,10 @@ class SChain extends BaseChain {
             'communityLocker': new this.web3.eth.Contract(
                 this.abi.community_locker_abi,
                 this.abi.community_locker_address
+            ),
+            'tokenManagerLinker': new this.web3.eth.Contract(
+                this.abi.token_manager_linker_abi,
+                this.abi.token_manager_linker_address
             )
         };
     }

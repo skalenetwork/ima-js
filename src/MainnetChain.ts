@@ -61,6 +61,10 @@ class MainnetChain extends BaseChain {
             'communityPool': new this.web3.eth.Contract(
                 this.abi.community_pool_abi,
                 this.abi.community_pool_address
+            ),
+            'linker': new this.web3.eth.Contract(
+                this.abi.linker_abi,
+                this.abi.linker_address
             )
         };
     }
@@ -210,6 +214,23 @@ class MainnetChain extends BaseChain {
     }
 
     // todo: split - sChain owner admin functions
+
+    async LINKER_ROLE(): Promise<string> {
+        return await this.contracts.linker.methods.LINKER_ROLE().call();
+    }
+
+    async grantRoleLinker(role: any, address: string, opts: TxOpts) {
+        const txData = this.contracts.linker.methods.grantRole(role, address);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async connectSchain(chainName: string, contractAddresses: string[], opts: TxOpts): Promise<any> {
+        const txData = this.contracts.linker.methods.connectSchain(
+            chainName,
+            contractAddresses
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
 
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
         Promise<any> {

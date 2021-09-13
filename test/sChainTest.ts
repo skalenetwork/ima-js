@@ -49,7 +49,7 @@ describe("sChain module tests", () => {
         let mainnetBalanceBefore = await ima.mainnet.ethBalance(address);
         let sChainBalanceBefore = await ima.schain.ethBalance(address);
 
-         await ima.mainnet.reimbursementWalletRecharge(
+        await ima.mainnet.reimbursementWalletRecharge(
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );

@@ -58,7 +58,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155TokenIds = [1, 2, 3];
         erc1155Amounts = ['1000', '2000', '3000'];
 
-        await test_utils.grantPermissions(ima);
+        // await test_utils.grantPermissions(ima);
+        // await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         await ima.schain.setTimeLimitPerMessage(1, {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
@@ -108,6 +109,23 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
         balanceMainnet3.should.be.equal(balanceMainnet1);
         balanceSchain3.should.be.equal(balanceSchain1);
+    });
+
+    it("Tests re-linking", async () => {
+        let txOpts: TxOpts = {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        };
+
+        console.log(testTokens.mainnetERC20.options.address);
+        console.log(testTokens.schainERC20.options.address);
+
+        let res = await ima.schain.addERC20TokenByOwner(
+            testTokens.mainnetERC20.options.address,
+            testTokens.schainERC20.options.address,
+            txOpts
+        );
+        console.log(res);
     });
 
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {

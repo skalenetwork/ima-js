@@ -81,11 +81,10 @@ export async function reimburseWallet(ima: IMA) {
 
 
 export async function grantPermissions(ima: IMA): Promise<any> {
-    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
     let testAddress = helper.privateKeyToAddress(ima.schain.web3, SCHAIN_PRIVATE_KEY);
     let txOpts: TxOpts = {
-        address: sdkAddress,
-        privateKey: SDK_PRIVATE_KEY
+        address: testAddress,
+        privateKey: MAINNET_PRIVATE_KEY
     };
     for (let type in TokenType) {
         let tType = type as TokenType
@@ -97,6 +96,15 @@ export async function grantPermissions(ima: IMA): Promise<any> {
 
     let constantRole = await ima.schain.CONSTANT_SETTER_ROLE();
     await ima.schain.grantRoleCommunityLocker(constantRole, testAddress, txOpts);
+
+    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
+    let sdkTxOpts: TxOpts = {
+        address: sdkAddress,
+        privateKey: SDK_PRIVATE_KEY
+    };
+
+    let linkerRole = await ima.mainnet.LINKER_ROLE();
+    await ima.mainnet.grantRoleLinker(linkerRole, testAddress, sdkTxOpts);
 }
 
 
