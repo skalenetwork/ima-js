@@ -26,11 +26,15 @@ describe("sChain module tests", () => {
         ima = test_utils.initTestIMA();
         address = helper.privateKeyToAddress(ima.schain.web3, test_utils.SCHAIN_PRIVATE_KEY);
         transferValBN = ima.mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
-        // await test_utils.grantPermissions(ima);
-        await ima.schain.setTimeLimitPerMessage(1, {
+
+        const opts = {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
-        });
+        };
+
+        await test_utils.grantPermissions(ima);
+        await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        await ima.schain.setTimeLimitPerMessage(1, opts);
         await test_utils.reimburseWallet(ima);
     });
 
