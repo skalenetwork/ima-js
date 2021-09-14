@@ -39,10 +39,11 @@ jobs:
         yarn lint
     - name: Run ima-sdk
       run: |
-        WAIT=True bash skale-ima-sdk/scripts/run_sdk.sh
+        mkdir skale-ima-sdk/data_dir/filestorage || true > /dev/null
+        WAIT=True sudo -E bash skale-ima-sdk/scripts/run_sdk.sh
     - name: Deploy test tokens
       run: |
-        yarn deploy-tokens
+        sudo -E yarn deploy-tokens
     - name: Run tests
       run: |
-        yarn test
+        sudo -E yarn test
