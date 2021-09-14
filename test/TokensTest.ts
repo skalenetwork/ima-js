@@ -59,7 +59,9 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155Amounts = ['1000', '2000', '3000'];
 
         await test_utils.grantPermissions(ima);
-        await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        if (!ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+            await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        }
         await ima.schain.setTimeLimitPerMessage(1, {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY

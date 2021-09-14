@@ -33,7 +33,9 @@ describe("sChain module tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        if (!ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+            await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        }
         await ima.schain.setTimeLimitPerMessage(1, opts);
         await test_utils.reimburseWallet(ima);
     });

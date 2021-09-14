@@ -232,6 +232,11 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async isChainConnected(chainName: string): Promise<boolean> {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.linker.methods.interchainConnections(chainHash).call();
+    }
+
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts[depositBoxContractName].methods.enableWhitelist(chainName);
