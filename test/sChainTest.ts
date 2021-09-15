@@ -33,7 +33,7 @@ describe("sChain module tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        if (!ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+        if (!await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
         await ima.schain.setTimeLimitPerMessage(1, opts);
