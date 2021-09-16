@@ -65,6 +65,10 @@ class MainnetChain extends BaseChain {
             'linker': new this.web3.eth.Contract(
                 this.abi.linker_abi,
                 this.abi.linker_address
+            ),
+            'message_proxy_mainnet': new this.web3.eth.Contract(
+                this.abi.message_proxy_mainnet_abi,
+                this.abi.message_proxy_mainnet_address
             )
         };
     }
@@ -233,8 +237,7 @@ class MainnetChain extends BaseChain {
     }
 
     async isChainConnected(chainName: string): Promise<boolean> {
-        const chainHash = this.web3.utils.soliditySha3(chainName);
-        return await this.contracts.linker.methods.interchainConnections(chainHash).call();
+        return await this.contracts.message_proxy_mainnet.methods.isConnectedChain(chainName).call();
     }
 
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):

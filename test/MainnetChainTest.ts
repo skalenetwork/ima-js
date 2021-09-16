@@ -41,7 +41,8 @@ describe("Mainnet chain tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        if (!await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+        const isChainConnected = await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN);
+        if (!isChainConnected){
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
     });
