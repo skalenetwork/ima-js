@@ -270,6 +270,18 @@ class MainnetChain extends BaseChain {
             chainHash, erc20OnMainnet).call();
     }
 
+    async isERC721Added(chainName: string, erc721OnMainnet: string) {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.depositBoxERC721.methods.schainToERC721(
+            chainHash, erc721OnMainnet).call();
+    }
+
+    async isERC1155Added(chainName: string, erc1155OnMainnet: string) {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.depositBoxERC1155.methods.schainToERC1155(
+            chainHash, erc1155OnMainnet).call();
+    }
+
     async addERC20TokenByOwner(chainName: string, erc20OnMainnet: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts.depositBoxERC20.methods.addERC20TokenByOwner(

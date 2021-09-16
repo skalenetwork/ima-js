@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 import TokenType from '../src/TokenType';
 import TxOpts from "../src/TxOpts";
 

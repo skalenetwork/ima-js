@@ -2,7 +2,7 @@ import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
 import * as dotenv from "dotenv";
 
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 import TxOpts from "../src/TxOpts";
 import { ContractsStringMap } from '../src/BaseChain';
 
@@ -111,23 +111,6 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
         balanceMainnet3.should.be.equal(balanceMainnet1);
         balanceSchain3.should.be.equal(balanceSchain1);
-    });
-
-    it("Tests re-linking", async () => {
-        let txOpts: TxOpts = {
-            address: address,
-            privateKey: test_utils.SCHAIN_PRIVATE_KEY
-        };
-
-        console.log(testTokens.mainnetERC20.options.address);
-        console.log(testTokens.schainERC20.options.address);
-
-        let res = await ima.schain.addERC20TokenByOwner(
-            testTokens.mainnetERC20.options.address,
-            testTokens.schainERC20.options.address,
-            txOpts
-        );
-        console.log(res);
     });
 
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {

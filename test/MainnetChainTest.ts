@@ -2,7 +2,7 @@ import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
 import * as dotenv from "dotenv";
 
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 

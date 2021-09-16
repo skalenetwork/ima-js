@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 
 import TxOpts from "../src/TxOpts";
 import TokenType from '../src/TokenType';
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 
 import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
