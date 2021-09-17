@@ -83,12 +83,14 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
 
     if (!opts.value) opts.value = '0';
 
-    log.info(
-        'sending tx: ' + transactionData._method.name +
-        ', gasLimit: ' + gasLimit +
-        ', to: ' + transactionData._parent._address +
-        ', value: ' + opts.value
-    );
+    if (helper.isNode()){
+        log.info(
+            'sending tx: ' + transactionData._method.name +
+            ', gasLimit: ' + gasLimit +
+            ', to: ' + transactionData._parent._address +
+            ', value: ' + opts.value
+        );
+    }
 
     try {
         if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
@@ -98,15 +100,18 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
         } else {
             result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
         }
-        log.info(
-            'mined tx: ' + transactionData._method.name +
-            ', txHash: ' + result.transactionHash +
-            ', status: ' + result.status
-        );
+        if (helper.isNode()){
+            log.info(
+                'mined tx: ' + transactionData._method.name +
+                ', txHash: ' + result.transactionHash +
+                ', status: ' + result.status
+            );
+        }
         return result;
     } catch (error) {
-        if (error.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
-            const errorMessage = error.message.substr(
+        const err = (error as Error)
+        if (err.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
+            const errorMessage = err.message.substr(
                 constants.errorMessages.REVERTED_TRANSACTION.length);
             const revertReason = JSON.parse(errorMessage).revertReason;
             if (revertReason) {

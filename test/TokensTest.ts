@@ -2,7 +2,7 @@ import chaiAsPromised from "chai-as-promised";
 import chai = require("chai");
 import * as dotenv from "dotenv";
 
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 import TxOpts from "../src/TxOpts";
 import { ContractsStringMap } from '../src/BaseChain';
 
@@ -59,6 +59,9 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155Amounts = ['1000', '2000', '3000'];
 
         await test_utils.grantPermissions(ima);
+        if (!await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+            await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        }
         await ima.schain.setTimeLimitPerMessage(1, {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY

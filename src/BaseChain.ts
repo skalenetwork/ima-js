@@ -31,9 +31,6 @@ import * as helper from './helper';
 
 const log: Logger = new Logger();
 
-const DEFAULT_SLEEP = 3000;
-const DEFAULT_ITERATIONS = 30;
-
 export interface ContractsStringMap { [key: string]: Contract; }
 
 export abstract class BaseChain {
@@ -102,9 +99,26 @@ export abstract class BaseChain {
         return await contract.methods.balanceOf(address, tokenId).call({from: address});
     }
 
+    async waitETHBalanceChange(address: string, initial: string,
+        sleepInterval: number=constants.DEFAULT_SLEEP,
+        iterations: number = constants.DEFAULT_ITERATIONS) {
+        for (let i = 1; i <= iterations; i++) {
+            let res;
+            res = await this.ethBalance(address);
+            if (initial !== res) {
+                break;
+            }
+            if (helper.isNode()){
+                log.info('Waiting for ETH balance change - address: ' + address +
+                    ', sleeping for ' + sleepInterval + 'ms');
+            }
+            await helper.sleep(sleepInterval);
+        }
+    }
+
     async waitForChange(tokenName: string, getFunc: any, address: string | undefined,
-        initial: string, tokenId: number | undefined, sleepInterval: number=DEFAULT_SLEEP,
-        iterations: number = DEFAULT_ITERATIONS) {
+        initial: string, tokenId: number | undefined, sleepInterval: number=constants.DEFAULT_SLEEP,
+        iterations: number = constants.DEFAULT_ITERATIONS) {
         for (let i = 1; i <= iterations; i++) {
             let res;
             if (tokenId === undefined) res = await getFunc(tokenName, address);
@@ -115,28 +129,30 @@ export abstract class BaseChain {
             if (initial !== res) {
                 break;
             }
-            log.info('Waiting for change - ' + tokenName + ' - address: ' + address +
-                ', sleeping for ' + sleepInterval + 'ms');
+            if (helper.isNode()){
+                log.info('Waiting for change - ' + tokenName + ' - address: ' + address +
+                    ', sleeping for ' + sleepInterval + 'ms');
+            }
             await helper.sleep(sleepInterval);
         }
     }
 
     async waitERC20BalanceChange(tokenName: string, address: string, initialBalance: string,
-        sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenName, this.getERC20Balance.bind(this), address, initialBalance, undefined,
             sleepInterval);
     }
 
     async waitERC721OwnerChange(tokenName: string, tokenId: number, initialOwner: string,
-        sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenName, this.getERC721OwnerOf.bind(this), undefined, initialOwner, tokenId,
             sleepInterval);
     }
 
     async waitERC1155BalanceChange(tokenName: string, address: string, tokenId: number,
-        initialBalance: string, sleepInterval: number=DEFAULT_SLEEP): Promise<any> {
+        initialBalance: string, sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenName, this.getERC1155Balance.bind(this), address, initialBalance, tokenId,
             sleepInterval);

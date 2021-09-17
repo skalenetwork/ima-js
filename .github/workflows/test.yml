@@ -8,7 +8,7 @@ jobs:
       matrix:
         node: [12]
     env:
-      MAINNET_ENDPOINT: http://127.0.0.1:8545
+      MAINNET_ENDPOINT: http://127.0.0.1:1545
       SCHAIN_ENDPOINT: http://127.0.0.1:15000
 
       SDK_PRIVATE_KEY: ${{ secrets.SDK_PRIVATE_KEY }}
@@ -17,6 +17,7 @@ jobs:
       TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
       TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
 
+      SKALED_LOG_LEVEL: info
       CHAIN_NAME_SCHAIN: "Bob"
       INSTALL_PACKAGES: "True"
     steps:
@@ -38,10 +39,7 @@ jobs:
         yarn lint
     - name: Run ima-sdk
       run: |
-        bash scripts/run_ima_sdk.sh
-    - name: Wait for contracts
-      run: |
-        bash scripts/wait_for_contracts.sh
+        NO_NGINX=True WAIT=True sudo -E bash skale-ima-sdk/scripts/run_sdk.sh
     - name: Deploy test tokens
       run: |
         sudo -E yarn deploy-tokens

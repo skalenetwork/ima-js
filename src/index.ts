@@ -35,7 +35,7 @@ import TokenType from './TokenType';
 import * as constants from './constants';
 
 
-export default class IMA {
+export class IMA {
     mainnet: MainnetChain;
     schain: SChain;
     constructor(mainnetWeb3: Web3, sChainWeb3: Web3, mainnetAbi: any, sChainAbi: any) {
@@ -107,13 +107,26 @@ export default class IMA {
     }
 
     async linkERC721Token(chainName: string, erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts) {
-        await this.mainnet.addERC721TokenByOwner(chainName, erc721OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
-        await this.schain.addERC721TokenByOwner(erc721OnMainnet, erc721OnSchain, opts); // todo: run only if not linked yet!
+        const isERC721AddedMainnet = await this.mainnet.isERC721Added(chainName, erc721OnMainnet);
+        if (!isERC721AddedMainnet){
+            await this.mainnet.addERC721TokenByOwner(chainName, erc721OnMainnet, opts);
+        }
+
+        const isERC721AddedSchain = await this.schain.isERC721Added(erc721OnMainnet);
+        if (isERC721AddedSchain === constants.ZERO_ADDRESS) {
+            await this.schain.addERC721TokenByOwner(erc721OnMainnet, erc721OnSchain, opts);
+        }
     }
 
     async linkERC1155Token(chainName: string, erc1155OnMainnet: string, erc1155OnSchain: string, opts: TxOpts) {
-        await this.mainnet.addERC1155TokenByOwner(chainName, erc1155OnMainnet, opts); // todo: run only if whitelist is enabled & if not added yet!
-        await this.schain.addERC1155TokenByOwner(erc1155OnMainnet, erc1155OnSchain, opts); // todo: run only if not linked yet!
+        const isERC1155AddedMainnet = await this.mainnet.isERC1155Added(chainName, erc1155OnMainnet);
+        if (!isERC1155AddedMainnet){
+            await this.mainnet.addERC1155TokenByOwner(chainName, erc1155OnMainnet, opts);
+        }
+        const isERC1155AddedSchain = await this.schain.isERC1155Added(erc1155OnMainnet);
+        if (isERC1155AddedSchain === constants.ZERO_ADDRESS) {
+            await this.schain.addERC1155TokenByOwner(erc1155OnMainnet, erc1155OnSchain, opts);
+        }
     }
 
     async enableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
@@ -122,5 +135,17 @@ export default class IMA {
 
     async disableAutomaticDeploy(tokenType: TokenType, opts: TxOpts) {
         return await this.schain.disableAutomaticDeploy(tokenType, opts);
+    }
+
+    async connectSchain(chainName: string, opts: TxOpts) {
+        const contractAddresses = [
+            this.schain.contracts.tokenManagerLinker.options.address,
+            this.schain.contracts.communityLocker.options.address,
+            this.schain.contracts.tokenManagerEth.options.address,
+            this.schain.contracts.tokenManagerERC20.options.address,
+            this.schain.contracts.tokenManagerERC721.options.address,
+            this.schain.contracts.tokenManagerERC1155.options.address
+        ];
+        return await this.mainnet.connectSchain(chainName, contractAddresses, opts);
     }
 }

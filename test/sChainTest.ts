@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 
 import TxOpts from "../src/TxOpts";
 import TokenType from '../src/TokenType';
-import IMA from '../src/index';
+import { IMA } from '../src/index';
 
 import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
@@ -26,11 +26,17 @@ describe("sChain module tests", () => {
         ima = test_utils.initTestIMA();
         address = helper.privateKeyToAddress(ima.schain.web3, test_utils.SCHAIN_PRIVATE_KEY);
         transferValBN = ima.mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
-        await test_utils.grantPermissions(ima);
-        await ima.schain.setTimeLimitPerMessage(1, {
+
+        const opts = {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
-        });
+        };
+
+        await test_utils.grantPermissions(ima);
+        if (!await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+            await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        }
+        await ima.schain.setTimeLimitPerMessage(1, opts);
         await test_utils.reimburseWallet(ima);
     });
 
@@ -49,7 +55,7 @@ describe("sChain module tests", () => {
         let mainnetBalanceBefore = await ima.mainnet.ethBalance(address);
         let sChainBalanceBefore = await ima.schain.ethBalance(address);
 
-         await ima.mainnet.reimbursementWalletRecharge(
+        await ima.mainnet.reimbursementWalletRecharge(
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );
@@ -59,9 +65,12 @@ describe("sChain module tests", () => {
             address,
             txOpts
         );
-        await test_utils.sleep(10000);
+        await ima.schain.waitETHBalanceChange(address, sChainBalanceBefore);
+
         let mainnetBalanceAfterDeposit = await ima.mainnet.ethBalance(address);
         let sChainBalanceAfterDeposit = await ima.schain.ethBalance(address);
+
+        let lockedETHAmount = await ima.mainnet.lockedETHAmount(address);
 
         await ima.schain.withdrawETH(
             address,
@@ -72,7 +81,7 @@ describe("sChain module tests", () => {
             }
         );
 
-        await test_utils.sleep(10000);
+        await ima.mainnet.waitLockedETHAmountChange(address, lockedETHAmount);
         await ima.mainnet.getMyEth(
             {
                 address: address,

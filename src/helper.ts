@@ -76,3 +76,15 @@ export function validatePrivateKey(privateKey: string) {
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function isNode() {
+    let node = false;
+    if (typeof process === 'object') {
+        if (typeof process.versions === 'object') {
+            if (typeof process.versions.node !== 'undefined') {
+                node = true;
+            }
+        }
+    }
+    return node;
+}

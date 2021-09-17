@@ -55,6 +55,10 @@ class SChain extends BaseChain {
             'communityLocker': new this.web3.eth.Contract(
                 this.abi.community_locker_abi,
                 this.abi.community_locker_address
+            ),
+            'tokenManagerLinker': new this.web3.eth.Contract(
+                this.abi.token_manager_linker_abi,
+                this.abi.token_manager_linker_address
             )
         };
     }
@@ -87,6 +91,14 @@ class SChain extends BaseChain {
 
     async isERC20Added(erc20OnMainnet: string) {
         return await this.contracts.tokenManagerERC20.methods.clonesErc20(erc20OnMainnet).call();
+    }
+
+    async isERC721Added(erc721OnMainnet: string) {
+        return await this.contracts.tokenManagerERC721.methods.clonesErc721(erc721OnMainnet).call();
+    }
+
+    async isERC1155Added(erc1155OnMainnet: string) {
+        return await this.contracts.tokenManagerERC1155.methods.clonesErc1155(erc1155OnMainnet).call();
     }
 
     async addERC721TokenByOwner(erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts):

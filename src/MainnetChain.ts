@@ -21,11 +21,18 @@
  * @copyright SKALE Labs 2021-Present
  */
 
+import { Logger } from "tslog";
+
 import { BaseChain, ContractsStringMap } from './BaseChain';
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
 
+import * as constants from './constants';
+import * as helper from './helper';
+
 import InvalidArgsException from './exceptions/InvalidArgsException';
+
+const log: Logger = new Logger();
 
 
 class MainnetChain extends BaseChain {
@@ -54,6 +61,14 @@ class MainnetChain extends BaseChain {
             'communityPool': new this.web3.eth.Contract(
                 this.abi.community_pool_abi,
                 this.abi.community_pool_address
+            ),
+            'linker': new this.web3.eth.Contract(
+                this.abi.linker_abi,
+                this.abi.linker_address
+            ),
+            'message_proxy_mainnet': new this.web3.eth.Contract(
+                this.abi.message_proxy_mainnet_abi,
+                this.abi.message_proxy_mainnet_address
             )
         };
     }
@@ -83,6 +98,23 @@ class MainnetChain extends BaseChain {
         return await this.contracts.depositBoxEth.methods.approveTransfers(address).call( {
             from: address
         })
+    }
+
+    async waitLockedETHAmountChange(address: string, initial: string,
+        sleepInterval: number=constants.DEFAULT_SLEEP,
+        iterations: number = constants.DEFAULT_ITERATIONS) {
+        for (let i = 1; i <= iterations; i++) {
+            let res;
+            res = await this.lockedETHAmount(address);
+            if (initial !== res) {
+                break;
+            }
+            if (helper.isNode()){
+                log.info('Waiting for locked ETH balance change - address: ' + address +
+                    ', sleeping for ' + sleepInterval + 'ms');
+            }
+            await helper.sleep(sleepInterval);
+        }
     }
 
     async reimbursementWalletRecharge(chainName: string, opts: TxOpts): Promise<any> {
@@ -187,6 +219,27 @@ class MainnetChain extends BaseChain {
 
     // todo: split - sChain owner admin functions
 
+    async LINKER_ROLE(): Promise<string> {
+        return await this.contracts.linker.methods.LINKER_ROLE().call();
+    }
+
+    async grantRoleLinker(role: any, address: string, opts: TxOpts) {
+        const txData = this.contracts.linker.methods.grantRole(role, address);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async connectSchain(chainName: string, contractAddresses: string[], opts: TxOpts): Promise<any> {
+        const txData = this.contracts.linker.methods.connectSchain(
+            chainName,
+            contractAddresses
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async isChainConnected(chainName: string): Promise<boolean> {
+        return await this.contracts.message_proxy_mainnet.methods.isConnectedChain(chainName).call();
+    }
+
     async enableWhitelist(depositBoxContractName: string, chainName: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts[depositBoxContractName].methods.enableWhitelist(chainName);
@@ -215,6 +268,18 @@ class MainnetChain extends BaseChain {
         const chainHash = this.web3.utils.soliditySha3(chainName);
         return await this.contracts.depositBoxERC20.methods.schainToERC20(
             chainHash, erc20OnMainnet).call();
+    }
+
+    async isERC721Added(chainName: string, erc721OnMainnet: string) {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.depositBoxERC721.methods.schainToERC721(
+            chainHash, erc721OnMainnet).call();
+    }
+
+    async isERC1155Added(chainName: string, erc1155OnMainnet: string) {
+        const chainHash = this.web3.utils.soliditySha3(chainName);
+        return await this.contracts.depositBoxERC1155.methods.schainToERC1155(
+            chainHash, erc1155OnMainnet).call();
     }
 
     async addERC20TokenByOwner(chainName: string, erc20OnMainnet: string, opts: TxOpts):
