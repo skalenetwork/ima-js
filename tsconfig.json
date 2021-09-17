@@ -70,6 +70,7 @@
     "resolveJsonModule": true
   },
   "exclude": [
+    "build",
     "node_modules",
     "dist",
     "test",
