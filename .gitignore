@@ -46,6 +46,7 @@ abis
 
 build/
 data/
+*.d.ts
 
 .env-sdk
 test.mjs
