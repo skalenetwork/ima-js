@@ -1,64 +1,42 @@
 # SKALE IMA-JS
 
-Typescirpt/Javascript library which implements client for SKALE Interchain Messaging Agent (IMA).
+[![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
+
+IMA-JS is a Typescirpt/Javascript library which implements client for SKALE Interchain Messaging Agent (IMA).
+
+## Installation
+
+### Node
+
+```shell
+npm install --save @skalenetwork/ima-js
+```
+
+### Yarn
+
+```shell
+yarn add @skalenetwork/ima-js
+```
 
 ## Usage
 
-### Mainnet Chain
-
-#### Initialize a chain
-
-```typescript
-    import MainnetChain from 'ima-js-v2';
-
-    let provider = new Web3.providers.HttpProvider(MAINNET_ENDPOINT);
-    let web3 = new Web3(provider);
-    let abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
-    let mainnetChain = new MainnetChain(web3, abi);
-```
-
-#### Get ETH balance
-
-This method returns ETH balance on the Mainnet
-
-```typescript
-    let balance = await mainnetChain.ethBalance(address);
-```
-
-### SKALE Chain
-
-#### Initialize a chain
-
-```typescript
-    import sChain from 'ima-js-v2';
-
-    let provider = new Web3.providers.HttpProvider(SCHAIN_ENDPOINT);
-    let web3 = new Web3(provider);
-    let abi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
-    let sChain = new SChain(web3, abi);
-```
-
-#### Get ETH balance
-
-This method returns real ETH balance locked on the sChain
-
-```typescript
-    let balance = await sChain.ethBalance(address);
-```
+Full usage documentation with examples can be found on our docs portal: https://docs.skale.network/ima/1.0.x/
 
 ## Development
 
 ### Testing
 
+> Check out GA test workflow in `.github/workflows/test.yml` to see all steps.
+
 Deploy test tokens:
 
-```bash
+```shell
 yarn deploy-tokens
 ```
 
 Run tests:
 
-```bash
+```shell
 yarn test
 ```
 
@@ -68,7 +46,7 @@ Used linter: https://palantir.github.io/tslint/
 
 Install the global CLI and its peer dependency:
 
-```bash
+```shell
 yarn global add tslint typescript
 ```
 
@@ -76,7 +54,13 @@ yarn global add tslint typescript
 
 Be sure to add pre-commit git hook:
 
-```bash
+```shell
 echo 'yarn lint' > .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
+
+## License
+
+![GitHub](https://img.shields.io/github/license/skalenetwork/skale.py.svg)
+
+All contributions are made under the [GNU Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.en.html). See [LICENSE](LICENSE).
