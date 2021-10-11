@@ -75,6 +75,7 @@ export async function reimburseWallet(ima: IMA) {
     };
     await ima.mainnet.reimbursementWalletRecharge(
         CHAIN_NAME_SCHAIN,
+        testAddress,
         txOpts
     );
 }

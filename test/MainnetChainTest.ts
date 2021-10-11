@@ -66,7 +66,6 @@ describe("Mainnet chain tests", () => {
 
         await mainnetChain.depositETHtoSChain(
             test_utils.CHAIN_NAME_SCHAIN,
-            address,
             txOpts
         );
         await sChain.waitETHBalanceChange(address, sChainBalanceBefore);
@@ -82,13 +81,14 @@ describe("Mainnet chain tests", () => {
 
     it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
         let balanceBefore = await mainnetChain.reimbursementWalletBalance(
-            test_utils.CHAIN_NAME_SCHAIN, address);
+            address, test_utils.CHAIN_NAME_SCHAIN);
 
         let balanceBeforeBN = mainnetChain.web3.utils.toBN(balanceBefore);
         let expectedBalanceBN = balanceBeforeBN.add(transferValBN);
 
         await mainnetChain.reimbursementWalletRecharge(
             test_utils.CHAIN_NAME_SCHAIN,
+            address,
             {
                 value: test_utils.TEST_WEI_TRANSFER_VALUE,
                 address: address,
@@ -97,7 +97,7 @@ describe("Mainnet chain tests", () => {
         );
 
         let balanceAfter = await mainnetChain.reimbursementWalletBalance(
-            test_utils.CHAIN_NAME_SCHAIN, address);
+            address, test_utils.CHAIN_NAME_SCHAIN);
 
         balanceAfter.should.be.equal(expectedBalanceBN.toString(10));
 
@@ -111,7 +111,7 @@ describe("Mainnet chain tests", () => {
         );
 
         let balanceAfterWithdraw = await mainnetChain.reimbursementWalletBalance(
-            test_utils.CHAIN_NAME_SCHAIN, address);
+            address, test_utils.CHAIN_NAME_SCHAIN);
         balanceAfterWithdraw.should.be.equal(balanceBefore);
     });
 });
