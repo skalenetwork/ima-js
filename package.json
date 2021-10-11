@@ -1,7 +1,7 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "0.1.0",
-  "description": "Library to interact with SKALE IMA",
+  "version": "0.2.0",
+  "description": "Simple TS/JS library to interact with SKALE IMA",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
