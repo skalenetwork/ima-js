@@ -24,6 +24,10 @@ Full usage documentation with examples can be found on our docs portal: https://
 
 ## Development
 
+### IMA-SDK
+
+Version `0.3.0` is compatible with ima-sdk `0.2.1`
+
 ### Testing
 
 > Check out GA test workflow in `.github/workflows/test.yml` to see all steps.
