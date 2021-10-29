@@ -9,4 +9,4 @@
 [submodule "skale-ima-sdk"]
 	path = skale-ima-sdk
 	url = https://github.com/skalenetwork/skale-ima-sdk.git
-	branch = enhancement/SKALE-4624-update-to-the-latest-ima
+	branch = master
