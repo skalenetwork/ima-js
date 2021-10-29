@@ -67,9 +67,8 @@ class SChain extends BaseChain {
         return await this.contracts.ethERC20.methods.balanceOf(address).call({ from: address });
     }
 
-    async withdrawETH(recipientAddress: string, withdrawValue: string, opts: TxOpts): Promise<any> {
-        const txData = this.contracts.tokenManagerEth.methods.exitToMain(
-            recipientAddress, withdrawValue);
+    async withdrawETH(withdrawValue: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.tokenManagerEth.methods.exitToMain(withdrawValue);
         return await transactions.send(this.web3, txData, opts);
     }
 
@@ -170,10 +169,9 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async withdrawERC20(mainnetTokenAddress: string, to: string, amount: string, opts: TxOpts): Promise<any> {
+    async withdrawERC20(mainnetTokenAddress: string, amount: string, opts: TxOpts): Promise<any> {
         const txData = this.contracts.tokenManagerERC20.methods.exitToMainERC20(
             mainnetTokenAddress,
-            to,
             amount
         );
         return await transactions.send(this.web3, txData, opts);
@@ -188,10 +186,9 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async withdrawERC721(mainnetTokenAddress: string, to: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async withdrawERC721(mainnetTokenAddress: string, tokenId: number, opts: TxOpts): Promise<any> {
         const txData = this.contracts.tokenManagerERC721.methods.exitToMainERC721(
             mainnetTokenAddress,
-            to,
             tokenId
         );
         return await transactions.send(this.web3, txData, opts);
@@ -206,21 +203,19 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async withdrawERC1155(mainnetTokenAddress: string, to: string, tokenIds: number | number[],
+    async withdrawERC1155(mainnetTokenAddress: string, tokenIds: number | number[],
         amounts: string | string[], opts: TxOpts): Promise<any> {
         let txData: any;
 
         if (typeof tokenIds === 'number' && typeof amounts === 'string') {
             txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155(
                 mainnetTokenAddress,
-                to,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
             txData = this.contracts.tokenManagerERC1155.methods.exitToMainERC1155Batch(
                 mainnetTokenAddress,
-                to,
                 tokenIds,
                 amounts
             );

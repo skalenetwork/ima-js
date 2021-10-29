@@ -58,38 +58,38 @@ export class IMA {
         this.schain.addERC1155Token(tokenName, sChainContact);
     }
 
-    async depositERC20(chainName: string, tokenName: string, to: string, amount: string,
+    async depositERC20(chainName: string, tokenName: string, amount: string,
         opts: TxOpts): Promise<any> {
-        return await this.mainnet.depositERC20(chainName, tokenName, to, amount, opts);
+        return await this.mainnet.depositERC20(chainName, tokenName, amount, opts);
     }
 
-    async withdrawERC20(tokenName: string, to: string, amount: string, opts: TxOpts): Promise<any> {
+    async withdrawERC20(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.mainnet.ERC20tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
-        return await this.schain.withdrawERC20(tokenContractAddress, to, amount, opts);
+        return await this.schain.withdrawERC20(tokenContractAddress, amount, opts);
     }
 
-    async depositERC721(chainName: string, tokenName: string, to: string, tokenId: number,
+    async depositERC721(chainName: string, tokenName: string, tokenId: number,
         opts: TxOpts): Promise<any> {
-        return await this.mainnet.depositERC721(chainName, tokenName, to, tokenId, opts);
+        return await this.mainnet.depositERC721(chainName, tokenName, tokenId, opts);
     }
 
-    async withdrawERC721(tokenName: string, to: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async withdrawERC721(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
         const tokenContract = this.mainnet.ERC721tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
-        return await this.schain.withdrawERC721(tokenContractAddress, to, tokenId, opts);
+        return await this.schain.withdrawERC721(tokenContractAddress, tokenId, opts);
     }
 
-    async depositERC1155(chainName: string, tokenName: string, to: string, tokenIds: number | number[],
+    async depositERC1155(chainName: string, tokenName: string, tokenIds: number | number[],
         amounts: string | string[], opts: TxOpts): Promise<any> {
-        return await this.mainnet.depositERC1155(chainName, tokenName, to, tokenIds, amounts, opts);
+        return await this.mainnet.depositERC1155(chainName, tokenName, tokenIds, amounts, opts);
     }
 
-    async withdrawERC1155(tokenName: string, to: string, tokenIds: number | number[],
+    async withdrawERC1155(tokenName: string, tokenIds: number | number[],
         amounts: string | string[], opts: TxOpts): Promise<any> {
         const tokenContract = this.mainnet.ERC1155tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
-        return await this.schain.withdrawERC1155(tokenContractAddress, to, tokenIds, amounts, opts);
+        return await this.schain.withdrawERC1155(tokenContractAddress, tokenIds, amounts, opts);
     }
 
     // todo: move to .admin or .owner namespace

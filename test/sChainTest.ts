@@ -57,12 +57,12 @@ describe("sChain module tests", () => {
 
         await ima.mainnet.reimbursementWalletRecharge(
             test_utils.CHAIN_NAME_SCHAIN,
+            address,
             txOpts
         );
 
         await ima.mainnet.depositETHtoSChain(
             test_utils.CHAIN_NAME_SCHAIN,
-            address,
             txOpts
         );
         await ima.schain.waitETHBalanceChange(address, sChainBalanceBefore);
@@ -73,7 +73,6 @@ describe("sChain module tests", () => {
         let lockedETHAmount = await ima.mainnet.lockedETHAmount(address);
 
         await ima.schain.withdrawETH(
-            address,
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
                 address: address,

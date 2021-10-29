@@ -76,8 +76,8 @@ class MainnetChain extends BaseChain {
     // todo: split - eth
 
     async depositETHtoSChain(
-        chainName: string, recipientAddress: string, opts: TxOpts): Promise<any> {
-        const txData = this.contracts.depositBoxEth.methods.deposit(chainName, recipientAddress);
+        chainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.depositBoxEth.methods.deposit(chainName);
         return await transactions.send(this.web3, txData, opts);
     }
 
@@ -88,11 +88,23 @@ class MainnetChain extends BaseChain {
 
     // todo: split - reimbursement wallet
 
-    async reimbursementWalletBalance(chainName: string, address: string): Promise<string> {
-        return await this.contracts.communityPool.methods.getBalance(chainName).call( {
-            from: address
-        })
+    async reimbursementWalletBalance(address: string, chainName: string): Promise<string> {
+        return await this.contracts.communityPool.methods.getBalance(address, chainName).call();
     }
+
+    async reimbursementWalletRecharge(chainName: string, address: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.communityPool.methods.rechargeUserWallet(chainName, address);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async reimbursementWalletWithdraw(
+        chainName: string, withdrawAmountWei: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.communityPool.methods.withdrawFunds(
+            chainName, withdrawAmountWei);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - locked eth
 
     async lockedETHAmount(address: string): Promise<string> {
         return await this.contracts.depositBoxEth.methods.approveTransfers(address).call( {
@@ -117,18 +129,6 @@ class MainnetChain extends BaseChain {
         }
     }
 
-    async reimbursementWalletRecharge(chainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contracts.communityPool.methods.rechargeUserWallet(chainName);
-        return await transactions.send(this.web3, txData, opts);
-    }
-
-    async reimbursementWalletWithdraw(
-        chainName: string, withdrawAmountWei: string, opts: TxOpts): Promise<any> {
-        const txData = this.contracts.communityPool.methods.withdrawFunds(
-            chainName, withdrawAmountWei);
-        return await transactions.send(this.web3, txData, opts);
-    }
-
     // todo: split - erc20 transfers
 
     async approveERC20Transfers(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
@@ -138,7 +138,7 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async depositERC20(chainName: string, tokenName: string, to: string, amount: string,
+    async depositERC20(chainName: string, tokenName: string, amount: string,
         opts: TxOpts): Promise<any> {
         const tokenContract = this.ERC20tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
@@ -146,7 +146,6 @@ class MainnetChain extends BaseChain {
         const txData = this.contracts.depositBoxERC20.methods.depositERC20(
             chainName,
             tokenContractAddress,
-            to,
             amount
         );
         return await transactions.send(this.web3, txData, opts);
@@ -161,7 +160,7 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async depositERC721(chainName: string, tokenName: string, to: string, tokenId: number,
+    async depositERC721(chainName: string, tokenName: string, tokenId: number,
         opts: TxOpts): Promise<any> {
         const tokenContract = this.ERC721tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
@@ -169,7 +168,6 @@ class MainnetChain extends BaseChain {
         const txData = this.contracts.depositBoxERC721.methods.depositERC721(
             chainName,
             tokenContractAddress,
-            to,
             tokenId
         );
         return await transactions.send(this.web3, txData, opts);
@@ -187,7 +185,7 @@ class MainnetChain extends BaseChain {
     }
 
     async depositERC1155(
-        chainName: string, tokenName: string, to: string, tokenIds: number | number[],
+        chainName: string, tokenName: string, tokenIds: number | number[],
         amounts: string | string[], opts: TxOpts):Promise<any> {
         const tokenContract = this.ERC1155tokens[tokenName];
         const tokenContractAddress = tokenContract.options.address;
@@ -198,7 +196,6 @@ class MainnetChain extends BaseChain {
             txData = this.contracts.depositBoxERC1155.methods.depositERC1155(
                 chainName,
                 tokenContractAddress,
-                to,
                 tokenIds,
                 amounts
             );
@@ -206,7 +203,6 @@ class MainnetChain extends BaseChain {
             txData = this.contracts.depositBoxERC1155.methods.depositERC1155Batch(
                 chainName,
                 tokenContractAddress,
-                to,
                 tokenIds,
                 amounts
             );
