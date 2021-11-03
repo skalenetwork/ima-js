@@ -113,6 +113,22 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         balanceSchain3.should.be.equal(balanceSchain1);
     });
 
+    it.only("Test ERC20 tokens mapping", async () => {
+        ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
+        await ima.linkERC20Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            testTokens.mainnetERC20.options.address,
+            testTokens.schainERC20.options.address,
+            opts
+        );
+        let erc20Len = await ima.mainnet.getSchainToAllERC20Length(test_utils.CHAIN_NAME_SCHAIN);
+        erc20Len.should.be.equal('1');
+
+        let erc20Tokens = await ima.mainnet.getSchainToAllERC20(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc20Len);
+        erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.options.address);
+    });
+
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {
         ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
 
