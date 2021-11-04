@@ -113,6 +113,54 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         balanceSchain3.should.be.equal(balanceSchain1);
     });
 
+    it("Test ERC20 tokens mapping", async () => {
+        ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
+        await ima.linkERC20Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            testTokens.mainnetERC20.options.address,
+            testTokens.schainERC20.options.address,
+            opts
+        );
+        let erc20Len = await ima.mainnet.getSchainToAllERC20Length(test_utils.CHAIN_NAME_SCHAIN);
+        erc20Len.should.be.equal('1');
+
+        let erc20Tokens = await ima.mainnet.getSchainToAllERC20(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc20Len);
+        erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.options.address);
+    });
+
+    it("Test ERC721 tokens mapping", async () => {
+        ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
+        await ima.linkERC721Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            testTokens.mainnetERC721.options.address,
+            testTokens.schainERC721.options.address,
+            opts
+        );
+        let erc721Len = await ima.mainnet.getSchainToAllERC721Length(test_utils.CHAIN_NAME_SCHAIN);
+        erc721Len.should.be.equal('1');
+
+        let erc721Tokens = await ima.mainnet.getSchainToAllERC721(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc721Len);
+        erc721Tokens[0].should.be.equal(testTokens.mainnetERC721.options.address);
+    });
+
+    it("Test ERC1155 tokens mapping", async () => {
+        ima.addERC1155Token(erc1155Name, testTokens.mainnetERC1155, testTokens.schainERC1155);
+        await ima.linkERC1155Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            testTokens.mainnetERC1155.options.address,
+            testTokens.schainERC1155.options.address,
+            opts
+        );
+        let erc1155Len = await ima.mainnet.getSchainToAllERC1155Length(test_utils.CHAIN_NAME_SCHAIN);
+        erc1155Len.should.be.equal('1');
+
+        let erc1155Tokens = await ima.mainnet.getSchainToAllERC1155(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc1155Len);
+        erc1155Tokens[0].should.be.equal(testTokens.mainnetERC1155.options.address);
+    });
+
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {
         ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
 

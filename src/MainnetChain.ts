@@ -213,6 +213,47 @@ class MainnetChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    // todo: split - helper functions
+
+    async getSchainToAllERC20Length(chainName: string): Promise<string> {
+        return await this.contracts.depositBoxERC20.methods.getSchainToAllERC20Length(
+            chainName).call();
+    }
+
+    async getSchainToAllERC20(chainName: string, from: number | string, to: number | string): Promise<string[]> {
+        return await this.contracts.depositBoxERC20.methods.getSchainToAllERC20(
+            chainName,
+            from,
+            to
+        ).call();
+    }
+
+    async getSchainToAllERC721Length(chainName: string): Promise<string> {
+        return await this.contracts.depositBoxERC721.methods.getSchainToAllERC721Length(
+            chainName).call();
+    }
+
+    async getSchainToAllERC721(chainName: string, from: number | string, to: number | string): Promise<string[]> {
+        return await this.contracts.depositBoxERC721.methods.getSchainToAllERC721(
+            chainName,
+            from,
+            to
+        ).call();
+    }
+
+    async getSchainToAllERC1155Length(chainName: string): Promise<number> {
+        return await this.contracts.depositBoxERC1155.methods.getSchainToAllERC1155Length(
+            chainName).call();
+    }
+
+    async getSchainToAllERC1155(chainName: string, from: number | string, to: number | string): Promise<string[]> {
+        return await this.contracts.depositBoxERC1155.methods.getSchainToAllERC1155(
+            chainName,
+            from,
+            to
+        ).call();
+    }
+
     // todo: split - sChain owner admin functions
 
     async LINKER_ROLE(): Promise<string> {
@@ -261,21 +302,18 @@ class MainnetChain extends BaseChain {
     }
 
     async isERC20Added(chainName: string, erc20OnMainnet: string) {
-        const chainHash = this.web3.utils.soliditySha3(chainName);
-        return await this.contracts.depositBoxERC20.methods.schainToERC20(
-            chainHash, erc20OnMainnet).call();
+        return await this.contracts.depositBoxERC20.methods.getSchainToERC20(
+            chainName, erc20OnMainnet).call();
     }
 
     async isERC721Added(chainName: string, erc721OnMainnet: string) {
-        const chainHash = this.web3.utils.soliditySha3(chainName);
-        return await this.contracts.depositBoxERC721.methods.schainToERC721(
-            chainHash, erc721OnMainnet).call();
+        return await this.contracts.depositBoxERC721.methods.getSchainToERC721(
+            chainName, erc721OnMainnet).call();
     }
 
     async isERC1155Added(chainName: string, erc1155OnMainnet: string) {
-        const chainHash = this.web3.utils.soliditySha3(chainName);
-        return await this.contracts.depositBoxERC1155.methods.schainToERC1155(
-            chainHash, erc1155OnMainnet).call();
+        return await this.contracts.depositBoxERC1155.methods.getSchainToERC1155(
+            chainName, erc1155OnMainnet).call();
     }
 
     async addERC20TokenByOwner(chainName: string, erc20OnMainnet: string, opts: TxOpts):
