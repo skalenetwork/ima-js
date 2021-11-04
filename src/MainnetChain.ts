@@ -228,9 +228,30 @@ class MainnetChain extends BaseChain {
         ).call();
     }
 
+    async getSchainToAllERC721Length(chainName: string): Promise<string> {
+        return await this.contracts.depositBoxERC721.methods.getSchainToAllERC721Length(
+            chainName).call();
+    }
+
+    async getSchainToAllERC721(chainName: string, from: number | string, to: number | string): Promise<string[]> {
+        return await this.contracts.depositBoxERC721.methods.getSchainToAllERC721(
+            chainName,
+            from,
+            to
+        ).call();
+    }
+
     async getSchainToAllERC1155Length(chainName: string): Promise<number> {
         return await this.contracts.depositBoxERC1155.methods.getSchainToAllERC1155Length(
             chainName).call();
+    }
+
+    async getSchainToAllERC1155(chainName: string, from: number | string, to: number | string): Promise<string[]> {
+        return await this.contracts.depositBoxERC1155.methods.getSchainToAllERC1155(
+            chainName,
+            from,
+            to
+        ).call();
     }
 
     // todo: split - sChain owner admin functions
