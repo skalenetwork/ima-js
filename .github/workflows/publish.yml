@@ -18,7 +18,7 @@ jobs:
       - name: Set version and branch
         run: |
           export BRANCH=${GITHUB_REF##*/}
-          export VERSION=$(cat VERSION)
+          export VERSION=$(npm run --silent version)
           echo "Branch: $BRANCH"
           echo "Base version: $VERSION"
           export VERSION=$(bash ./helper-scripts/calculate_version.sh)
