@@ -1,17 +1,10 @@
 name: Build and publish
-on:
-  pull_request:
-    types: [closed]
-    branches:
-      - master
-      - develop
-      - beta
-      - stable
-      - testrelease
+on: [push, pull_request]
+
 
 jobs:
   build:
-    if: github.event.pull_request.merged
+    # if: github.event.pull_request.merged
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
