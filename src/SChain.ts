@@ -225,6 +225,70 @@ class SChain extends BaseChain {
         }
         return await transactions.send(this.web3, txData, opts);
     }
+
+    // todo: split - s2s transfers
+
+    async connectSchain(schainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contracts.tokenManagerLinker.methods.approve(schainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async transferToSchainERC20(
+        targetSchainName: string,
+        mainnetTokenAddress: string,
+        amount: string,
+        opts: TxOpts
+    ): Promise<any> {
+        const txData = this.contracts.tokenManagerERC20.methods.transferToSchainERC20(
+            targetSchainName,
+            mainnetTokenAddress,
+            amount
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async transferToSchainERC721(
+        targetSchainName: string,
+        tokenAddress: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<any> {
+        const txData = this.contracts.tokenManagerERC721.methods.transferToSchainERC721(
+            targetSchainName,
+            tokenAddress,
+            tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async transferToSchainERC1155(
+        targetSchainName: string,
+        tokenAddress: string,
+        tokenIds: number | number[],
+        amounts: string | string[],
+        opts: TxOpts
+    ): Promise<any> {
+        let txData: any;
+        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
+            txData = this.contracts.tokenManagerERC1155.methods.transferToSchainERC1155(
+                targetSchainName,
+                tokenAddress,
+                tokenIds,
+                amounts
+            );
+        } else if (tokenIds instanceof Array && amounts instanceof Array) {
+            txData = this.contracts.tokenManagerERC1155.methods.transferToSchainERC1155Batch(
+                targetSchainName,
+                tokenAddress,
+                tokenIds,
+                amounts
+            );
+        } else {
+            throw new InvalidArgsException(
+                'tokenIds and amounts should both be arrays of single objects');
+        }
+        return await transactions.send(this.web3, txData, opts);
+    }
 }
 
 export default SChain;

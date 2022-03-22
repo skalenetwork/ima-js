@@ -118,4 +118,47 @@ describe("sChain module tests", () => {
         automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
         automaticDeploy.should.be.equal(false);
     });
+
+    it.skip("Transfers ERC20 between chains", async () => {
+        let txOpts: TxOpts = {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        };
+        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
+        await ima.schain.transferToSchainERC20(
+            'chainB',
+            '0x1',
+            '10000',
+            txOpts
+        );
+    });
+
+    it.skip("Transfers ERC721 between chains", async () => {
+        let txOpts: TxOpts = {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        };
+        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
+        await ima.schain.transferToSchainERC721(
+            'chainB',
+            '0x1',
+            1,
+            txOpts
+        );
+    });
+
+    it.skip("Transfers ERC1155 between chains", async () => {
+        let txOpts: TxOpts = {
+            address: address,
+            privateKey: test_utils.SCHAIN_PRIVATE_KEY
+        };
+        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
+        await ima.schain.transferToSchainERC1155(
+            'chainB',
+            '0x1',
+            1,
+            '100',
+            txOpts
+        );
+    });
 });
