@@ -54,6 +54,10 @@ class MainnetChain extends BaseChain {
                 this.abi.deposit_box_erc721_abi,
                 this.abi.deposit_box_erc721_address
             ),
+            'depositBoxERC721WithMetadata': new this.web3.eth.Contract(
+                this.abi.deposit_box_erc721_with_metadata_abi,
+                this.abi.deposit_box_erc721_with_metadata_address
+            ),
             'depositBoxERC1155': new this.web3.eth.Contract(
                 this.abi.deposit_box_erc1155_abi,
                 this.abi.deposit_box_erc1155_address
@@ -166,6 +170,32 @@ class MainnetChain extends BaseChain {
         const tokenContractAddress = tokenContract.options.address;
 
         const txData = this.contracts.depositBoxERC721.methods.depositERC721(
+            chainName,
+            tokenContractAddress,
+            tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc721 with metadata transfers
+
+    async approveERC721WithMetadataTransfer(
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<any> {
+        const tokenContract = this.ERC721WithMetadataTokens[tokenName];
+        const depositBoxAddress = this.contracts.depositBoxERC721.options.address;
+        const txData = tokenContract.methods.approve(depositBoxAddress, tokenId);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async depositERC721WithMetadata(chainName: string, tokenName: string, tokenId: number,
+        opts: TxOpts): Promise<any> {
+        const tokenContract = this.ERC721WithMetadataTokens[tokenName];
+        const tokenContractAddress = tokenContract.options.address;
+
+        const txData = this.contracts.depositBoxERC721WithMetadata.methods.depositERC721(
             chainName,
             tokenContractAddress,
             tokenId

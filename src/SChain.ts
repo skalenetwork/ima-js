@@ -48,6 +48,10 @@ class SChain extends BaseChain {
                 this.abi.token_manager_erc721_abi,
                 this.abi.token_manager_erc721_address
             ),
+            'tokenManagerERC721WithMetadata': new this.web3.eth.Contract(
+                this.abi.token_manager_erc721_with_metadata_abi,
+                this.abi.token_manager_erc721_with_metadata_address
+            ),
             'tokenManagerERC1155': new this.web3.eth.Contract(
                 this.abi.token_manager_erc1155_abi,
                 this.abi.token_manager_erc1155_address
@@ -96,6 +100,11 @@ class SChain extends BaseChain {
         return await this.contracts.tokenManagerERC721.methods.clonesErc721(erc721OnMainnet).call();
     }
 
+    async isERC721WithMetadataAdded(erc721OnMainnet: string) {
+        return await this.contracts.tokenManagerERC721WithMetadata.methods.clonesErc721(
+            erc721OnMainnet).call();
+    }
+
     async isERC1155Added(erc1155OnMainnet: string) {
         return await this.contracts.tokenManagerERC1155.methods.clonesErc1155(erc1155OnMainnet).call();
     }
@@ -103,6 +112,18 @@ class SChain extends BaseChain {
     async addERC721TokenByOwner(erc721OnMainnet: string, erc721OnSchain: string, opts: TxOpts):
         Promise<any> {
         const txData = this.contracts.tokenManagerERC721.methods.addERC721TokenByOwner(
+            erc721OnMainnet,
+            erc721OnSchain
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async addERC721WithMetadataTokenByOwner(
+        erc721OnMainnet: string,
+        erc721OnSchain: string,
+        opts: TxOpts
+    ): Promise<any> {
+        const txData = this.contracts.tokenManagerERC721WithMetadata.methods.addERC721TokenByOwner(
             erc721OnMainnet,
             erc721OnSchain
         );
@@ -177,7 +198,7 @@ class SChain extends BaseChain {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    // todo: split - erc20 transfers
+    // todo: split - erc721 transfers
 
     async approveERC721Transfer(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
         const tokenContract = this.ERC721tokens[tokenName];
@@ -188,6 +209,31 @@ class SChain extends BaseChain {
 
     async withdrawERC721(mainnetTokenAddress: string, tokenId: number, opts: TxOpts): Promise<any> {
         const txData = this.contracts.tokenManagerERC721.methods.exitToMainERC721(
+            mainnetTokenAddress,
+            tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    // todo: split - erc721 with metadata transfers
+
+    async approveERC721WithMetadataTransfer(
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<any> {
+        const tokenContract = this.ERC721WithMetadataTokens[tokenName];
+        const address = this.contracts.tokenManagerERC721WithMetadata.options.address;
+        const txData = tokenContract.methods.approve(address, tokenId);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async withdrawERC721WithMetadata(
+        mainnetTokenAddress: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<any> {
+        const txData = this.contracts.tokenManagerERC721WithMetadata.methods.exitToMainERC721(
             mainnetTokenAddress,
             tokenId
         );
@@ -254,6 +300,20 @@ class SChain extends BaseChain {
         opts: TxOpts
     ): Promise<any> {
         const txData = this.contracts.tokenManagerERC721.methods.transferToSchainERC721(
+            targetSchainName,
+            tokenAddress,
+            tokenId
+        );
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async transferToSchainERC721WithMetadata(
+        targetSchainName: string,
+        tokenAddress: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<any> {
+        const txData = this.contracts.tokenManagerERC721WithMetadata.methods.transferToSchainERC721(
             targetSchainName,
             tokenAddress,
             tokenId

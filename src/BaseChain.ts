@@ -40,6 +40,7 @@ export abstract class BaseChain {
     contracts: ContractsStringMap;
     ERC20tokens: ContractsStringMap;
     ERC721tokens: ContractsStringMap;
+    ERC721WithMetadataTokens: ContractsStringMap;
     ERC1155tokens: ContractsStringMap;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
@@ -47,6 +48,7 @@ export abstract class BaseChain {
         this.abi = abi;
         this.ERC20tokens = {};
         this.ERC721tokens = {};
+        this.ERC721WithMetadataTokens = {};
         this.ERC1155tokens = {};
         if (chainId) this.chainId = chainId;
         this.contracts = this.initContracts();
@@ -61,6 +63,10 @@ export abstract class BaseChain {
 
     addERC721Token(tokenName: string, contract: Contract) {
         this.ERC721tokens[tokenName] = contract;
+    }
+
+    addERC721WithMetadataToken(tokenName: string, contract: Contract) {
+        this.ERC721WithMetadataTokens[tokenName] = contract;
     }
 
     addERC1155Token(tokenName: string, contract: Contract) {
