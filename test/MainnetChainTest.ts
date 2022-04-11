@@ -21,7 +21,7 @@ chai.use(chaiAsPromised);
 
 describe("Mainnet chain tests", () => {
     let address: string;
-    let mainnetChain: MainnetChain;
+    let mainnet: MainnetChain;
     let sChain: SChain;
     let transferValBN: any;
 
@@ -30,10 +30,10 @@ describe("Mainnet chain tests", () => {
 
     before(async () => {
         ima = test_utils.initTestIMA();
-        mainnetChain = test_utils.initTestMainnet();
+        mainnet = test_utils.initTestMainnet();
         sChain = test_utils.initTestSChain();
-        address = helper.privateKeyToAddress(mainnetChain.web3, test_utils.MAINNET_PRIVATE_KEY);
-        transferValBN = mainnetChain.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
+        address = helper.privateKeyToAddress(mainnet.web3, test_utils.MAINNET_PRIVATE_KEY);
+        transferValBN = mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
 
         opts = {
             address: address,
@@ -41,21 +41,22 @@ describe("Mainnet chain tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        const isChainConnected = await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN);
+        const isChainConnected = await ima.mainnet.messageProxyMainnet.isChainConnected(
+            test_utils.CHAIN_NAME_SCHAIN);
         if (!isChainConnected){
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
     });
 
     it("Requests ETH balance for Mainnet chain", async () => {
-        let balance = await mainnetChain.ethBalance(address);
+        let balance = await mainnet.ethBalance(address);
         balance.should.be.a('string');
     });
 
     it("Deposits ETH from Mainnet to sChain", async () => {
-        let mainnetBalanceBefore = await mainnetChain.ethBalance(address);
+        let mainnetBalanceBefore = await mainnet.ethBalance(address);
         let sChainBalanceBefore = await sChain.ethBalance(address);
-        let sChainBalanceBeforeBN = mainnetChain.web3.utils.toBN(sChainBalanceBefore);
+        let sChainBalanceBeforeBN = mainnet.web3.utils.toBN(sChainBalanceBefore);
         let expectedSChainBalance = sChainBalanceBeforeBN.add(transferValBN);
 
         let txOpts: TxOpts = {
@@ -64,14 +65,14 @@ describe("Mainnet chain tests", () => {
             privateKey: test_utils.MAINNET_PRIVATE_KEY
         };
 
-        await mainnetChain.depositETHtoSChain(
+        await mainnet.eth.deposit(
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );
         await sChain.waitETHBalanceChange(address, sChainBalanceBefore);
 
         let sChainBalanceAfter = await sChain.ethBalance(address);
-        let mainnetBalanceAfter = await mainnetChain.ethBalance(address);
+        let mainnetBalanceAfter = await mainnet.ethBalance(address);
         
         console.log(mainnetBalanceBefore, mainnetBalanceAfter);
         console.log(sChainBalanceBefore, sChainBalanceAfter);
@@ -80,13 +81,13 @@ describe("Mainnet chain tests", () => {
     });
 
     it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
-        let balanceBefore = await mainnetChain.reimbursementWalletBalance(
+        let balanceBefore = await mainnet.communityPool.balance(
             address, test_utils.CHAIN_NAME_SCHAIN);
 
-        let balanceBeforeBN = mainnetChain.web3.utils.toBN(balanceBefore);
+        let balanceBeforeBN = mainnet.web3.utils.toBN(balanceBefore);
         let expectedBalanceBN = balanceBeforeBN.add(transferValBN);
 
-        await mainnetChain.reimbursementWalletRecharge(
+        await mainnet.communityPool.recharge(
             test_utils.CHAIN_NAME_SCHAIN,
             address,
             {
@@ -96,12 +97,12 @@ describe("Mainnet chain tests", () => {
             }
         );
 
-        let balanceAfter = await mainnetChain.reimbursementWalletBalance(
+        let balanceAfter = await mainnet.communityPool.balance(
             address, test_utils.CHAIN_NAME_SCHAIN);
 
         balanceAfter.should.be.equal(expectedBalanceBN.toString(10));
 
-        await mainnetChain.reimbursementWalletWithdraw(
+        await mainnet.communityPool.withdraw(
             test_utils.CHAIN_NAME_SCHAIN,
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
@@ -110,7 +111,7 @@ describe("Mainnet chain tests", () => {
             }
         );
 
-        let balanceAfterWithdraw = await mainnetChain.reimbursementWalletBalance(
+        let balanceAfterWithdraw = await mainnet.communityPool.balance(
             address, test_utils.CHAIN_NAME_SCHAIN);
         balanceAfterWithdraw.should.be.equal(balanceBefore);
     });

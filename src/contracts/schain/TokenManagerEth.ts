@@ -17,15 +17,20 @@
  */
 
 /**
- * @file TokenType.ts
- * @copyright SKALE Labs 2021-Present
+ * @file TokenManagerEth.ts
+ * @copyright SKALE Labs 2022-Present
  */
 
-enum TokenType {
-    ERC20 = 'ERC20',
-    ERC721 = 'ERC721',
-    ERC721Meta = 'ERC721Meta',
-    ERC1155 = 'ERC1155'
-}
+import { TokenManager } from './TokenManager';
+import * as transactions from '../../transactions';
+import TxOpts from '../../TxOpts';
 
-export default TokenType;
+
+export class TokenManagerEth extends TokenManager {
+
+    async withdraw(withdrawValue: string, opts: TxOpts): Promise<any> {
+        const txData = this.contract.methods.exitToMain(withdrawValue);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+}

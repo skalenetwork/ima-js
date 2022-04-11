@@ -3,12 +3,10 @@ import chai = require("chai");
 import * as dotenv from "dotenv";
 
 import TxOpts from "../src/TxOpts";
-import TokenType from '../src/TokenType';
 import { IMA } from '../src/index';
 
 import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
-import { test } from "mocha";
 
 
 dotenv.config();
@@ -33,10 +31,10 @@ describe("sChain module tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        if (!await ima.mainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+        if (!await ima.mainnet.messageProxyMainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
-        await ima.schain.setTimeLimitPerMessage(1, opts);
+        await ima.schain.communityLocker.setTimeLimitPerMessage(1, opts);
         await test_utils.reimburseWallet(ima);
     });
 
@@ -55,13 +53,13 @@ describe("sChain module tests", () => {
         let mainnetBalanceBefore = await ima.mainnet.ethBalance(address);
         let sChainBalanceBefore = await ima.schain.ethBalance(address);
 
-        await ima.mainnet.reimbursementWalletRecharge(
+        await ima.mainnet.communityPool.recharge(
             test_utils.CHAIN_NAME_SCHAIN,
             address,
             txOpts
         );
 
-        await ima.mainnet.depositETHtoSChain(
+        await ima.mainnet.eth.deposit(
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );
@@ -70,9 +68,9 @@ describe("sChain module tests", () => {
         let mainnetBalanceAfterDeposit = await ima.mainnet.ethBalance(address);
         let sChainBalanceAfterDeposit = await ima.schain.ethBalance(address);
 
-        let lockedETHAmount = await ima.mainnet.lockedETHAmount(address);
+        let lockedETHAmount = await ima.mainnet.eth.lockedETHAmount(address);
 
-        await ima.schain.withdrawETH(
+        await ima.schain.eth.withdraw(
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
                 address: address,
@@ -80,8 +78,8 @@ describe("sChain module tests", () => {
             }
         );
 
-        await ima.mainnet.waitLockedETHAmountChange(address, lockedETHAmount);
-        await ima.mainnet.getMyEth(
+        await ima.mainnet.eth.waitLockedETHAmountChange(address, lockedETHAmount);
+        await ima.mainnet.eth.getMyEth(
             {
                 address: address,
                 privateKey: test_utils.SCHAIN_PRIVATE_KEY
@@ -109,13 +107,13 @@ describe("sChain module tests", () => {
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         let automaticDeploy;
-        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
+        automaticDeploy = await ima.schain.erc721.automaticDeploy();
         automaticDeploy.should.be.equal(false);
-        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
-        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
+        await ima.schain.erc721.enableAutomaticDeploy(txOpts);
+        automaticDeploy = await ima.schain.erc721.automaticDeploy();
         automaticDeploy.should.be.equal(true);
-        await ima.schain.disableAutomaticDeploy(TokenType.ERC20, txOpts);
-        automaticDeploy = await ima.schain.automaticDeploy(TokenType.ERC20);
+        await ima.schain.erc721.disableAutomaticDeploy(txOpts);
+        automaticDeploy = await ima.schain.erc721.automaticDeploy();
         automaticDeploy.should.be.equal(false);
     });
 
@@ -124,8 +122,8 @@ describe("sChain module tests", () => {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
-        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
-        await ima.schain.transferToSchainERC20(
+        await ima.schain.erc20.enableAutomaticDeploy(txOpts);
+        await ima.schain.erc20.transferToSchain(
             'chainB',
             '0x1',
             '10000',
@@ -138,8 +136,8 @@ describe("sChain module tests", () => {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
-        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
-        await ima.schain.transferToSchainERC721(
+        await ima.schain.erc721.enableAutomaticDeploy(txOpts);
+        await ima.schain.erc721.transferToSchain(
             'chainB',
             '0x1',
             1,
@@ -152,8 +150,7 @@ describe("sChain module tests", () => {
             address: address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
-        await ima.schain.enableAutomaticDeploy(TokenType.ERC20, txOpts);
-        await ima.schain.transferToSchainERC1155(
+        await ima.schain.erc1155.transferToSchain(
             'chainB',
             '0x1',
             1,

@@ -17,15 +17,17 @@
  */
 
 /**
- * @file TokenType.ts
- * @copyright SKALE Labs 2021-Present
+ * @file MessageProxyMainnet.ts
+ * @copyright SKALE Labs 2022-Present
  */
 
-enum TokenType {
-    ERC20 = 'ERC20',
-    ERC721 = 'ERC721',
-    ERC721Meta = 'ERC721Meta',
-    ERC1155 = 'ERC1155'
-}
+import { BaseContract } from '../BaseContract';
 
-export default TokenType;
+
+export class MessageProxyMainnet extends BaseContract {
+
+    async isChainConnected(chainName: string): Promise<boolean> {
+        return await this.contract.methods.isConnectedChain(chainName).call();
+    }
+
+}
