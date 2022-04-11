@@ -27,7 +27,7 @@ import TxOpts from '../../TxOpts';
 
 
 export class MessageProxyChain extends BaseContract {
-   
+
     async addConnectedChain(schainName: string, opts: TxOpts): Promise<any> {
         const txData = this.contract.methods.addConnectedChain(schainName);
         return await transactions.send(this.web3, txData, opts);

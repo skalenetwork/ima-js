@@ -31,7 +31,7 @@ export class TokenManagerERC20 extends TokenManager {
 
     async addTokenByOwner(
         originChainName: string,
-        erc20OnMainnet: string, 
+        erc20OnMainnet: string,
         erc20OnSchain: string,
         opts: TxOpts
     ):
