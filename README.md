@@ -24,6 +24,12 @@ Full usage documentation with examples can be found on our docs portal: https://
 
 ## Development
 
+### Git clone with submodules
+
+```
+git clone --recurse-submodules --remote-submodules https://github.com/skalenetwork/ima-js
+```
+
 ### IMA-SDK
 
 Version `0.3.0` is compatible with ima-sdk `0.2.1`
@@ -35,7 +41,7 @@ Version `0.3.0` is compatible with ima-sdk `0.2.1`
 Deploy test tokens:
 
 ```shell
-yarn deploy-tokens
+INSTALL_PACKAGES=True yarn deploy-tokens
 ```
 
 Run tests:
