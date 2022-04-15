@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Simple TS/JS library to interact with SKALE IMA",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -15,7 +15,9 @@
     "version": "node -e \"console.log(require('./package.json').version);\""
   },
   "keywords": [
-    "skale"
+    "skale",
+    "web3",
+    "ethereum"
   ],
   "author": "SKALE Labs",
   "license": "LGPL-3.0-only",

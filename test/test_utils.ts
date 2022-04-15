@@ -8,6 +8,7 @@ import SChain from '../src/SChain';
 import { IMA } from '../src/index';
 import TokenType from '../src/TokenType';
 import TxOpts from "../src/TxOpts";
+import { Contract } from 'web3-eth-contract';
 
 import { ContractsStringMap, BaseChain } from '../src/BaseChain';
 
@@ -16,6 +17,7 @@ import * as helper from '../src/helper';
 dotenv.config();
 
 export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
+export const MAINNET_CHAIN_NAME = 'Mainnet';
 
 const MAINNET_ENDPOINT = (process.env["MAINNET_ENDPOINT"] as string);
 const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxyMainnet.json';
@@ -73,7 +75,7 @@ export async function reimburseWallet(ima: IMA) {
         address: testAddress,
         privateKey: MAINNET_PRIVATE_KEY
     };
-    await ima.mainnet.reimbursementWalletRecharge(
+    await ima.mainnet.communityPool.recharge(
         CHAIN_NAME_SCHAIN,
         testAddress,
         txOpts
@@ -87,16 +89,14 @@ export async function grantPermissions(ima: IMA): Promise<any> {
         address: testAddress,
         privateKey: MAINNET_PRIVATE_KEY
     };
-    for (let type in TokenType) {
-        let tType = type as TokenType
-        let deployRole = await ima.schain.AUTOMATIC_DEPLOY_ROLE(tType);
-        let registarRole = await ima.schain.TOKEN_REGISTRAR_ROLE(tType);
-        await ima.schain.grantRoleTokenManager(tType, deployRole, testAddress, txOpts);
-        await ima.schain.grantRoleTokenManager(tType, registarRole, testAddress, txOpts);
-    }
 
-    let constantRole = await ima.schain.CONSTANT_SETTER_ROLE();
-    await ima.schain.grantRoleCommunityLocker(constantRole, testAddress, txOpts);
+    let deployRole = await ima.schain.erc721.AUTOMATIC_DEPLOY_ROLE();
+    let registarRole = await ima.schain.erc721.TOKEN_REGISTRAR_ROLE();
+    await ima.schain.erc721.grantRole(deployRole, testAddress, txOpts);
+    await ima.schain.erc721.grantRole(registarRole, testAddress, txOpts);
+
+    let constantRole = await ima.schain.communityLocker.CONSTANT_SETTER_ROLE();
+    await ima.schain.communityLocker.grantRole(constantRole, testAddress, txOpts);
 
     let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
     let sdkTxOpts: TxOpts = {
@@ -104,8 +104,8 @@ export async function grantPermissions(ima: IMA): Promise<any> {
         privateKey: SDK_PRIVATE_KEY
     };
 
-    let linkerRole = await ima.mainnet.LINKER_ROLE();
-    await ima.mainnet.grantRoleLinker(linkerRole, testAddress, sdkTxOpts);
+    let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
+    await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
 }
 
 
@@ -136,8 +136,14 @@ export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
 }
 
 
-export async function getERC1155Balances(chain: BaseChain, erc1155Name: string,
-    address: string, tokenIds: number | number[], print: boolean = true): Promise<string[]>{
+export async function getERC1155Balances(
+    chain: BaseChain,
+    tokenContract: Contract,
+    address: string,
+    tokenIds: number | number[],
+    print: boolean = true
+): Promise<string[]>{
+
     let ids: number[];
     let balances: string[] = [];
     if (typeof tokenIds == 'number') {
@@ -146,10 +152,10 @@ export async function getERC1155Balances(chain: BaseChain, erc1155Name: string,
         ids = tokenIds as number[];
     }
     for (let i in ids) {
-        let balance = await chain.getERC1155Balance(erc1155Name, address, ids[i]);
+        let balance = await chain.getERC1155Balance(tokenContract, address, ids[i]);
         balances.push(balance);
         if (print) {
-            console.log(chain.constructor.name + ' - ' + erc1155Name + 'balance for ' + address + ': ' + balance)
+            console.log(chain.constructor.name + ' - ' + tokenContract.options.address + 'balance for ' + address + ': ' + balance)
         }
     }
     if (print) {

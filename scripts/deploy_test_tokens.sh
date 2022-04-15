@@ -12,4 +12,5 @@ fi
 
 bash $DIR/deploy_erc20.sh
 bash $DIR/deploy_erc721.sh
+bash $DIR/deploy_erc721_with_metadata.sh
 bash $DIR/deploy_erc1155.sh

@@ -17,15 +17,20 @@
  */
 
 /**
- * @file TokenType.ts
- * @copyright SKALE Labs 2021-Present
+ * @file MessageProxyChain.ts
+ * @copyright SKALE Labs 2022-Present
  */
 
-enum TokenType {
-    ERC20 = 'ERC20',
-    ERC721 = 'ERC721',
-    ERC721Meta = 'ERC721Meta',
-    ERC1155 = 'ERC1155'
-}
+import { BaseContract } from '../BaseContract';
+import * as transactions from '../../transactions';
+import TxOpts from '../../TxOpts';
 
-export default TokenType;
+
+export class MessageProxyChain extends BaseContract {
+
+    async addConnectedChain(schainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contract.methods.addConnectedChain(schainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+}

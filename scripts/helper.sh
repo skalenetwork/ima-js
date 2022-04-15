@@ -4,7 +4,10 @@ set -e
 
 set_vars () {
     export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-    export $(grep -v '^#' $DIR/../.env | xargs)
+    
+    if [ -f $DIR/../.env ]; then
+        export $(grep -v '^#' $DIR/../.env | xargs)
+    fi
 
     : "${TEST_PRIVATE_KEY?Need to set TEST_PRIVATE_KEY}"
     : "${TEST_ADDRESS?Need to set TEST_ADDRESS}"

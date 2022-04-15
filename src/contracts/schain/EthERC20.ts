@@ -17,15 +17,17 @@
  */
 
 /**
- * @file TokenType.ts
- * @copyright SKALE Labs 2021-Present
+ * @file EthERC20.ts
+ * @copyright SKALE Labs 2022-Present
  */
 
-enum TokenType {
-    ERC20 = 'ERC20',
-    ERC721 = 'ERC721',
-    ERC721Meta = 'ERC721Meta',
-    ERC1155 = 'ERC1155'
-}
+import { BaseContract } from '../BaseContract';
 
-export default TokenType;
+
+export class EthERC20 extends BaseContract {
+
+    async balanceOf(address: string): Promise<string> {
+        return await this.contract.methods.balanceOf(address).call({ from: address });
+    }
+
+}

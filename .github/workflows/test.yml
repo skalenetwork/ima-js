@@ -6,13 +6,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [12, 14]
+        node: [14, 16]
     env:
       MAINNET_ENDPOINT: http://127.0.0.1:1545
       SCHAIN_ENDPOINT: http://127.0.0.1:15000
 
       SDK_PRIVATE_KEY: ${{ secrets.SDK_PRIVATE_KEY }}
       SDK_ADDRESS: ${{ secrets.SDK_ADDRESS }}
+      SDK_VERSION: 0.3.1-develop.13
 
       TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
       TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
@@ -28,6 +29,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node }}
+    - name: Update submodules
+      run: |
+        git submodule update --remote
     - name: Install dependencies
       run: |
         yarn install --production=false
