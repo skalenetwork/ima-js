@@ -33,6 +33,7 @@ import { TokenManagerERC1155 } from './contracts/schain/TokenManagerERC1155';
 
 import { EthERC20 } from './contracts/schain/EthERC20';
 import { СommunityLocker } from './contracts/schain/СommunityLocker';
+import { TokenManagerLinker } from './contracts/schain/TokenManagerLinker';
 import { MessageProxyChain } from './contracts/schain/MessageProxyChain';
 
 
@@ -46,7 +47,7 @@ export default class SChain extends BaseChain {
 
     ethERC20: EthERC20;
     communityLocker: СommunityLocker;
-    tokenManagerLinker: BaseContract;
+    tokenManagerLinker: TokenManagerLinker;
     messageProxyChain: MessageProxyChain;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
@@ -87,7 +88,7 @@ export default class SChain extends BaseChain {
             this.abi.community_locker_address,
             this.abi.community_locker_abi
         )
-        this.tokenManagerLinker = new BaseContract(
+        this.tokenManagerLinker = new TokenManagerLinker(
             this.web3,
             this.abi.token_manager_linker_address,
             this.abi.token_manager_linker_abi
