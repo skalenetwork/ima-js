@@ -44,7 +44,7 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async isERC20Added(
+    async isTokenAdded(
         erc20OnMainnet: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {

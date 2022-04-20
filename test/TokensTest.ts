@@ -262,7 +262,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesSchain1 = await test_utils.getERC1155Balances(ima.schain, testTokens.schainERC1155, address, erc1155TokenId);
 
         await ima.mainnet.erc1155.approveAll(erc1155Name, opts);
-        
+
         await ima.depositERC1155(test_utils.CHAIN_NAME_SCHAIN, erc1155Name,
             erc1155TokenId, test_utils.TEST_TOKENS_TRANSFER_VALUE, opts);
         await ima.schain.waitERC1155BalanceChange(testTokens.schainERC1155, address, erc1155TokenId, balancesSchain1[0]);

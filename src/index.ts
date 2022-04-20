@@ -128,7 +128,7 @@ export class IMA {
             await this.mainnet.erc20.addTokenByOwner(chainName, erc20OnMainnet, opts);
         }
 
-        const isERC20AddedSchain = await this.schain.erc20.isERC20Added(erc20OnMainnet);
+        const isERC20AddedSchain = await this.schain.erc20.isTokenAdded(erc20OnMainnet);
         if (isERC20AddedSchain === constants.ZERO_ADDRESS) {
             await this.schain.erc20.addTokenByOwner(
                 originChainName, erc20OnMainnet, erc20OnSchain, opts);
