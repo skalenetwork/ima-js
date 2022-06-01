@@ -8,7 +8,6 @@ on:
       - beta
       - stable
 
-
 jobs:
   build:
     if: github.event.pull_request.merged
