@@ -128,8 +128,8 @@ export class IMA {
             await this.mainnet.erc20.addTokenByOwner(chainName, erc20OnMainnet, opts);
         }
 
-        const isERC20AddedSchain = await this.schain.erc20.isTokenAdded(erc20OnMainnet);
-        if (isERC20AddedSchain === constants.ZERO_ADDRESS) {
+        const tokenCloneAddress = await this.schain.erc20.getTokenCloneAddress(erc20OnMainnet);
+        if (tokenCloneAddress === constants.ZERO_ADDRESS) {
             await this.schain.erc20.addTokenByOwner(
                 originChainName, erc20OnMainnet, erc20OnSchain, opts);
         }
@@ -150,10 +150,10 @@ export class IMA {
             await this.mainnet.erc721.addTokenByOwner(chainName, erc721OnMainnet, opts);
         }
 
-        const isERC721AddedSchain = await this.schain.erc721.isTokenAdded(
+        const tokenCloneAddress = await this.schain.erc721.getTokenCloneAddress(
             erc721OnMainnet
         );
-        if (isERC721AddedSchain === constants.ZERO_ADDRESS) {
+        if (tokenCloneAddress === constants.ZERO_ADDRESS) {
             await this.schain.erc721.addTokenByOwner(
                 originChainName, erc721OnMainnet, erc721OnSchain, opts);
         }
@@ -175,10 +175,10 @@ export class IMA {
                 chainName, erc721OnMainnet, opts);
         }
 
-        const isERC721AddedSchain = await this.schain.erc721meta.isTokenAdded(
+        const tokenCloneAddress = await this.schain.erc721meta.getTokenCloneAddress(
             erc721OnMainnet
         );
-        if (isERC721AddedSchain === constants.ZERO_ADDRESS) {
+        if (tokenCloneAddress === constants.ZERO_ADDRESS) {
             await this.schain.erc721meta.addTokenByOwner(
                 originChainName, erc721OnMainnet, erc721OnSchain, opts);
         }
@@ -196,9 +196,9 @@ export class IMA {
         if (!isERC1155AddedMainnet){
             await this.mainnet.erc1155.addTokenByOwner(chainName, erc1155OnMainnet, opts);
         }
-        const isERC1155AddedSchain = await this.schain.erc1155.isTokenAdded(
+        const tokenCloneAddress = await this.schain.erc1155.getTokenCloneAddress(
             erc1155OnMainnet);
-        if (isERC1155AddedSchain === constants.ZERO_ADDRESS) {
+        if (tokenCloneAddress === constants.ZERO_ADDRESS) {
             await this.schain.erc1155.addTokenByOwner(
                 originChainName, erc1155OnMainnet, erc1155OnSchain, opts);
         }
