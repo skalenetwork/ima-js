@@ -30,13 +30,13 @@ import InvalidArgsException from '../../exceptions/InvalidArgsException';
 
 export class TokenManagerERC1155 extends TokenManager {
 
-    async isTokenAdded(
-        erc1155OnMainnet: string,
+    async getTokenCloneAddress(
+        originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {
         return await this.contract.methods.clonesErc1155(
             this.web3.utils.soliditySha3(originChainName),
-            erc1155OnMainnet
+            originTokenAddress
         ).call();
     }
 

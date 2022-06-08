@@ -29,13 +29,13 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerERC721 extends TokenManager {
 
-    async isTokenAdded(
-        erc721OnMainnet: string,
+    async getTokenCloneAddress(
+        originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ): Promise<string> {
         return await this.contract.methods.clonesErc721(
             this.web3.utils.soliditySha3(originChainName),
-            erc721OnMainnet
+            originTokenAddress
         ).call();
     }
 
