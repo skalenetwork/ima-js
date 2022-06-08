@@ -44,13 +44,13 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.web3, txData, opts);
     }
 
-    async isTokenAdded(
-        erc20OnMainnet: string,
+    async getTokenCloneAddress(
+        originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {
         return await this.contract.methods.clonesErc20(
             this.web3.utils.soliditySha3(originChainName),
-            erc20OnMainnet
+            originTokenAddress
         ).call();
     }
 
