@@ -17,17 +17,33 @@
  */
 
 /**
- * @file MessageProxyMainnet.ts
+ * @file MessageProxy.ts
  * @copyright SKALE Labs 2022-Present
  */
 
-import { BaseContract } from '../BaseContract';
+import { BaseContract } from './BaseContract';
+import TxOpts from './../TxOpts';
+import * as transactions from './../transactions';
 
 
-export class MessageProxyMainnet extends BaseContract {
+export class MessageProxy extends BaseContract {
 
     async isChainConnected(chainName: string): Promise<boolean> {
         return await this.contract.methods.isConnectedChain(chainName).call();
+    }
+
+    async CHAIN_CONNECTOR_ROLE(): Promise<string> {
+        return await this.contract.methods.CHAIN_CONNECTOR_ROLE().call();
+    }
+
+    async grantRole(role: any, address: string, opts: TxOpts) {
+        const txData = this.contract.methods.grantRole(role, address);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async addConnectedChain(schainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contract.methods.addConnectedChain(schainName);
+        return await transactions.send(this.web3, txData, opts);
     }
 
 }
