@@ -32,7 +32,8 @@ import { DepositBoxERC1155 } from './contracts/mainnet/DepositBoxERC1155';
 
 import { CommunityPool } from './contracts/mainnet/CommunityPool';
 import { Linker } from './contracts/mainnet/Linker';
-import { MessageProxyMainnet } from './contracts/mainnet/MessageProxyMainnet';
+
+import { MessageProxy } from './contracts/MessageProxy';
 
 
 export default class MainnetChain extends BaseChain {
@@ -45,7 +46,7 @@ export default class MainnetChain extends BaseChain {
 
     communityPool: CommunityPool;
     linker: Linker;
-    messageProxyMainnet: MessageProxyMainnet;
+    messageProxyMainnet: MessageProxy;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         super(web3, abi, chainId);
@@ -85,7 +86,7 @@ export default class MainnetChain extends BaseChain {
             this.abi.linker_address,
             this.abi.linker_abi
         )
-        this.messageProxyMainnet = new MessageProxyMainnet(
+        this.messageProxyMainnet = new MessageProxy(
             this.web3,
             this.abi.message_proxy_mainnet_address,
             this.abi.message_proxy_mainnet_abi
