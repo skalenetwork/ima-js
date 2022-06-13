@@ -46,7 +46,7 @@ export default class MainnetChain extends BaseChain {
 
     communityPool: CommunityPool;
     linker: Linker;
-    messageProxyMainnet: MessageProxy;
+    messageProxy: MessageProxy;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         super(web3, abi, chainId);
@@ -86,7 +86,7 @@ export default class MainnetChain extends BaseChain {
             this.abi.linker_address,
             this.abi.linker_abi
         )
-        this.messageProxyMainnet = new MessageProxy(
+        this.messageProxy = new MessageProxy(
             this.web3,
             this.abi.message_proxy_mainnet_address,
             this.abi.message_proxy_mainnet_abi
