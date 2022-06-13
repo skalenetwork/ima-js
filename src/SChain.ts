@@ -48,7 +48,7 @@ export default class SChain extends BaseChain {
     communityLocker: СommunityLocker;
     tokenManagerLinker: TokenManagerLinker;
 
-    messageProxyChain: MessageProxy;
+    messageProxy: MessageProxy;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         super(web3, abi, chainId);
@@ -93,7 +93,7 @@ export default class SChain extends BaseChain {
             this.abi.token_manager_linker_address,
             this.abi.token_manager_linker_abi
         )
-        this.messageProxyChain = new MessageProxy(
+        this.messageProxy = new MessageProxy(
             this.web3,
             this.abi.message_proxy_chain_address,
             this.abi.message_proxy_chain_abi
