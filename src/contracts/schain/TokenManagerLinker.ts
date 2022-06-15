@@ -33,6 +33,11 @@ export class TokenManagerLinker extends BaseContract {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async disconnectSchain(schainName: string, opts: TxOpts): Promise<any> {
+        const txData = this.contract.methods.disconnectSchain(schainName);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
     async hasSchain(schainName: string): Promise<boolean> {
         return await this.contract.methods.hasSchain(
             schainName

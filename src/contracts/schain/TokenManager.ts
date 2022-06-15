@@ -63,6 +63,10 @@ export class TokenManager extends BaseContract {
         return await this.contract.methods.TOKEN_REGISTRAR_ROLE().call();
     }
 
+    async hasTokenManager(chainName: string): Promise<boolean> {
+        return await this.contract.methods.hasTokenManager(chainName).call();
+    }
+
     async ownerOf(tokenName: string, tokenId: number | string): Promise<string> {
         const contract = this.tokens[tokenName];
         try {

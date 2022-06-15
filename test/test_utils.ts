@@ -39,6 +39,8 @@ if (process.env.SDK_PRIVATE_KEY) {
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
 
+export const SCHAIN_PRIVATE_KEY_2 = helper.add0x(process.env.TEST_PRIVATE_KEY_2);
+
 export const TEST_WEI_TRANSFER_VALUE = '2000000000000000';
 export const TEST_WEI_REIMBURSEMENT_VALUE = '2000000000000000';
 export const TEST_TOKENS_TRANSFER_VALUE = '100';
@@ -107,29 +109,27 @@ export async function reimburseWallet(ima: IMA) {
 }
 
 
-export async function grantPermissions(ima: IMA): Promise<any> {
-    let testAddress = helper.privateKeyToAddress(ima.schain.web3, SCHAIN_PRIVATE_KEY);
-    let txOpts: TxOpts = {
-        address: testAddress,
-        privateKey: MAINNET_PRIVATE_KEY
-    };
+export async function grantPermissions(schain: SChain, opts: any, address: string): Promise<any> {
+    let deployRole = await schain.erc721.AUTOMATIC_DEPLOY_ROLE();
+    let registarRole = await schain.erc721.TOKEN_REGISTRAR_ROLE();
+    await schain.erc721.grantRole(deployRole, address, opts);
+    await schain.erc721.grantRole(registarRole, address, opts);
 
-    let deployRole = await ima.schain.erc721.AUTOMATIC_DEPLOY_ROLE();
-    let registarRole = await ima.schain.erc721.TOKEN_REGISTRAR_ROLE();
-    await ima.schain.erc721.grantRole(deployRole, testAddress, txOpts);
-    await ima.schain.erc721.grantRole(registarRole, testAddress, txOpts);
+    let constantRole = await schain.communityLocker.CONSTANT_SETTER_ROLE();
+    await schain.communityLocker.grantRole(constantRole, address, opts);
 
-    let constantRole = await ima.schain.communityLocker.CONSTANT_SETTER_ROLE();
-    await ima.schain.communityLocker.grantRole(constantRole, testAddress, txOpts);
+    let connector_role = await schain.messageProxy.CHAIN_CONNECTOR_ROLE();
+    await schain.messageProxy.grantRole(connector_role, address, opts);
+    await schain.messageProxy.grantRole(connector_role, schain.tokenManagerLinker.address, opts);
 
-    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
-    let sdkTxOpts: TxOpts = {
-        address: sdkAddress,
-        privateKey: SDK_PRIVATE_KEY
-    };
+    // let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
+    // let sdkTxOpts: TxOpts = {
+    //     address: sdkAddress,
+    //     privateKey: SDK_PRIVATE_KEY
+    // };
 
-    let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
-    await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
+    // let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
+    // await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
 }
 
 
