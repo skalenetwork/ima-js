@@ -23,6 +23,9 @@
 
 import Web3 from 'web3';
 
+import TxOpts from './TxOpts';
+import * as transactions from './transactions';
+
 import { BaseChain } from './BaseChain';
 
 import { MessageProxy } from './contracts/MessageProxy';
@@ -102,6 +105,10 @@ export default class SChain extends BaseChain {
 
     async ethBalance(address: string): Promise<string> {
         return await this.ethERC20.balanceOf(address);
+    }
+
+    async sendSFuel(address: string, value: string, opts: TxOpts): Promise<any> {
+        return await transactions.sendETH(this.web3, address, value, opts);
     }
 
 }
