@@ -96,12 +96,12 @@ export abstract class TokenManager extends BaseContract {
         sleepInterval: number=constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS
     ): Promise<any> {
-        let res;
+        let address;
         const logData = 'origin token: ' + originTokenAddress + ', origin chain: ' + originChainName;
         for (let i = 1; i <= iterations; i++) {
-            res = await this.getTokenCloneAddress(originTokenAddress, originChainName);
-            if (constants.ZERO_ADDRESS !== res) {
-                return;
+            address = await this.getTokenCloneAddress(originTokenAddress, originChainName);
+            if (constants.ZERO_ADDRESS !== address) {
+                return address;
             }
             if (helper.isNode()){
                 log.info('Waiting for token clone - ' + logData);
