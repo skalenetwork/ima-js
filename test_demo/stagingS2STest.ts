@@ -99,32 +99,53 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const ownerOnSchain1_1 = await sChain1.getERC721OwnerOf(sChain1Contract, erc721TokenId);
         console.log('ownerOnSchain1 before transfer: ' + ownerOnSchain1_1);
     
-        // transfer 1 -> 2 
+        let sChain2Contract: Contract;
+        let ownerOnSchain2_1: string = '';
+        let tokenCloneAddress = await sChain2.erc721.getTokenCloneAddress(
+            sChain1Contract.options.address,
+            test_utils.CHAIN_NAME_SCHAIN
+        );
+        if (tokenCloneAddress !== constants.ZERO_ADDRESS) {
+            sChain2Contract = new sChain2.web3.eth.Contract(
+                sChain1Contract.options.jsonInterface,
+                tokenCloneAddress
+            );
+            ownerOnSchain2_1 = await sChain2.getERC721OwnerOf(sChain2Contract, erc721TokenId);
+        }
+        console.log('ownerOnSchain2 before transfer: ' + ownerOnSchain2_1);
 
-        // await sChain1.erc721.approve(erc721Name, erc721TokenId, opts);
-        // await sChain1.erc721.transferToSchain(
-        //     test_utils.CHAIN_NAME_SCHAIN_2,
-        //     sChain1Contract.options.address,
-        //     erc721TokenId,
-        //     opts
-        // );
+        // transfer 1 -> 2
 
-        let tokenCloneAddress = await sChain2.erc721.waitForTokenClone(
+        await sChain1.erc721.approve(erc721Name, erc721TokenId, opts);
+        await sChain1.erc721.transferToSchain(
+            test_utils.CHAIN_NAME_SCHAIN_2,
+            sChain1Contract.options.address,
+            erc721TokenId,
+            opts
+        );
+
+        tokenCloneAddress = await sChain2.erc721.waitForTokenClone(
             sChain1Contract.options.address,
             test_utils.CHAIN_NAME_SCHAIN
         );
 
-        let sChain2Contract = new sChain2.web3.eth.Contract(
+        sChain2Contract = new sChain2.web3.eth.Contract(
             sChain1Contract.options.jsonInterface,
             tokenCloneAddress
         );
 
         sChain2.erc721.addToken(erc721Name, sChain2Contract);
 
+        if (ownerOnSchain2_1 !== '') {
+            await sChain2.waitERC721OwnerChange(sChain2Contract, erc721TokenId, ownerOnSchain2_1);
+        }
+
         const ownerOnSchain1_2 = await sChain1.getERC721OwnerOf(sChain1Contract, erc721TokenId);
         const ownerOnSchain2_2 = await sChain2.getERC721OwnerOf(sChain2Contract, erc721TokenId);
         console.log('ownerOnSchain1 after transfer: ' + ownerOnSchain1_2);
         console.log('ownerOnSchain2 after transfer: ' + ownerOnSchain2_2);
+
+        // transfer 2 -> 1
 
         await sChain2.erc721.approve(erc721Name, erc721TokenId, opts);
         await sChain2.erc721.transferToSchain(
@@ -133,6 +154,12 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
             erc721TokenId,
             opts
         );
+        await sChain1.waitERC721OwnerChange(sChain1Contract, erc721TokenId, ownerOnSchain1_2);
+
+        const ownerOnSchain1_3 = await sChain1.getERC721OwnerOf(sChain1Contract, erc721TokenId);
+        const ownerOnSchain2_3 = await sChain2.getERC721OwnerOf(sChain2Contract, erc721TokenId);
+        console.log('ownerOnSchain1 after transfering back: ' + ownerOnSchain1_3);
+        console.log('ownerOnSchain2 after transfering back: ' + ownerOnSchain2_3);
 
         // await sChain2.waitERC721OwnerChange(testTokens.schainERC721, erc721TokenId, erc721OwnerSchain1);
 
