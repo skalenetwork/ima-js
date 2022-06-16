@@ -59,6 +59,11 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155TokenIds = [1, 2, 3];
         erc1155Amounts = ['1000', '2000', '3000'];
 
+        await test_utils.grantPermissions(ima);
+        if (!await ima.mainnet.messageProxyMainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+            await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
+        }
+        await ima.schain.communityLocker.setTimeLimitPerMessage(1, opts);
         await test_utils.reimburseWallet(ima);
     });
 
@@ -79,7 +84,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.mainnet.erc20.approve(erc20Name, constants.MAX_APPROVAL_AMOUNT, opts);
         await ima.depositERC20(test_utils.CHAIN_NAME_SCHAIN, erc20Name,
             test_utils.TEST_TOKENS_TRANSFER_VALUE, opts);
-
+    
         await ima.schain.waitERC20BalanceChange(testTokens.schainERC20, address, balanceSchain1);
 
         const balanceMainnet2 = await ima.mainnet.getERC20Balance(testTokens.mainnetERC20, address);
@@ -105,6 +110,59 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
         balanceMainnet3.should.be.equal(balanceMainnet1);
         balanceSchain3.should.be.equal(balanceSchain1);
+    });
+
+    it("Test ERC20 tokens mapping", async () => {
+        ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
+        await ima.linkERC20Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            test_utils.MAINNET_CHAIN_NAME,
+            testTokens.mainnetERC20.options.address,
+            testTokens.schainERC20.options.address,
+            opts
+        );
+        let erc20Len = await ima.mainnet.erc20.getTokenMappingsLength(test_utils.CHAIN_NAME_SCHAIN);
+        erc20Len.should.be.equal('1');
+
+        let erc20Tokens = await ima.mainnet.erc20.getTokenMappings(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc20Len);
+        erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.options.address);
+    });
+
+    it("Test ERC721 tokens mapping", async () => {
+        ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
+        await ima.linkERC721Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            test_utils.MAINNET_CHAIN_NAME,
+            testTokens.mainnetERC721.options.address,
+            testTokens.schainERC721.options.address,
+            opts
+        );
+        let erc721Len = await ima.mainnet.erc721.getTokenMappingsLength(
+            test_utils.CHAIN_NAME_SCHAIN);
+        erc721Len.should.be.equal('1');
+
+        let erc721Tokens = await ima.mainnet.erc721.getTokenMappings(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc721Len);
+        erc721Tokens[0].should.be.equal(testTokens.mainnetERC721.options.address);
+    });
+
+    it("Test ERC1155 tokens mapping", async () => {
+        ima.addERC1155Token(erc1155Name, testTokens.mainnetERC1155, testTokens.schainERC1155);
+        await ima.linkERC1155Token(
+            test_utils.CHAIN_NAME_SCHAIN,
+            test_utils.MAINNET_CHAIN_NAME,
+            testTokens.mainnetERC1155.options.address,
+            testTokens.schainERC1155.options.address,
+            opts
+        );
+        let erc1155Len = await ima.mainnet.erc1155.getTokenMappingsLength(
+            test_utils.CHAIN_NAME_SCHAIN);
+        erc1155Len.should.be.equal('1');
+
+        let erc1155Tokens = await ima.mainnet.erc1155.getTokenMappings(
+            test_utils.CHAIN_NAME_SCHAIN, 0, erc1155Len);
+        erc1155Tokens[0].should.be.equal(testTokens.mainnetERC1155.options.address);
     });
 
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {
@@ -146,48 +204,48 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc721OwnerSchain3.should.be.equal(ZERO_ADDRESS);
     });
 
-    // it("Test ERC721 with metadata approve/balance/deposit/withdraw", async () => {        
-    //     ima.addERC721WithMetadataToken(
-    //         erc721Name,
-    //         testTokens.mainnetERC721Meta,
-    //         testTokens.schainERC721Meta
-    //     );
-    //     await ima.mainnet.setTokenURI(testTokens.mainnetERC721Meta, erc721TokenId, 'abcd', opts);
-    //     await ima.linkERC721TokenWithMetadata(
-    //         test_utils.CHAIN_NAME_SCHAIN,
-    //         test_utils.MAINNET_CHAIN_NAME,
-    //         testTokens.mainnetERC721Meta.options.address,
-    //         testTokens.schainERC721Meta.options.address,
-    //         opts
-    //     );
+    it("Test ERC721 with metadata approve/balance/deposit/withdraw", async () => {        
+        ima.addERC721WithMetadataToken(
+            erc721Name,
+            testTokens.mainnetERC721Meta,
+            testTokens.schainERC721Meta
+        );
+        await ima.mainnet.setTokenURI(testTokens.mainnetERC721Meta, erc721TokenId, 'abcd', opts);
+        await ima.linkERC721TokenWithMetadata(
+            test_utils.CHAIN_NAME_SCHAIN,
+            test_utils.MAINNET_CHAIN_NAME,
+            testTokens.mainnetERC721Meta.options.address,
+            testTokens.schainERC721Meta.options.address,
+            opts
+        );
 
-    //     const erc721OwnerMainnet1 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
-    //     const erc721OwnerSchain1 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
-    //     const depositBoxAddress = ima.mainnet.erc721meta.address;
+        const erc721OwnerMainnet1 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
+        const erc721OwnerSchain1 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
+        const depositBoxAddress = ima.mainnet.erc721meta.address;
 
-    //     if (erc721OwnerMainnet1 != depositBoxAddress) {
-    //         await ima.mainnet.erc721meta.approve(erc721Name, erc721TokenId, opts);
-    //     }
-    //     await ima.depositERC721WithMetadata(test_utils.CHAIN_NAME_SCHAIN, erc721Name,
-    //         erc721TokenId, opts);
-    //     await ima.schain.waitERC721OwnerChange(testTokens.schainERC721Meta, erc721TokenId, erc721OwnerSchain1);
+        if (erc721OwnerMainnet1 != depositBoxAddress) {
+            await ima.mainnet.erc721meta.approve(erc721Name, erc721TokenId, opts);
+        }
+        await ima.depositERC721WithMetadata(test_utils.CHAIN_NAME_SCHAIN, erc721Name,
+            erc721TokenId, opts);
+        await ima.schain.waitERC721OwnerChange(testTokens.schainERC721Meta, erc721TokenId, erc721OwnerSchain1);
 
-    //     const erc721OwnerMainnet2 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
-    //     const erc721OwnerSchain2 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
+        const erc721OwnerMainnet2 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
+        const erc721OwnerSchain2 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
 
-    //     erc721OwnerMainnet2.should.be.equal(depositBoxAddress);
-    //     erc721OwnerSchain2.should.be.equal(erc721OwnerMainnet1);
+        erc721OwnerMainnet2.should.be.equal(depositBoxAddress);
+        erc721OwnerSchain2.should.be.equal(erc721OwnerMainnet1);
         
-    //     await ima.schain.erc721meta.approve(erc721Name, erc721TokenId, opts);
-    //     await ima.withdrawERC721Meta(erc721Name, erc721TokenId, opts);
-    //     await ima.mainnet.waitERC721OwnerChange(testTokens.mainnetERC721Meta, erc721TokenId, erc721OwnerMainnet2);
+        await ima.schain.erc721meta.approve(erc721Name, erc721TokenId, opts);
+        await ima.withdrawERC721Meta(erc721Name, erc721TokenId, opts);
+        await ima.mainnet.waitERC721OwnerChange(testTokens.mainnetERC721Meta, erc721TokenId, erc721OwnerMainnet2);
         
-    //     const erc721OwnerMainnet3 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
-    //     const erc721OwnerSchain3 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
+        const erc721OwnerMainnet3 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721Meta, erc721TokenId);
+        const erc721OwnerSchain3 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721Meta, erc721TokenId);
         
-    //     erc721OwnerMainnet3.should.be.equal(address);
-    //     erc721OwnerSchain3.should.be.equal(ZERO_ADDRESS);
-    // });
+        erc721OwnerMainnet3.should.be.equal(address);
+        erc721OwnerSchain3.should.be.equal(ZERO_ADDRESS);
+    });
 
     it("Test ERC1155 approve/balance/deposit/withdraw", async () => {
         ima.addERC1155Token(erc1155Name, testTokens.mainnetERC1155, testTokens.schainERC1155);

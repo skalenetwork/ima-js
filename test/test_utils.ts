@@ -17,33 +17,21 @@ import * as helper from '../src/helper';
 dotenv.config();
 
 export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
-export const CHAIN_NAME_SCHAIN_2 = (process.env["CHAIN_NAME_SCHAIN_2"] as string);
-
 export const MAINNET_CHAIN_NAME = 'Mainnet';
 
 const MAINNET_ENDPOINT = (process.env["MAINNET_ENDPOINT"] as string);
 const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxyMainnet.json';
 
 const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
-const SCHAIN_2_ENDPOINT = (process.env["SCHAIN_2_ENDPOINT"] as string);
-
 const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxySchain.json';
 
-let SDK_PRIVATE_KEY: string = '';
-
-if (process.env.SDK_PRIVATE_KEY) {
-    SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
-}
-
-
+export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
 
-export const SCHAIN_PRIVATE_KEY_2 = helper.add0x(process.env.TEST_PRIVATE_KEY_2);
-
-export const TEST_WEI_TRANSFER_VALUE = '2000000000000000';
-export const TEST_WEI_REIMBURSEMENT_VALUE = '2000000000000000';
-export const TEST_TOKENS_TRANSFER_VALUE = '100';
+export const TEST_WEI_TRANSFER_VALUE = '20000000000000000';
+export const TEST_WEI_REIMBURSEMENT_VALUE = '500000000000000000';
+export const TEST_TOKENS_TRANSFER_VALUE = '1000';
 
 
 const TOKENS_ABI_FOLDER = __dirname + '/../test-tokens/data/';
@@ -58,20 +46,6 @@ export function initTestIMA() {
     const mainnetAbi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
     const sChainAbi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new IMA(mainnetWeb3, sChainWeb3, mainnetAbi, sChainAbi)
-}
-
-
-export function initSChain1() {
-    const sChainWeb3 = new Web3(SCHAIN_ENDPOINT);
-    const sChainAbi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
-    return new SChain(sChainWeb3, sChainAbi)
-}
-
-
-export function initSChain2() {
-    const sChain2Web3 = new Web3(SCHAIN_2_ENDPOINT);
-    const sChainAbi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
-    return new SChain(sChain2Web3, sChainAbi);
 }
 
 
@@ -109,27 +83,29 @@ export async function reimburseWallet(ima: IMA) {
 }
 
 
-export async function grantPermissions(schain: SChain, opts: any, address: string): Promise<any> {
-    let deployRole = await schain.erc721.AUTOMATIC_DEPLOY_ROLE();
-    let registarRole = await schain.erc721.TOKEN_REGISTRAR_ROLE();
-    await schain.erc721.grantRole(deployRole, address, opts);
-    await schain.erc721.grantRole(registarRole, address, opts);
+export async function grantPermissions(ima: IMA): Promise<any> {
+    let testAddress = helper.privateKeyToAddress(ima.schain.web3, SCHAIN_PRIVATE_KEY);
+    let txOpts: TxOpts = {
+        address: testAddress,
+        privateKey: MAINNET_PRIVATE_KEY
+    };
 
-    let constantRole = await schain.communityLocker.CONSTANT_SETTER_ROLE();
-    await schain.communityLocker.grantRole(constantRole, address, opts);
+    let deployRole = await ima.schain.erc721.AUTOMATIC_DEPLOY_ROLE();
+    let registarRole = await ima.schain.erc721.TOKEN_REGISTRAR_ROLE();
+    await ima.schain.erc721.grantRole(deployRole, testAddress, txOpts);
+    await ima.schain.erc721.grantRole(registarRole, testAddress, txOpts);
 
-    let connector_role = await schain.messageProxy.CHAIN_CONNECTOR_ROLE();
-    await schain.messageProxy.grantRole(connector_role, address, opts);
-    await schain.messageProxy.grantRole(connector_role, schain.tokenManagerLinker.address, opts);
+    let constantRole = await ima.schain.communityLocker.CONSTANT_SETTER_ROLE();
+    await ima.schain.communityLocker.grantRole(constantRole, testAddress, txOpts);
 
-    // let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
-    // let sdkTxOpts: TxOpts = {
-    //     address: sdkAddress,
-    //     privateKey: SDK_PRIVATE_KEY
-    // };
+    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
+    let sdkTxOpts: TxOpts = {
+        address: sdkAddress,
+        privateKey: SDK_PRIVATE_KEY
+    };
 
-    // let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
-    // await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
+    let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
+    await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
 }
 
 
@@ -157,13 +133,6 @@ export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
            
     }
     return testTokens;
-}
-
-
-export function s2sToken(sChainWeb3: Web3) {
-    let filepath = TOKENS_ABI_FOLDER + 'ERC721Example-TEST_S2S-schain.json';
-    let tokenMeta = helper.jsonFileLoad(filepath);
-    return new sChainWeb3.eth.Contract(tokenMeta.erc721_abi, tokenMeta.erc721_address);
 }
 
 
