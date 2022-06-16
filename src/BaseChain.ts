@@ -100,7 +100,7 @@ export abstract class BaseChain {
     async waitForChange(tokenContract: Contract, getFunc: any, address: string | undefined,
         initial: string, tokenId: number | undefined, sleepInterval: number=constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
-        let log_data = 'token: ' + tokenContract.options.address + ', address: ' + address;
+        const logData = 'token: ' + tokenContract.options.address + ', address: ' + address;
         for (let i = 1; i <= iterations; i++) {
             let res;
             if (tokenId === undefined) res = await getFunc(tokenContract, address);
@@ -112,11 +112,11 @@ export abstract class BaseChain {
                 return;
             }
             if (helper.isNode()){
-                log.info('Waiting for change - ' + log_data + ', sleeping for ' + sleepInterval + 'ms');
+                log.info('Waiting for change - ' + logData + ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
         }
-        throw new TimeoutException('waitForTokenClone timeout - ' + log_data);
+        throw new TimeoutException('waitForTokenClone timeout - ' + logData);
     }
 
     async waitERC20BalanceChange(tokenContract: Contract, address: string, initialBalance: string,
