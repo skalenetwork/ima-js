@@ -10,6 +10,7 @@
     "clean": "tsc --build --clean",
     "start": "ts-node src/index.ts",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 300000 -r ts-node/register 'test/**/*Test.ts'",
+    "test-demo": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 300000 -r ts-node/register 'test_demo/**/*Test.ts'",
     "deploy-tokens": "bash ./scripts/deploy_test_tokens.sh",
     "deploy-s2s-tokens": "bash ./scripts/deploy_s2s_tokens.sh",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
