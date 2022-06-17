@@ -31,7 +31,7 @@ describe("sChain module tests", () => {
         };
 
         await test_utils.grantPermissions(ima);
-        if (!await ima.mainnet.messageProxyMainnet.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+        if (!await ima.mainnet.messageProxy.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
         await ima.schain.communityLocker.setTimeLimitPerMessage(1, opts);

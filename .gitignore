@@ -46,4 +46,5 @@ data/
 *.d.ts
 
 .env-sdk
+.env*
 test.mjs

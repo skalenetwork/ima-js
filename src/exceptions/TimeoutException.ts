@@ -17,28 +17,14 @@
  */
 
 /**
- * @file TokenManagerEth.ts
- * @copyright SKALE Labs 2022-Present
+ * @file TimeoutException.ts
+ * @copyright SKALE Labs 2021-Present
  */
 
-import { TokenManager } from './TokenManager';
-import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
-
-export class TokenManagerEth extends TokenManager {
-
-    async withdraw(withdrawValue: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.exitToMain(withdrawValue);
-        return await transactions.send(this.web3, txData, opts);
+export default class TimeoutException extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+        Error.captureStackTrace(this, this.constructor);
     }
-
-    async getTokenCloneAddress(
-        originTokenAddress: string,
-        originChainName: string
-    ) {
-        throw new Error('Function does not exsist for this token manager');
-        return '';
-    }
-
 }
