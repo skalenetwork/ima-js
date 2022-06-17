@@ -21,20 +21,33 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+ import { Logger } from "tslog";
 import { Contract } from 'web3-eth-contract';
+
 import { BaseContract } from '../BaseContract';
 import { ContractsStringMap } from '../../BaseChain';
+import TxOpts from '../../TxOpts';
+import TimeoutException from '../../exceptions/TimeoutException';
+
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
+import * as helper from '../../helper';
 
 
-export class TokenManager extends BaseContract {
+const log: Logger = new Logger();
+
+
+export abstract class TokenManager extends BaseContract {
     tokens: ContractsStringMap = {};
 
     addToken(tokenName: string, contract: Contract) {
         this.tokens[tokenName] = contract;
     }
+
+    abstract getTokenCloneAddress(
+        originTokenAddress: string,
+        originChainName: string
+    ): Promise<string>;
 
     async enableAutomaticDeploy(opts: TxOpts) {
         const txData = this.contract.methods.enableAutomaticDeploy();
@@ -63,6 +76,10 @@ export class TokenManager extends BaseContract {
         return await this.contract.methods.TOKEN_REGISTRAR_ROLE().call();
     }
 
+    async hasTokenManager(chainName: string): Promise<boolean> {
+        return await this.contract.methods.hasTokenManager(chainName).call();
+    }
+
     async ownerOf(tokenName: string, tokenId: number | string): Promise<string> {
         const contract = this.tokens[tokenName];
         try {
@@ -71,5 +88,26 @@ export class TokenManager extends BaseContract {
         } catch (err) {
             return constants.ZERO_ADDRESS; // todo: replace with IMA-ERC721 exception: no such token
         }
+    }
+
+    async waitForTokenClone(
+        originTokenAddress: string,
+        originChainName: string,
+        sleepInterval: number=constants.DEFAULT_SLEEP,
+        iterations: number = constants.DEFAULT_ITERATIONS
+    ): Promise<any> {
+        let address;
+        const logData = 'origin token: ' + originTokenAddress + ', origin chain: ' + originChainName;
+        for (let i = 1; i <= iterations; i++) {
+            address = await this.getTokenCloneAddress(originTokenAddress, originChainName);
+            if (constants.ZERO_ADDRESS !== address) {
+                return address;
+            }
+            if (helper.isNode()){
+                log.info('Waiting for token clone - ' + logData);
+            }
+            await helper.sleep(sleepInterval);
+        }
+        throw new TimeoutException('waitForTokenClone timeout - ' + logData);
     }
 }

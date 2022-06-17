@@ -23,9 +23,12 @@
 
 import Web3 from 'web3';
 
+import TxOpts from './TxOpts';
+import * as transactions from './transactions';
+
 import { BaseChain } from './BaseChain';
 
-import { BaseContract } from './contracts/BaseContract';
+import { MessageProxy } from './contracts/MessageProxy';
 import { TokenManagerEth } from './contracts/schain/TokenManagerEth';
 import { TokenManagerERC20 } from './contracts/schain/TokenManagerERC20';
 import { TokenManagerERC721 } from './contracts/schain/TokenManagerERC721';
@@ -34,7 +37,6 @@ import { TokenManagerERC1155 } from './contracts/schain/TokenManagerERC1155';
 import { EthERC20 } from './contracts/schain/EthERC20';
 import { СommunityLocker } from './contracts/schain/СommunityLocker';
 import { TokenManagerLinker } from './contracts/schain/TokenManagerLinker';
-import { MessageProxyChain } from './contracts/schain/MessageProxyChain';
 
 
 export default class SChain extends BaseChain {
@@ -48,7 +50,8 @@ export default class SChain extends BaseChain {
     ethERC20: EthERC20;
     communityLocker: СommunityLocker;
     tokenManagerLinker: TokenManagerLinker;
-    messageProxyChain: MessageProxyChain;
+
+    messageProxy: MessageProxy;
 
     constructor(web3: Web3, abi: any, chainId?: number) {
         super(web3, abi, chainId);
@@ -93,7 +96,7 @@ export default class SChain extends BaseChain {
             this.abi.token_manager_linker_address,
             this.abi.token_manager_linker_abi
         )
-        this.messageProxyChain = new MessageProxyChain(
+        this.messageProxy = new MessageProxy(
             this.web3,
             this.abi.message_proxy_chain_address,
             this.abi.message_proxy_chain_abi
@@ -102,6 +105,10 @@ export default class SChain extends BaseChain {
 
     async ethBalance(address: string): Promise<string> {
         return await this.ethERC20.balanceOf(address);
+    }
+
+    async sendSFuel(address: string, value: string, opts: TxOpts): Promise<any> {
+        return await transactions.sendETH(this.web3, address, value, opts);
     }
 
 }

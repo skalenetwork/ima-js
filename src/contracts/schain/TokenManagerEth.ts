@@ -33,4 +33,12 @@ export class TokenManagerEth extends TokenManager {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async getTokenCloneAddress(
+        originTokenAddress: string,
+        originChainName: string
+    ) {
+        throw new Error('Function does not exsist for this token manager');
+        return '';
+    }
+
 }

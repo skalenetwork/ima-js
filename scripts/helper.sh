@@ -23,4 +23,7 @@ set_vars () {
     export MINT_AMOUNT='1000'
     export TOKEN_NAME='TEST'
     export TOKEN_SYMBOL='TST'
+
+    export TOKEN_NAME_S2S='TEST_S2S'
+    export TOKEN_SYMBOL_S2S='TSTS2S'
 }

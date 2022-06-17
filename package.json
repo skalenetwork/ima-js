@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple TS/JS library to interact with SKALE IMA",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -9,8 +9,9 @@
     "prepack": "tsc --build",
     "clean": "tsc --build --clean",
     "start": "ts-node src/index.ts",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 150000 -r ts-node/register 'test/**/*Test.ts'",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 300000 -r ts-node/register 'test/**/*Test.ts'",
     "deploy-tokens": "bash ./scripts/deploy_test_tokens.sh",
+    "deploy-s2s-tokens": "bash ./scripts/deploy_s2s_tokens.sh",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "version": "node -e \"console.log(require('./package.json').version);\""
   },
