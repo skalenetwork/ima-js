@@ -30,7 +30,47 @@ import IMAContractException from './exceptions/IMAContractException';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 import TxOpts from './TxOpts';
 
+
 const log: Logger = new Logger();
+
+
+export async function sendETH(web3: Web3, address: string, value: string, opts: TxOpts) {
+    const txData = {
+        'to': address,
+        'value': web3.utils.toWei(value, 'ether'),
+        'gas': 30000,
+    };
+
+    let result;
+    if (!opts.value) opts.value = '0';
+    if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
+        const pk = (helper.add0x(opts.privateKey) as string);
+        helper.validatePrivateKey(pk);
+        result = await signAndSendETH(web3, txData, pk);
+    } else {
+        result = await sendETHWithExternalSigning(web3, txData);
+    }
+    if (helper.isNode()){
+        log.info(
+            'mined tx: ' +
+            'txHash: ' + result.transactionHash +
+            ', status: ' + result.status
+        );
+    }
+    return result;
+}
+
+
+export async function signAndSendETH(web3: Web3, tx: any, privateKey: string) {
+    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+    const rawTx = (signedTx.rawTransaction as string);
+    return await web3.eth.sendSignedTransaction(rawTx);
+}
+
+
+export async function sendETHWithExternalSigning(web3: Web3, tx: any) {
+    return await web3.eth.sendTransaction(tx);
+}
 
 
 export async function signAndSend(web3: Web3, address: string, transactionData: any, gas: string,

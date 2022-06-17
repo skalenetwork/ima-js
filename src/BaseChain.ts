@@ -27,6 +27,7 @@ import { Logger } from "tslog";
 
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
+import TimeoutException from './exceptions/TimeoutException';
 import * as constants from './constants';
 import * as helper from './helper';
 
@@ -99,6 +100,7 @@ export abstract class BaseChain {
     async waitForChange(tokenContract: Contract, getFunc: any, address: string | undefined,
         initial: string, tokenId: number | undefined, sleepInterval: number=constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
+        const logData = 'token: ' + tokenContract.options.address + ', address: ' + address;
         for (let i = 1; i <= iterations; i++) {
             let res;
             if (tokenId === undefined) res = await getFunc(tokenContract, address);
@@ -107,14 +109,14 @@ export abstract class BaseChain {
                 res = await getFunc(tokenContract, address, tokenId);
             }
             if (initial !== res) {
-                break;
+                return;
             }
             if (helper.isNode()){
-                log.info('Waiting for change - ' + tokenContract.options.address + ' - address: ' + address +
-                    ', sleeping for ' + sleepInterval + 'ms');
+                log.info('Waiting for change - ' + logData + ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
         }
+        throw new TimeoutException('waitForTokenClone timeout - ' + logData);
     }
 
     async waitERC20BalanceChange(tokenContract: Contract, address: string, initialBalance: string,

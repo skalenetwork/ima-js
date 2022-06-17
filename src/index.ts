@@ -204,10 +204,6 @@ export class IMA {
         }
     }
 
-    async isChainConnected(chainName: string): Promise<boolean> {
-        return await this.mainnet.messageProxyMainnet.isChainConnected(chainName);
-    }
-
     async connectSchain(chainName: string, opts: TxOpts) {
         const contractAddresses = [
             this.schain.tokenManagerLinker.address,
