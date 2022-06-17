@@ -25,7 +25,7 @@ chai.use(assertArrays);
 let expect = require('chai').expect;
 
 
-describe("ERC20/ERC721/ERC1155 tokens tests", () => {
+describe("ERC721 S2S transfer flow", () => {
     let opts: TxOpts;
     let opts2: TxOpts;
     let sChain1Contract: Contract;
@@ -46,7 +46,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         address = helper.privateKeyToAddress(sChain1.web3, test_utils.SCHAIN_PRIVATE_KEY);
         address2 = helper.privateKeyToAddress(sChain2.web3, test_utils.SCHAIN_PRIVATE_KEY_2);
 
-        sChain1Contract = test_utils.s2sToken(sChain1.web3);
+        sChain1Contract = test_utils.s2sTokenERC721(sChain1.web3);
 
         opts = {
             address: address,
@@ -69,7 +69,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         // await test_utils.reimburseWallet(ima);
     });
 
-    it.only("Test ERC721 approve/balance/deposit/withdraw between chains", async () => {
+    it("Test ERC721 approve/balance/deposit/withdraw between chains", async () => {
         sChain1.erc721.addToken(erc721Name, sChain1Contract);
 
         // one-time admin setup
@@ -160,23 +160,5 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const ownerOnSchain2_3 = await sChain2.getERC721OwnerOf(sChain2Contract, erc721TokenId);
         console.log('ownerOnSchain1 after transfering back: ' + ownerOnSchain1_3);
         console.log('ownerOnSchain2 after transfering back: ' + ownerOnSchain2_3);
-
-        // await sChain2.waitERC721OwnerChange(testTokens.schainERC721, erc721TokenId, erc721OwnerSchain1);
-
-        // const erc721OwnerMainnet2 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721, erc721TokenId);
-        // const erc721OwnerSchain2 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721, erc721TokenId);
-
-        // erc721OwnerMainnet2.should.be.equal(ima.mainnet.erc721.address);
-        // erc721OwnerSchain2.should.be.equal(erc721OwnerMainnet1);
-
-        // await ima.schain.erc721.approve(erc721Name, erc721TokenId, opts);
-        // await ima.withdrawERC721(erc721Name, erc721TokenId, opts);
-        // await ima.mainnet.waitERC721OwnerChange(testTokens.mainnetERC721, erc721TokenId, erc721OwnerMainnet2);
-
-        // const erc721OwnerMainnet3 = await ima.mainnet.getERC721OwnerOf(testTokens.mainnetERC721, erc721TokenId);
-        // const erc721OwnerSchain3 = await ima.schain.getERC721OwnerOf(testTokens.schainERC721, erc721TokenId);
-
-        // erc721OwnerMainnet3.should.be.equal(address);
-        // erc721OwnerSchain3.should.be.equal(ZERO_ADDRESS);
     });
 });

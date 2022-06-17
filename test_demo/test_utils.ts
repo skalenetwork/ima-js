@@ -160,10 +160,16 @@ export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
 }
 
 
-export function s2sToken(sChainWeb3: Web3) {
+export function s2sTokenERC721(sChainWeb3: Web3) {
     let filepath = TOKENS_ABI_FOLDER + 'ERC721Example-TEST_S2S-schain.json';
     let tokenMeta = helper.jsonFileLoad(filepath);
     return new sChainWeb3.eth.Contract(tokenMeta.erc721_abi, tokenMeta.erc721_address);
+}
+
+export function s2sTokenERC20(sChainWeb3: Web3) {
+    let filepath = TOKENS_ABI_FOLDER + 'ERC20Example-TEST_S2S-schain.json';
+    let tokenMeta = helper.jsonFileLoad(filepath);
+    return new sChainWeb3.eth.Contract(tokenMeta.erc20_abi, tokenMeta.erc20_address);
 }
 
 
