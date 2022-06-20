@@ -24,12 +24,12 @@
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
 import TxOpts from '../../TxOpts';
-import { Logger } from "tslog";
+
 
 import * as constants from '../../constants';
 import * as helper from '../../helper';
 
-const log: Logger = new Logger();
+
 
 
 export class DepositBoxEth extends DepositBox {
@@ -61,8 +61,8 @@ export class DepositBoxEth extends DepositBox {
                 break;
             }
             if (helper.isNode()){
-                log.info('Waiting for locked ETH balance change - address: ' + address +
-                    ', sleeping for ' + sleepInterval + 'ms');
+                // log.info('Waiting for locked ETH balance change - address: ' + address +
+                //     ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
         }

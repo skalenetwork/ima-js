@@ -22,7 +22,7 @@
  */
 
 import Web3 from 'web3';
-import { Logger } from "tslog";
+
 
 import * as helper from './helper';
 import * as constants from './constants';
@@ -31,7 +31,7 @@ import InvalidCredentialsException from './exceptions/InvalidCredentialsExceptio
 import TxOpts from './TxOpts';
 
 
-const log: Logger = new Logger();
+
 
 
 export async function sendETH(web3: Web3, address: string, value: string, opts: TxOpts) {
@@ -51,11 +51,11 @@ export async function sendETH(web3: Web3, address: string, value: string, opts: 
         result = await sendETHWithExternalSigning(web3, txData);
     }
     if (helper.isNode()){
-        log.info(
-            'mined tx: ' +
-            'txHash: ' + result.transactionHash +
-            ', status: ' + result.status
-        );
+        // log.info(
+        //     'mined tx: ' +
+        //     'txHash: ' + result.transactionHash +
+        //     ', status: ' + result.status
+        // );
     }
     return result;
 }
@@ -124,12 +124,12 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
     if (!opts.value) opts.value = '0';
 
     if (helper.isNode()){
-        log.info(
-            'sending tx: ' + transactionData._method.name +
-            ', gasLimit: ' + gasLimit +
-            ', to: ' + transactionData._parent._address +
-            ', value: ' + opts.value
-        );
+        // log.info(
+        //     'sending tx: ' + transactionData._method.name +
+        //     ', gasLimit: ' + gasLimit +
+        //     ', to: ' + transactionData._parent._address +
+        //     ', value: ' + opts.value
+        // );
     }
 
     try {
@@ -141,11 +141,11 @@ export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
             result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
         }
         if (helper.isNode()){
-            log.info(
-                'mined tx: ' + transactionData._method.name +
-                ', txHash: ' + result.transactionHash +
-                ', status: ' + result.status
-            );
+            // log.info(
+            //     'mined tx: ' + transactionData._method.name +
+            //     ', txHash: ' + result.transactionHash +
+            //     ', status: ' + result.status
+            // );
         }
         return result;
     } catch (error) {

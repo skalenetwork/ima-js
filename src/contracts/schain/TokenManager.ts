@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
- import { Logger } from "tslog";
+ 
 import { Contract } from 'web3-eth-contract';
 
 import { BaseContract } from '../BaseContract';
@@ -34,7 +34,7 @@ import * as transactions from '../../transactions';
 import * as helper from '../../helper';
 
 
-const log: Logger = new Logger();
+
 
 
 export abstract class TokenManager extends BaseContract {
@@ -104,7 +104,7 @@ export abstract class TokenManager extends BaseContract {
                 return address;
             }
             if (helper.isNode()){
-                log.info('Waiting for token clone - ' + logData);
+              //  log.info('Waiting for token clone - ' + logData);
             }
             await helper.sleep(sleepInterval);
         }

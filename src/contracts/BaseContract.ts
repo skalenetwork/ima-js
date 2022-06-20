@@ -23,9 +23,9 @@
 
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { Logger } from "tslog";
 
-const log: Logger = new Logger();
+
+
 
 
 export class BaseContract {
@@ -34,7 +34,7 @@ export class BaseContract {
     contract: Contract;
 
     constructor(web3: Web3, address: string, abi: any) {
-        log.info('Initing contract ' + this.constructor.name + ' at ' + address);
+        // log.info('Initing contract ' + this.constructor.name + ' at ' + address);
         this.web3 = web3;
         this.address = address;
         this.contract = new this.web3.eth.Contract(abi, address);

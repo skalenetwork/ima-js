@@ -60,7 +60,6 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "tslog": "^3.2.0",
     "web3": "1.4.0"
   }
 }
