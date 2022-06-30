@@ -23,7 +23,6 @@
 
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { Logger } from "tslog";
 
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
@@ -31,8 +30,6 @@ import TimeoutException from './exceptions/TimeoutException';
 import * as constants from './constants';
 import * as helper from './helper';
 
-
-const log: Logger = new Logger();
 
 export interface ContractsStringMap { [key: string]: Contract; }
 
@@ -90,8 +87,8 @@ export abstract class BaseChain {
                 break;
             }
             if (helper.isNode()){
-                log.info('Waiting for ETH balance change - address: ' + address +
-                    ', sleeping for ' + sleepInterval + 'ms');
+                // log.info('Waiting for ETH balance change - address: ' + address +
+                //     ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
         }
@@ -112,7 +109,7 @@ export abstract class BaseChain {
                 return;
             }
             if (helper.isNode()){
-                log.info('Waiting for change - ' + logData + ', sleeping for ' + sleepInterval + 'ms');
+                // log.info('Waiting for change - ' + logData + ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
         }

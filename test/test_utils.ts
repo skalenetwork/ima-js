@@ -25,7 +25,7 @@ const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + 
 const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
 const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxySchain.json';
 
-export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
+// export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
 
@@ -98,14 +98,14 @@ export async function grantPermissions(ima: IMA): Promise<any> {
     let constantRole = await ima.schain.communityLocker.CONSTANT_SETTER_ROLE();
     await ima.schain.communityLocker.grantRole(constantRole, testAddress, txOpts);
 
-    let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
-    let sdkTxOpts: TxOpts = {
-        address: sdkAddress,
-        privateKey: SDK_PRIVATE_KEY
-    };
+    // let sdkAddress = helper.privateKeyToAddress(ima.schain.web3, SDK_PRIVATE_KEY);
+    // let sdkTxOpts: TxOpts = {
+    //     address: sdkAddress,
+    //     privateKey: SDK_PRIVATE_KEY
+    // };
 
-    let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
-    await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
+    // let linkerRole = await ima.mainnet.linker.LINKER_ROLE();
+    // await ima.mainnet.linker.grantRole(linkerRole, testAddress, sdkTxOpts);
 }
 
 
