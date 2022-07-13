@@ -60,6 +60,18 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async wrap(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.tokens[tokenName];
+        const txData = tokenContract.methods.depositFor(opts.address, amount);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
+    async unwrap(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.tokens[tokenName];
+        const txData = tokenContract.methods.withdrawTo(opts.address, amount);
+        return await transactions.send(this.web3, txData, opts);
+    }
+
     async withdraw(mainnetTokenAddress: string, amount: string, opts: TxOpts): Promise<any> {
         const txData = this.contract.methods.exitToMainERC20(
             mainnetTokenAddress,
