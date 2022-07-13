@@ -67,7 +67,7 @@ describe("ERC20 S2S transfer flow", () => {
         // await test_utils.reimburseWallet(ima);
     });
 
-    it.only("Test ERC20 approve/balance/deposit/withdraw between chains", async () => {
+    it("Test ERC20 approve/balance/deposit/withdraw between chains", async () => {
         sChain1.erc20.addToken(erc20Name, sChain1Contract);
 
         // one-time admin setup

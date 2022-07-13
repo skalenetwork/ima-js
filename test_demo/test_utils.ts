@@ -75,6 +75,13 @@ export function initSChain2() {
 }
 
 
+export function initMainnet() {
+    const web3 = new Web3(MAINNET_ENDPOINT);
+    const abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
+    return new MainnetChain(web3, abi);
+}
+
+
 export function initTestSChain() {
     const provider = new Web3.providers.HttpProvider(SCHAIN_ENDPOINT);
     const web3 = new Web3(provider);
@@ -172,6 +179,17 @@ export function s2sTokenERC20(sChainWeb3: Web3) {
     return new sChainWeb3.eth.Contract(tokenMeta.erc20_abi, tokenMeta.erc20_address);
 }
 
+export function s2sTokenERC20Wrap(sChainWeb3: Web3) {
+    let filepath = TOKENS_ABI_FOLDER + 'ERC20Wrap-wTEST_S2S-schain.json';
+    let tokenMeta = helper.jsonFileLoad(filepath);
+    return new sChainWeb3.eth.Contract(tokenMeta.erc20_abi, tokenMeta.erc20_address);
+}
+
+export function wETHToken(sChainWeb3: Web3) {
+    let filepath = TOKENS_ABI_FOLDER + 'ERC20Wrap-wETH-schain.json';
+    let tokenMeta = helper.jsonFileLoad(filepath);
+    return new sChainWeb3.eth.Contract(tokenMeta.erc20_wrap_abi, tokenMeta.erc20_wrap_address);
+}
 
 export async function getERC1155Balances(
     chain: BaseChain,
