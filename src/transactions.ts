@@ -30,6 +30,7 @@ import IMAContractException from './exceptions/IMAContractException';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 import TxOpts from './TxOpts';
 
+
 const log: Logger = new Logger();
 
 
@@ -51,7 +52,7 @@ export async function sendETH(web3: Web3, address: string, value: string, opts: 
     }
     if (helper.isNode()){
         log.info(
-            'mined tx: ' + 
+            'mined tx: ' +
             'txHash: ' + result.transactionHash +
             ', status: ' + result.status
         );
@@ -60,7 +61,7 @@ export async function sendETH(web3: Web3, address: string, value: string, opts: 
 }
 
 
-export async function signAndSendETH(web3: Web3, tx: any, privateKey: string) { 
+export async function signAndSendETH(web3: Web3, tx: any, privateKey: string) {
     const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
     const rawTx = (signedTx.rawTransaction as string);
     return await web3.eth.sendSignedTransaction(rawTx);
