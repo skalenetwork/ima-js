@@ -22,12 +22,19 @@
  */
 
 import { BaseContract } from '../BaseContract';
+import TxOpts from '../../TxOpts';
+import * as transactions from '../../transactions';
 
 
 export class EthERC20 extends BaseContract {
 
     async balanceOf(address: string): Promise<string> {
         return await this.contract.methods.balanceOf(address).call({ from: address });
+    }
+
+    async approve(address: string, amount: string, opts: TxOpts): Promise<any> {
+        const txData = this.contract.methods.approve(address, amount);
+        return await transactions.send(this.web3, txData, opts);
     }
 
 }
