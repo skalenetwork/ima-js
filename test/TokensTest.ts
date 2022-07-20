@@ -99,7 +99,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         balanceMainnet2.should.be.equal(expectedMainnetBalanceBN.toString());
         balanceSchain2.should.be.equal(expectedSchainBalanceBN.toString());
 
-        await ima.schain.erc20.approve(erc20Name, constants.MAX_APPROVAL_AMOUNT, opts);
+        await ima.schain.erc20.approve(erc20Name, constants.MAX_APPROVAL_AMOUNT, ima.schain.erc20.address, opts);
         await ima.withdrawERC20(erc20Name, test_utils.TEST_TOKENS_TRANSFER_VALUE,
              opts);
 
