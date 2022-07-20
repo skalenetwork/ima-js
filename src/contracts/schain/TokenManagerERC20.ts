@@ -54,9 +54,9 @@ export class TokenManagerERC20 extends TokenManager {
         ).call();
     }
 
-    async approve(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+    async approve(tokenName: string, amount: string, address: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.tokens[tokenName];
-        const txData = tokenContract.methods.approve(this.address, amount);
+        const txData = tokenContract.methods.approve(address, amount);
         return await transactions.send(this.web3, txData, opts);
     }
 
