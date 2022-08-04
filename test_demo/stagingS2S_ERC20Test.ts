@@ -114,7 +114,7 @@ describe("ERC20 S2S transfer flow", () => {
 
         // transfer 1 -> 2
 
-        await sChain1.erc20.approve(erc20Name, test_utils.TEST_TOKENS_TRANSFER_VALUE, opts);
+        await sChain1.erc20.approve(erc20Name, test_utils.TEST_TOKENS_TRANSFER_VALUE, sChain1.erc20.address, opts);
         await sChain1.erc20.transferToSchain(
             test_utils.CHAIN_NAME_SCHAIN_2,
             sChain1Contract.options.address,
@@ -145,7 +145,7 @@ describe("ERC20 S2S transfer flow", () => {
 
         // transfer 2 -> 1
 
-        await sChain2.erc20.approve(erc20Name, test_utils.TEST_TOKENS_TRANSFER_VALUE, opts);
+        await sChain2.erc20.approve(erc20Name, test_utils.TEST_TOKENS_TRANSFER_VALUE, sChain1.erc20.address, opts);
         await sChain2.erc20.transferToSchain(
             test_utils.CHAIN_NAME_SCHAIN,
             sChain1Contract.options.address,

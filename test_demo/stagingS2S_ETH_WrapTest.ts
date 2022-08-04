@@ -96,13 +96,15 @@ describe("ERC20 S2S transfer flow", () => {
         console.log(mainnetBalanceBefore, mainnetBalanceAfterDeposit);
         console.log(sChainBalanceBefore, sChainBalanceAfterDeposit);
 
+        sChain1.erc20.addToken('eth', sChain1.ethERC20.contract);
         sChain1.erc20.addToken(wETHName, wETHToken);
 
         // approve + wrap
         
-        await sChain1.ethERC20.approve(
-            sChain1.erc20.tokens[wETHName].options.address,
+        await sChain1.erc20.approve(
+            'eth',
             test_utils.TEST_WEI_TRANSFER_VALUE,
+            sChain1.erc20.tokens[wETHName].options.address,
             opts
         );
         await sChain1.erc20.wrap(
@@ -113,7 +115,7 @@ describe("ERC20 S2S transfer flow", () => {
 
         // transfer weth 1 -> 2
 
-        await sChain1.erc20.approve(wETHName, test_utils.TEST_WEI_TRANSFER_VALUE, opts);
+        await sChain1.erc20.approve(wETHName, test_utils.TEST_WEI_TRANSFER_VALUE, sChain1.erc20.address, opts);
         await sChain1.erc20.transferToSchain(
             test_utils.CHAIN_NAME_SCHAIN_2,
             sChain1.erc20.tokens[wETHName].options.address,
@@ -121,15 +123,15 @@ describe("ERC20 S2S transfer flow", () => {
             opts
         );
 
-        tokenCloneAddress = await sChain2.erc20.waitForTokenClone(
-            sChain1.erc20.tokens[wETHName].options.address,
-            test_utils.CHAIN_NAME_SCHAIN
-        );
+        // tokenCloneAddress = await sChain2.erc20.waitForTokenClone(
+        //     sChain1.erc20.tokens[wETHName].options.address,
+        //     test_utils.CHAIN_NAME_SCHAIN
+        // );
 
-        sChain2Contract = new sChain2.web3.eth.Contract(
-            sChain1.erc20.tokens[wETHName].options.jsonInterface,
-            tokenCloneAddress
-        );
+        // sChain2Contract = new sChain2.web3.eth.Contract(
+        //     sChain1.erc20.tokens[wETHName].options.jsonInterface,
+        //     tokenCloneAddress
+        // );
 
 
         // one-time admin setup
