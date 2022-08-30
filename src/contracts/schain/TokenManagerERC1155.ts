@@ -21,6 +21,8 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { providers, ethers, BigNumberish } from 'ethers';
+
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
@@ -34,10 +36,10 @@ export class TokenManagerERC1155 extends TokenManager {
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {
-        return await this.contract.methods.clonesErc1155(
-            this.web3.utils.soliditySha3(originChainName),
+        return await this.contract.clonesErc1155(
+            ethers.utils.solidityKeccak256(['string'], [originChainName]),
             originTokenAddress
-        ).call();
+        );
     }
 
     async addTokenByOwner(
@@ -45,34 +47,54 @@ export class TokenManagerERC1155 extends TokenManager {
         erc1155OnMainnet: string,
         erc1155OnSchain: string,
         opts: TxOpts
-    ):
-        Promise<any> {
-        const txData = this.contract.methods.addERC1155TokenByOwner(
+    ): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.addERC1155TokenByOwner(
             originChainName,
             erc1155OnMainnet,
             erc1155OnSchain
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('addERC1155TokenByOwner')
+        );
     }
 
-    async approveAll(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async approveAll(
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = tokenContract.methods.setApprovalForAll(this.address, tokenId);
-        return await transactions.send(this.web3, txData, opts);
+        const txData = await tokenContract.populateTransaction.setApprovalForAll(
+            this.address,
+            tokenId
+        );
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('setApprovalForAll')
+        );
     }
 
-    async withdraw(mainnetTokenAddress: string, tokenIds: number | number[],
-        amounts: string | string[], opts: TxOpts): Promise<any> {
+    async withdraw(
+        mainnetTokenAddress: string,
+        tokenIds: number | number[],
+        amounts: BigNumberish | BigNumberish[],
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         let txData: any;
 
-        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
-            txData = this.contract.methods.exitToMainERC1155(
+        if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
+            txData = await this.contract.populateTransaction.exitToMainERC1155(
                 mainnetTokenAddress,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
-            txData = this.contract.methods.exitToMainERC1155Batch(
+            txData = await this.contract.populateTransaction.exitToMainERC1155Batch(
                 mainnetTokenAddress,
                 tokenIds,
                 amounts
@@ -81,7 +103,12 @@ export class TokenManagerERC1155 extends TokenManager {
             throw new InvalidArgsException(
                 'tokenIds and amounts should both be arrays of single objects');
         }
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('exitToMainERC1155')
+        );
     }
 
     async transferToSchain(
@@ -90,17 +117,17 @@ export class TokenManagerERC1155 extends TokenManager {
         tokenIds: number | number[],
         amounts: string | string[],
         opts: TxOpts
-    ): Promise<any> {
+    ): Promise<providers.TransactionResponse> {
         let txData: any;
-        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
-            txData = this.contract.methods.transferToSchainERC1155(
+        if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
+            txData = await this.contract.populateTransaction.transferToSchainERC1155(
                 targetSchainName,
                 tokenAddress,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
-            txData = this.contract.methods.transferToSchainERC1155Batch(
+            txData = await this.contract.populateTransaction.transferToSchainERC1155Batch(
                 targetSchainName,
                 tokenAddress,
                 tokenIds,
@@ -110,7 +137,12 @@ export class TokenManagerERC1155 extends TokenManager {
             throw new InvalidArgsException(
                 'tokenIds and amounts should both be arrays of single objects');
         }
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('transferToSchainERC1155')
+        );
     }
 
 }

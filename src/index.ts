@@ -24,8 +24,7 @@
 export { default as MainnetChain } from "./MainnetChain";
 export { default as SChain } from "./SChain";
 
-import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
+import { Contract, providers, BigNumberish } from 'ethers';
 
 import MainnetChain from './MainnetChain';
 import SChain from './SChain';
@@ -37,9 +36,14 @@ export * as helper from './helper';
 export class IMA {
     mainnet: MainnetChain;
     schain: SChain;
-    constructor(mainnetWeb3: Web3, sChainWeb3: Web3, mainnetAbi: any, sChainAbi: any) {
-        this.mainnet = new MainnetChain(mainnetWeb3, mainnetAbi);
-        this.schain = new SChain(sChainWeb3, sChainAbi);
+    constructor(
+        mainnetProvider: providers.Provider,
+        sChainProvider: providers.Provider,
+        mainnetAbi: any,
+        sChainAbi: any
+    ) {
+        this.mainnet = new MainnetChain(mainnetProvider, mainnetAbi);
+        this.schain = new SChain(sChainProvider, sChainAbi);
     }
 
     addERC20Token(tokenName: string, mainnetContract: Contract, sChainContact: Contract) {
@@ -52,7 +56,11 @@ export class IMA {
         this.schain.erc721.addToken(tokenName, sChainContact);
     }
 
-    addERC721WithMetadataToken(tokenName: string, mainnetContract: Contract, sChainContact: Contract) {
+    addERC721WithMetadataToken(
+        tokenName: string,
+        mainnetContract: Contract,
+        sChainContact: Contract
+    ) {
         this.mainnet.erc721meta.addToken(tokenName, mainnetContract);
         this.schain.erc721meta.addToken(tokenName, sChainContact);
     }
@@ -62,51 +70,72 @@ export class IMA {
         this.schain.erc1155.addToken(tokenName, sChainContact);
     }
 
-    async depositERC20(chainName: string, tokenName: string, amount: string,
-        opts: TxOpts): Promise<any> {
+    async depositERC20(chainName: string, tokenName: string, amount: BigNumberish,
+        opts: TxOpts): Promise<providers.TransactionResponse> {
         return await this.mainnet.erc20.deposit(chainName, tokenName, amount, opts);
     }
 
-    async withdrawERC20(tokenName: string, amount: string, opts: TxOpts): Promise<any> {
+    async withdrawERC20(
+        tokenName: string,
+        amount: BigNumberish,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.mainnet.erc20.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = tokenContract.address;
         return await this.schain.erc20.withdraw(tokenContractAddress, amount, opts);
     }
 
     async depositERC721(chainName: string, tokenName: string, tokenId: number,
-        opts: TxOpts): Promise<any> {
+        opts: TxOpts): Promise<providers.TransactionResponse> {
         return await this.mainnet.erc721.deposit(chainName, tokenName, tokenId, opts);
     }
 
-    async withdrawERC721(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async withdrawERC721(
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.mainnet.erc721.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = tokenContract.address;
         return await this.schain.erc721.withdraw(tokenContractAddress, tokenId, opts);
     }
 
     async depositERC721WithMetadata(chainName: string, tokenName: string, tokenId: number,
-        opts: TxOpts): Promise<any> {
+        opts: TxOpts): Promise<providers.TransactionResponse> {
         return await this.mainnet.erc721meta.deposit(
             chainName, tokenName, tokenId, opts);
     }
 
-    async withdrawERC721Meta(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async withdrawERC721Meta(
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.mainnet.erc721meta.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = tokenContract.address;
         return await this.schain.erc721meta.withdraw(
             tokenContractAddress, tokenId, opts);
     }
 
-    async depositERC1155(chainName: string, tokenName: string, tokenIds: number | number[],
-        amounts: string | string[], opts: TxOpts): Promise<any> {
+    async depositERC1155(
+        chainName: string,
+        tokenName: string,
+        tokenIds: number | number[],
+        amounts: BigNumberish | BigNumberish[],
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         return await this.mainnet.erc1155.deposit(
             chainName, tokenName, tokenIds, amounts, opts);
     }
 
-    async withdrawERC1155(tokenName: string, tokenIds: number | number[],
-        amounts: string | string[], opts: TxOpts): Promise<any> {
+    async withdrawERC1155(
+        tokenName: string,
+        tokenIds: number | number[],
+        amounts: BigNumberish | BigNumberish[],
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.mainnet.erc1155.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = tokenContract.address;
         return await this.schain.erc1155.withdraw(
             tokenContractAddress, tokenIds, amounts, opts);
     }
@@ -124,7 +153,7 @@ export class IMA {
             chainName,
             erc20OnMainnet
         );
-        if (!isERC20AddedMainnet){
+        if (!isERC20AddedMainnet) {
             await this.mainnet.erc20.addTokenByOwner(chainName, erc20OnMainnet, opts);
         }
 
@@ -146,7 +175,7 @@ export class IMA {
             chainName,
             erc721OnMainnet
         );
-        if (!isERC721AddedMainnet){
+        if (!isERC721AddedMainnet) {
             await this.mainnet.erc721.addTokenByOwner(chainName, erc721OnMainnet, opts);
         }
 
@@ -170,11 +199,9 @@ export class IMA {
             chainName,
             erc721OnMainnet
         );
-        if (!isERC721AddedMainnet){
-            await this.mainnet.erc721meta.addTokenByOwner(
-                chainName, erc721OnMainnet, opts);
+        if (!isERC721AddedMainnet) {
+            await this.mainnet.erc721meta.addTokenByOwner(chainName, erc721OnMainnet, opts);
         }
-
         const tokenCloneAddress = await this.schain.erc721meta.getTokenCloneAddress(
             erc721OnMainnet
         );
@@ -193,7 +220,7 @@ export class IMA {
     ) {
         const isERC1155AddedMainnet = await this.mainnet.erc1155.isTokenAdded(
             chainName, erc1155OnMainnet);
-        if (!isERC1155AddedMainnet){
+        if (!isERC1155AddedMainnet) {
             await this.mainnet.erc1155.addTokenByOwner(chainName, erc1155OnMainnet, opts);
         }
         const tokenCloneAddress = await this.schain.erc1155.getTokenCloneAddress(

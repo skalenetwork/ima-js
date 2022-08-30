@@ -21,51 +21,47 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { providers, BigNumber } from 'ethers';
+
+import debug from 'debug';
+
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
 import TxOpts from '../../TxOpts';
-import { Logger } from "tslog";
 
 import * as constants from '../../constants';
 import * as helper from '../../helper';
-
-const log: Logger = new Logger();
 
 
 export class DepositBoxEth extends DepositBox {
 
     async deposit(
-        chainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.deposit(chainName);
-        return await transactions.send(this.web3, txData, opts);
+        chainName: string, opts: TxOpts): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.deposit(chainName);
+        return await transactions.send(this.provider, txData, opts, this.txName('deposit'));
     }
 
-    async getMyEth(opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.getMyEth();
-        return await transactions.send(this.web3, txData, opts);
+    async getMyEth(opts: TxOpts): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.getMyEth();
+        return await transactions.send(this.provider, txData, opts, this.txName('getMyEth'));
     }
 
-    async lockedETHAmount(address: string): Promise<string> {
-        return await this.contract.methods.approveTransfers(address).call( {
-            from: address
-        })
+    async lockedETHAmount(address: string): Promise<BigNumber> {
+        return await this.contract.approveTransfers(address);
     }
 
-    async waitLockedETHAmountChange(address: string, initial: string,
-        sleepInterval: number=constants.DEFAULT_SLEEP,
+    async waitLockedETHAmountChange(address: string, initial: BigNumber,
+        sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
         for (let i = 1; i <= iterations; i++) {
             let res;
             res = await this.lockedETHAmount(address);
-            if (initial !== res) {
+            if (!initial.eq(res)) {
                 break;
             }
-            if (helper.isNode()){
-                log.info('Waiting for locked ETH balance change - address: ' + address +
-                    ', sleeping for ' + sleepInterval + 'ms');
-            }
+            debug('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
+            address + ', sleep ' + sleepInterval + 'ms');
             await helper.sleep(sleepInterval);
         }
     }
-
 }
