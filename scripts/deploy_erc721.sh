@@ -17,5 +17,8 @@ npx hardhat erc721 --name $TOKEN_NAME --symbol $TOKEN_SYMBOL --network schain
 MAINNET_ERC_721_ADDRESS=$(cat $DIR/../test-tokens/data/ERC721Example-$TOKEN_NAME-mainnet.json | jq -r ".erc721_address")
 SCHAIN_ERC_721_ADDRESS=$(cat $DIR/../test-tokens/data/ERC721Example-$TOKEN_NAME-schain.json | jq -r ".erc721_address")
 
+echo "Going to add minter..."
 npx hardhat add-minter-erc721 --token-address $SCHAIN_ERC_721_ADDRESS --address $TOKEN_MANAGER_ERC_721_ADDRESS --network schain
+echo "Going to mint..."
 npx hardhat mint-erc721 --token-address $MAINNET_ERC_721_ADDRESS --receiver-address $TEST_ADDRESS --token-id $TEST_TOKEN_ID --network mainnet
+echo "Done..."

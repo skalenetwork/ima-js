@@ -50,7 +50,7 @@ export abstract class BaseChain {
     abstract ethBalance(address: string): Promise<string>;
 
     async getERC20Balance(tokenContract: Contract, address: string): Promise<string> {
-        return await tokenContract.methods.balanceOf(address).call({from: address});
+        return await tokenContract.methods.balanceOf(address).call({ from: address });
     }
 
     async getERC721OwnerOf(tokenContract: Contract, tokenId: number | string): Promise<string> {
@@ -67,7 +67,7 @@ export abstract class BaseChain {
         address: string,
         tokenId: number
     ): Promise<string> {
-        return await tokenContract.methods.balanceOf(address, tokenId).call({from: address});
+        return await tokenContract.methods.balanceOf(address, tokenId).call({ from: address });
     }
 
     async setTokenURI(
@@ -81,7 +81,7 @@ export abstract class BaseChain {
     }
 
     async waitETHBalanceChange(address: string, initial: string,
-        sleepInterval: number=constants.DEFAULT_SLEEP,
+        sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
         for (let i = 1; i <= iterations; i++) {
             let res;
@@ -89,7 +89,7 @@ export abstract class BaseChain {
             if (initial !== res) {
                 break;
             }
-            if (helper.isNode()){
+            if (helper.isNode()) {
                 log.info('Waiting for ETH balance change - address: ' + address +
                     ', sleeping for ' + sleepInterval + 'ms');
             }
@@ -98,7 +98,7 @@ export abstract class BaseChain {
     }
 
     async waitForChange(tokenContract: Contract, getFunc: any, address: string | undefined,
-        initial: string, tokenId: number | undefined, sleepInterval: number=constants.DEFAULT_SLEEP,
+        initial: string, tokenId: number | undefined, sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
         const logData = 'token: ' + tokenContract.options.address + ', address: ' + address;
         for (let i = 1; i <= iterations; i++) {
@@ -111,7 +111,7 @@ export abstract class BaseChain {
             if (initial !== res) {
                 return;
             }
-            if (helper.isNode()){
+            if (helper.isNode()) {
                 log.info('Waiting for change - ' + logData + ', sleeping for ' + sleepInterval + 'ms');
             }
             await helper.sleep(sleepInterval);
@@ -120,21 +120,21 @@ export abstract class BaseChain {
     }
 
     async waitERC20BalanceChange(tokenContract: Contract, address: string, initialBalance: string,
-        sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
+        sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC20Balance.bind(this), address, initialBalance, undefined,
             sleepInterval);
     }
 
     async waitERC721OwnerChange(tokenContract: Contract, tokenId: number, initialOwner: string,
-        sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
+        sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC721OwnerOf.bind(this), undefined, initialOwner, tokenId,
             sleepInterval);
     }
 
     async waitERC1155BalanceChange(tokenContract: Contract, address: string, tokenId: number,
-        initialBalance: string, sleepInterval: number=constants.DEFAULT_SLEEP): Promise<any> {
+        initialBalance: string, sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC1155Balance.bind(this), address, initialBalance, tokenId,
             sleepInterval);

@@ -161,11 +161,16 @@ export function initTestTokens(mainnetWeb3: Web3, sChainWeb3: Web3) {
                 testTokens[keyName] = new sChainWeb3.eth.Contract(abi, address);
             }
         }
-           
     }
     return testTokens;
 }
 
+
+export function s2sTokenERC1155(sChainWeb3: Web3) {
+    let filepath = TOKENS_ABI_FOLDER + 'ERC1155Example-MEDALS2S-schain.json';
+    let tokenMeta = helper.jsonFileLoad(filepath);
+    return new sChainWeb3.eth.Contract(tokenMeta.erc1155_abi, tokenMeta.erc1155_address);
+}
 
 export function s2sTokenERC721(sChainWeb3: Web3) {
     let filepath = TOKENS_ABI_FOLDER + 'ERC721Example-TEST_S2S-schain.json';
@@ -186,7 +191,7 @@ export function s2sTokenERC20Wrap(sChainWeb3: Web3) {
 }
 
 export function wETHToken(sChainWeb3: Web3) {
-    let filepath = TOKENS_ABI_FOLDER + 'ERC20Wrap-wETH-schain.json';
+    let filepath = TOKENS_ABI_FOLDER + 'ERC20Wrap-WRETH-schain.json';
     let tokenMeta = helper.jsonFileLoad(filepath);
     return new sChainWeb3.eth.Contract(tokenMeta.erc20_wrap_abi, tokenMeta.erc20_wrap_address);
 }

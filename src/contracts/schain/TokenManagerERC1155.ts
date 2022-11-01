@@ -113,4 +113,11 @@ export class TokenManagerERC1155 extends TokenManager {
         return await transactions.send(this.web3, txData, opts);
     }
 
+    async sendTokens(tokenName: string, address: string, tokenId: number, amount: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.tokens[tokenName];
+        const txData = tokenContract.methods.safeTransferFrom(opts.address, address, tokenId, amount, '0x0');
+        return await transactions.send(this.web3, txData, opts);
+        
+    }
+
 }
