@@ -105,5 +105,11 @@ export default class MainnetChain extends BaseChain {
                 contract.options.address
             );
         }
+        // todo: tmp hotfix for eth unlock!
+        this.eth = new DepositBoxEth(
+            this.web3,
+            this.abi.deposit_box_eth_address,
+            this.abi.deposit_box_eth_abi
+        )
     }
 }
