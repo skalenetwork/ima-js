@@ -117,6 +117,11 @@ export default class SChain extends BaseChain {
             this.abi.token_manager_eth_address,
             this.abi.token_manager_eth_abi
         )
+        this.ethERC20 = new EthERC20(
+            this.web3,
+            this.abi.eth_erc20_address,
+            this.abi.eth_erc20_abi
+        )
     }
 
     async ethBalance(address: string): Promise<string> {
