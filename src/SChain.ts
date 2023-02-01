@@ -111,6 +111,12 @@ export default class SChain extends BaseChain {
                 contract.options.address
             );
         }
+        // todo: tmp hotfix for eth unlock!
+        this.eth = new TokenManagerEth(
+            this.web3,
+            this.abi.token_manager_eth_address,
+            this.abi.token_manager_eth_abi
+        )
     }
 
     async ethBalance(address: string): Promise<string> {
