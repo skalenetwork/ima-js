@@ -13,7 +13,7 @@ jobs:
 
       SDK_PRIVATE_KEY: ${{ secrets.SDK_PRIVATE_KEY }}
       SDK_ADDRESS: ${{ secrets.SDK_ADDRESS }}
-      SDK_VERSION: 0.3.1-develop.14
+      SDK_VERSION: 0.3.1-develop.13
 
       TEST_PRIVATE_KEY: ${{ secrets.TEST_PRIVATE_KEY }}
       TEST_ADDRESS: ${{ secrets.TEST_ADDRESS }}
