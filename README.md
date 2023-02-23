@@ -1,6 +1,10 @@
 # SKALE IMA-JS
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/skalenetwork/ima-js/test.yml?label=tests)
+![NPM](https://img.shields.io/npm/l/@skalenetwork/ima-js)
+![npm](https://img.shields.io/npm/dm/@skalenetwork/ima-js)
+![GitHub top language](https://img.shields.io/github/languages/top/skalenetwork/ima-js)
 
 IMA-JS is a Typescript/Javascript library which implements client for SKALE Interchain Messaging Agent (IMA).
 
