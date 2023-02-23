@@ -21,6 +21,8 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { providers, BigNumber, BigNumberish } from 'ethers';
+
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
 import TxOpts from '../../TxOpts';
@@ -31,29 +33,41 @@ export class DepositBoxERC1155 extends DepositBox {
 
     // todo: add approve single ERC1155!
 
-    async approveAll(tokenName: string, opts: TxOpts): Promise<any> {
+    async approveAll(tokenName: string, opts: TxOpts): Promise<providers.TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = tokenContract.methods.setApprovalForAll(this.address, true);
-        return await transactions.send(this.web3, txData, opts);
+        const txData = await tokenContract.populateTransaction.setApprovalForAll(
+            this.address,
+            true
+        );
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('setApprovalForAll')
+        );
     }
 
     async deposit(
-        chainName: string, tokenName: string, tokenIds: number | number[],
-        amounts: string | string[], opts: TxOpts):Promise<any> {
+        chainName: string,
+        tokenName: string,
+        tokenIds: number | number[],
+        amounts: BigNumberish | BigNumberish[],
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = tokenContract.address;
 
         let txData: any;
 
-        if (typeof tokenIds === 'number' && typeof amounts === 'string') {
-            txData = this.contract.methods.depositERC1155(
+        if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
+            txData = await this.contract.populateTransaction.depositERC1155(
                 chainName,
                 tokenContractAddress,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
-            txData = this.contract.methods.depositERC1155Batch(
+            txData = await this.contract.populateTransaction.depositERC1155Batch(
                 chainName,
                 tokenContractAddress,
                 tokenIds,
@@ -63,41 +77,46 @@ export class DepositBoxERC1155 extends DepositBox {
             throw new InvalidArgsException(
                 'tokenIds and amounts should both be arrays of single objects');
         }
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(this.provider, txData, opts, this.txName('depositERC1155'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<number> {
-        return await this.contract.methods.getSchainToAllERC1155Length(
-            chainName).call();
+    async getTokenMappingsLength(chainName: string): Promise<BigNumber> {
+        return await this.contract.getSchainToAllERC1155Length(
+            chainName);
     }
 
     async getTokenMappings(
         chainName: string,
-        from: number | string,
-        to: number | string
+        from: BigNumberish,
+        to: BigNumberish
     ): Promise<string[]> {
-        return await this.contract.methods.getSchainToAllERC1155(
+        return await this.contract.getSchainToAllERC1155(
             chainName,
             from,
             to
-        ).call();
+        );
     }
 
     async isTokenAdded(chainName: string, erc1155OnMainnet: string) {
-        return await this.contract.methods.getSchainToERC1155(
-            chainName, erc1155OnMainnet).call();
+        return await this.contract.getSchainToERC1155(
+            chainName, erc1155OnMainnet);
     }
 
     async addTokenByOwner(
         chainName: string,
         erc1155OnMainnet: string,
         opts: TxOpts
-    ): Promise<any> {
-        const txData = this.contract.methods.addERC1155TokenByOwner(
+    ): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.addERC1155TokenByOwner(
             chainName,
             erc1155OnMainnet
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('addERC1155TokenByOwner')
+        );
     }
 
 }

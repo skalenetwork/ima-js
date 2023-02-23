@@ -21,6 +21,8 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { providers, BigNumberish } from 'ethers';
+
 import { TokenManager } from './TokenManager';
 import * as transactions from '../../transactions';
 import TxOpts from '../../TxOpts';
@@ -28,9 +30,12 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerEth extends TokenManager {
 
-    async withdraw(withdrawValue: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.exitToMain(withdrawValue);
-        return await transactions.send(this.web3, txData, opts);
+    async withdraw(
+        withdrawValue: BigNumberish,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.exitToMain(withdrawValue);
+        return await transactions.send(this.provider, txData, opts, this.txName('exitToMain'));
     }
 
     async getTokenCloneAddress(

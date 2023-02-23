@@ -21,21 +21,11 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
 import fs from 'fs';
 
 import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
-
-export function privateKeyToAccount(web3: Web3, privateKey: string) {
-    return web3.eth.accounts.privateKeyToAccount(privateKey);
-}
-
-export function privateKeyToAddress(web3: Web3, privateKey: string) {
-    const account = privateKeyToAccount(web3, privateKey);
-    return account.address;
-}
 
 export function add0x(s: any) {
     if (!s.startsWith('0x')) {

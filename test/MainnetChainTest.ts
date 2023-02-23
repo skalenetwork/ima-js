@@ -1,29 +1,31 @@
+import { Wallet, BigNumber } from "ethers";
+
+import debug from 'debug';
+
 import chaiAsPromised from "chai-as-promised";
-import chai = require("chai");
+import * as chai from 'chai';
 import * as dotenv from "dotenv";
 
 import { IMA } from '../src/index';
 import MainnetChain from '../src/MainnetChain';
 import SChain from '../src/SChain';
 
-import * as helper from '../src/helper';
-
 import * as test_utils from './test_utils';
-import { utils } from "mocha";
 import TxOpts from "../src/TxOpts";
-import { CHAIN_NAME_SCHAIN } from "./test_utils";
+
 
 dotenv.config();
 
 chai.should();
 chai.use(chaiAsPromised);
 
+const log = debug('ima:test:MainnetChain');
 
 describe("Mainnet chain tests", () => {
-    let address: string;
+    let wallet: Wallet;
     let mainnet: MainnetChain;
     let sChain: SChain;
-    let transferValBN: any;
+    let transferValBN: BigNumber;
 
     let opts: TxOpts;
     let ima: IMA;
@@ -32,87 +34,92 @@ describe("Mainnet chain tests", () => {
         ima = test_utils.initTestIMA();
         mainnet = test_utils.initTestMainnet();
         sChain = test_utils.initTestSChain();
-        address = helper.privateKeyToAddress(mainnet.web3, test_utils.MAINNET_PRIVATE_KEY);
-        transferValBN = mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
+
+        wallet = new Wallet(test_utils.MAINNET_PRIVATE_KEY);
+        transferValBN = test_utils.TEST_WEI_TRANSFER_VALUE;
 
         opts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
 
         await test_utils.grantPermissions(ima);
         const isChainConnected = await ima.mainnet.messageProxy.isChainConnected(
             test_utils.CHAIN_NAME_SCHAIN);
-        if (!isChainConnected){
+        if (!isChainConnected) {
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
+        await ima.schain.communityLocker.setTimeLimitPerMessage(1, opts);
+        await test_utils.reimburseWallet(ima);
     });
 
     it("Requests ETH balance for Mainnet chain", async () => {
-        let balance = await mainnet.ethBalance(address);
-        balance.should.be.a('string');
+        let balance = await mainnet.ethBalance(wallet.address);
+        BigNumber.isBigNumber(balance).should.be.equal(true);
     });
 
     it("Deposits ETH from Mainnet to sChain", async () => {
-        let mainnetBalanceBefore = await mainnet.ethBalance(address);
-        let sChainBalanceBefore = await sChain.ethBalance(address);
-        let sChainBalanceBeforeBN = mainnet.web3.utils.toBN(sChainBalanceBefore);
+        let mainnetBalanceBefore = await mainnet.ethBalance(wallet.address);
+        let sChainBalanceBefore = await sChain.ethBalance(wallet.address);
+        let sChainBalanceBeforeBN = BigNumber.from(sChainBalanceBefore);
         let expectedSChainBalance = sChainBalanceBeforeBN.add(transferValBN);
 
         let txOpts: TxOpts = {
             value: test_utils.TEST_WEI_TRANSFER_VALUE,
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.MAINNET_PRIVATE_KEY
         };
-
         await mainnet.eth.deposit(
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );
-        await sChain.waitETHBalanceChange(address, sChainBalanceBefore);
+        await sChain.waitETHBalanceChange(wallet.address, sChainBalanceBefore);
 
-        let sChainBalanceAfter = await sChain.ethBalance(address);
-        let mainnetBalanceAfter = await mainnet.ethBalance(address);
-        
-        console.log(mainnetBalanceBefore, mainnetBalanceAfter);
-        console.log(sChainBalanceBefore, sChainBalanceAfter);
+        let sChainBalanceAfter = await sChain.ethBalance(wallet.address);
+        let mainnetBalanceAfter = await mainnet.ethBalance(wallet.address);
 
-        sChainBalanceAfter.should.be.equal(expectedSChainBalance.toString(10));
+        log('mainnet: ' + mainnetBalanceBefore + ' -> ' + mainnetBalanceAfter);
+        log('schain: ' + sChainBalanceBefore + ' -> ' + sChainBalanceAfter);
+
+        sChainBalanceAfter.eq(expectedSChainBalance).should.be.true;
     });
 
     it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
         let balanceBefore = await mainnet.communityPool.balance(
-            address, test_utils.CHAIN_NAME_SCHAIN);
+            wallet.address, test_utils.CHAIN_NAME_SCHAIN);
 
-        let balanceBeforeBN = mainnet.web3.utils.toBN(balanceBefore);
+        let balanceBeforeBN = BigNumber.from(balanceBefore);
         let expectedBalanceBN = balanceBeforeBN.add(transferValBN);
 
         await mainnet.communityPool.recharge(
             test_utils.CHAIN_NAME_SCHAIN,
-            address,
+            wallet.address,
             {
                 value: test_utils.TEST_WEI_TRANSFER_VALUE,
-                address: address,
+                address: wallet.address,
                 privateKey: test_utils.MAINNET_PRIVATE_KEY
             }
         );
 
         let balanceAfter = await mainnet.communityPool.balance(
-            address, test_utils.CHAIN_NAME_SCHAIN);
-
-        balanceAfter.should.be.equal(expectedBalanceBN.toString(10));
+            wallet.address,
+            test_utils.CHAIN_NAME_SCHAIN
+        );
+        balanceAfter.eq(expectedBalanceBN).should.be.true;
 
         await mainnet.communityPool.withdraw(
             test_utils.CHAIN_NAME_SCHAIN,
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
-                address: address,
+                address: wallet.address,
                 privateKey: test_utils.MAINNET_PRIVATE_KEY
             }
         );
 
         let balanceAfterWithdraw = await mainnet.communityPool.balance(
-            address, test_utils.CHAIN_NAME_SCHAIN);
-        balanceAfterWithdraw.should.be.equal(balanceBefore);
+            wallet.address,
+            test_utils.CHAIN_NAME_SCHAIN
+        );
+        balanceAfterWithdraw.eq(balanceBefore).should.be.true;
     });
 });

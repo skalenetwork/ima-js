@@ -21,8 +21,8 @@
  * @copyright SKALE Labs 2022-Present
  */
 
- import { Logger } from "tslog";
-import { Contract } from 'web3-eth-contract';
+import debug from 'debug';
+import { providers, Contract } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import { ContractsStringMap } from '../../BaseChain';
@@ -32,9 +32,6 @@ import TimeoutException from '../../exceptions/TimeoutException';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
 import * as helper from '../../helper';
-
-
-const log: Logger = new Logger();
 
 
 export abstract class TokenManager extends BaseContract {
@@ -49,42 +46,56 @@ export abstract class TokenManager extends BaseContract {
         originChainName: string
     ): Promise<string>;
 
-    async enableAutomaticDeploy(opts: TxOpts) {
-        const txData = this.contract.methods.enableAutomaticDeploy();
-        return await transactions.send(this.web3, txData, opts);
+    async enableAutomaticDeploy(opts: TxOpts): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.enableAutomaticDeploy();
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('enableAutomaticDeploy')
+        );
     }
 
-    async disableAutomaticDeploy(opts: TxOpts) {
-        const txData = this.contract.methods.disableAutomaticDeploy();
-        return await transactions.send(this.web3, txData, opts);
+    async disableAutomaticDeploy(opts: TxOpts): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.disableAutomaticDeploy();
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('disableAutomaticDeploy')
+        );
     }
 
     async automaticDeploy(): Promise<string> {
-        return await this.contract.methods.automaticDeploy().call();
+        return await this.contract.automaticDeploy();
     }
 
-    async grantRole(role: any, address: string, opts: TxOpts) {
-        const txData = this.contract.methods.grantRole(role, address);
-        return await transactions.send(this.web3, txData, opts);
+    async grantRole(
+        role: any,
+        address: string,
+        opts: TxOpts
+    ): Promise<providers.TransactionResponse> {
+        const txData = await this.contract.populateTransaction.grantRole(role, address);
+        return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
     async AUTOMATIC_DEPLOY_ROLE(): Promise<string> {
-        return await this.contract.methods.AUTOMATIC_DEPLOY_ROLE().call();
+        return await this.contract.AUTOMATIC_DEPLOY_ROLE();
     }
 
     async TOKEN_REGISTRAR_ROLE(): Promise<string> {
-        return await this.contract.methods.TOKEN_REGISTRAR_ROLE().call();
+        return await this.contract.TOKEN_REGISTRAR_ROLE();
     }
 
     async hasTokenManager(chainName: string): Promise<boolean> {
-        return await this.contract.methods.hasTokenManager(chainName).call();
+        return await this.contract.hasTokenManager(chainName);
     }
 
     async ownerOf(tokenName: string, tokenId: number | string): Promise<string> {
         const contract = this.tokens[tokenName];
         try {
             if (typeof tokenId === 'string') tokenId = Number(tokenId);
-            return await contract.methods.ownerOf(tokenId).call();
+            return await contract.ownerOf(tokenId);
         } catch (err) {
             return constants.ZERO_ADDRESS; // todo: replace with IMA-ERC721 exception: no such token
         }
@@ -93,19 +104,17 @@ export abstract class TokenManager extends BaseContract {
     async waitForTokenClone(
         originTokenAddress: string,
         originChainName: string,
-        sleepInterval: number=constants.DEFAULT_SLEEP,
+        sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS
     ): Promise<any> {
         let address;
-        const logData = 'origin token: ' + originTokenAddress + ', origin chain: ' + originChainName;
+        const logData = 'origin token: ' + originTokenAddress + ' origin chain: ' + originChainName;
         for (let i = 1; i <= iterations; i++) {
             address = await this.getTokenCloneAddress(originTokenAddress, originChainName);
             if (constants.ZERO_ADDRESS !== address) {
                 return address;
             }
-            if (helper.isNode()){
-                log.info('Waiting for token clone - ' + logData);
-            }
+            debug('Waiting for token clone - ' + logData);
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);

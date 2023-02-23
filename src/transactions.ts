@@ -21,179 +21,73 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
-import { Logger } from "tslog";
+import { ethers, providers, Signer, Wallet } from 'ethers';
+import debug from 'debug';
 
-import * as helper from './helper';
 import * as constants from './constants';
-import IMAContractException from './exceptions/IMAContractException';
-import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 import TxOpts from './TxOpts';
 
 
-const log: Logger = new Logger();
+const log = debug('ima:transactions');
 
 
-export async function sendETH(web3: Web3, address: string, value: string, opts: TxOpts) {
-    const txData = {
-        'to': address,
-        'value': web3.utils.toWei(value, 'ether'),
-        'gas': 30000,
-    };
+export async function send(
+    provider: providers.Provider,
+    transaction: providers.TransactionRequest,
+    opts: TxOpts,
+    name: string,
+    wait: boolean = true
+): Promise<providers.TransactionResponse> {
+    if (opts.value) transaction.value = opts.value;
+    if (opts.address) transaction.from = opts.address;
 
-    let result;
-    if (!opts.value) opts.value = '0';
+    const gasLimit = await provider.estimateGas(transaction);
+    log('💡 ' + name + ' estimated gasLimit: ' + gasLimit);
+
+    const signer = getSigner(provider, opts);
+
+    log('⏩ ' + name + ' sending - from: ' + transaction.from + ', to: ' +
+        transaction.to + ', value: ' + transaction.value);
+    const txResponse = await signer.sendTransaction(transaction);
+
+    log('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
+        txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
+    if (wait) await txResponse.wait(constants.DEFAULT_CONFIRMATIONS_NUM);
+    log('✅ ' + name + ' mined - tx: ' + txResponse.hash);
+    return txResponse;
+}
+
+
+function getSigner(provider: providers.Provider, opts: TxOpts): Signer {
+    let signer: Signer;
     if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
-        const pk = (helper.add0x(opts.privateKey) as string);
-        helper.validatePrivateKey(pk);
-        result = await signAndSendETH(web3, txData, pk);
+        signer = new Wallet(opts.privateKey, provider);
+    } else if (provider instanceof providers.Web3Provider) {
+        signer = provider.getSigner();
     } else {
-        result = await sendETHWithExternalSigning(web3, txData);
+        throw new Error('Invalid provider type, can not send transaction');
     }
-    if (helper.isNode()){
-        log.info(
-            'mined tx: ' +
-            'txHash: ' + result.transactionHash +
-            ', status: ' + result.status
-        );
-    }
-    return result;
+    return signer;
 }
 
 
-export async function signAndSendETH(web3: Web3, tx: any, privateKey: string) {
-    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-    const rawTx = (signedTx.rawTransaction as string);
-    return await web3.eth.sendSignedTransaction(rawTx);
-}
-
-
-export async function sendETHWithExternalSigning(web3: Web3, tx: any) {
-    return await web3.eth.sendTransaction(tx);
-}
-
-
-export async function signAndSend(web3: Web3, address: string, transactionData: any, gas: string,
-    value: string, privateKey: string) {
-    const encoded = transactionData.encodeABI();
-    const contractAddress = transactionData._parent._address;
-    const accountFromPrivateKey = web3.eth.accounts.privateKeyToAccount(privateKey).address;
-    if (address !== accountFromPrivateKey && address !== helper.remove0x(accountFromPrivateKey)) {
-        throw new InvalidCredentialsException(constants.errorMessages.INVALID_KEYPAIR);
-    }
-    const chainId = await web3.eth.getChainId(); // todo: use chainID from the outside!
-    const nonce = await web3.eth.getTransactionCount(address);
-    const tx = {
-        from: address,
-        data: encoded,
-        gas,
-        to: contractAddress,
-        nonce,
-        chainId,
-        value
-    };
-    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-    const rawTx = (signedTx.rawTransaction as string);
-    return await web3.eth.sendSignedTransaction(rawTx);
-}
-
-
-export async function sendWithExternalSigning(web3: Web3, address: string, transactionData: any,
-    gas: string, value: string) {
-    // const nonce = await web3.eth.getTransactionCount(address);
-    return await transactionData.send({
-        from: address,
-        gas,
-        value
-        // nonce
+export async function sendETH(
+    provider: providers.Provider,
+    address: string,
+    value: string,
+    opts: TxOpts,
+    wait: boolean = true
+): Promise<providers.TransactionResponse> {
+    // TODO: add dry run!
+    log('⏩ ' + ' sending ETH - from: ' + ', to: ' + address + ', value: ' + value);
+    const signer = getSigner(provider, opts);
+    const txResponse = await signer.sendTransaction({
+        to: address,
+        value: ethers.utils.parseEther(value)
     });
-}
-
-
-
-export async function send(web3: Web3, transactionData: any, opts: TxOpts) {
-    let result;
-    let gasLimit: string;
-
-    if (opts.customGasLimit) {
-        gasLimit = opts.customGasLimit;
-    } else {
-        gasLimit = await estimateGasLimit(web3, opts.address, transactionData, opts.value);
-    }
-
-    if (!opts.value) opts.value = '0';
-
-    if (helper.isNode()){
-        log.info(
-            'sending tx: ' + transactionData._method.name +
-            ', gasLimit: ' + gasLimit +
-            ', to: ' + transactionData._parent._address +
-            ', value: ' + opts.value
-        );
-    }
-
-    try {
-        if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
-            const pk = (helper.add0x(opts.privateKey) as string);
-            helper.validatePrivateKey(pk);
-            result = await signAndSend(web3, opts.address, transactionData, gasLimit, opts.value, pk);
-        } else {
-            result = await sendWithExternalSigning(web3, opts.address, transactionData, gasLimit, opts.value);
-        }
-        if (helper.isNode()){
-            log.info(
-                'mined tx: ' + transactionData._method.name +
-                ', txHash: ' + result.transactionHash +
-                ', status: ' + result.status
-            );
-        }
-        return result;
-    } catch (error) {
-        const err = (error as Error)
-        if (err.message.includes(constants.errorMessages.REVERTED_TRANSACTION)) {
-            const errorMessage = err.message.substr(
-                constants.errorMessages.REVERTED_TRANSACTION.length);
-            const revertReason = JSON.parse(errorMessage).revertReason;
-            if (revertReason) {
-                throw new IMAContractException(revertReason);
-            } else {
-                throw new IMAContractException(constants.errorMessages.FAILED_TRANSACTION);
-            }
-        } else {
-            throw error;
-        }
-    }
-}
-
-export async function estimateGasLimit(web3: Web3, address: string, transactionData: any,
-    value: string='0', gasMultiplier: number=constants.DEFAULT_GAS_MULTIPLIER){
-    let estimatedGas = 0;
-    const blockGasLimit = await currentBlockGasLimit(web3);
-    try {
-        estimatedGas = await transactionData.estimateGas({
-            from: address,
-            value
-        });
-    } catch ( err ) {
-        estimatedGas = 0;
-    }
-    estimatedGas *= gasMultiplier;
-    estimatedGas = Math.ceil(estimatedGas);
-    if( estimatedGas === 0 ) estimatedGas = constants.DEFAULT_GAS_LIMIT;
-    if ( estimatedGas > blockGasLimit ) estimatedGas = blockGasLimit;
-    return estimatedGas.toString();
-}
-
-export async function currentBlockGasLimit(web3: Web3): Promise<number> {
-    const latestBlockNumber = await web3.eth.getBlockNumber();
-    const latestBlock = await web3.eth.getBlock(latestBlockNumber);
-    return latestBlock.gasLimit;
-}
-
-export async function currentGasPrice(web3: Web3): Promise<string> {
-    const ethGasPrice = await web3.eth.getGasPrice();
-    const ethGasPriceBN = web3.utils.toBN(ethGasPrice);
-    const gasMultBN = web3.utils.toBN(constants.GAS_PRICE_MULTIPLIER);
-    ethGasPriceBN.mul(gasMultBN);
-    return ethGasPriceBN.toString(10);
+    log('⏳ ' + ' sending ETH - tx: ' + txResponse.hash + ', nonce: ' +
+        txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
+    if (wait) await txResponse.wait(constants.DEFAULT_CONFIRMATIONS_NUM);
+    log('✅ ' + ' ETH sent - tx: ' + txResponse.hash);
+    return txResponse;
 }

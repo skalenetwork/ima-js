@@ -21,10 +21,12 @@
  * @copyright SKALE Labs 2021-Present
  */
 
+import { BigNumberish } from 'ethers';
+
 
 export default interface TxOpts {
-    value?: string;
+    value?: BigNumberish;
     address: string;
     privateKey?: string;
-    customGasLimit?: string;
+    customGasLimit?: BigNumberish;
 }
