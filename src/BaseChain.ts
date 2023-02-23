@@ -37,7 +37,8 @@ const log: Logger = new Logger();
 export interface ContractsStringMap { [key: string]: Contract; }
 
 export abstract class BaseChain {
-    readonly web3: Web3;
+    // readonly web3: Web3;
+    web3: Web3;
     chainId?: number;
     abi: any;
 

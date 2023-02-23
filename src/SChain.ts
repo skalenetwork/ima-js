@@ -103,6 +103,27 @@ export default class SChain extends BaseChain {
         )
     }
 
+    updateWeb3(web3: Web3) {
+        this.web3 = web3;
+        for (const [symbol, contract] of Object.entries(this.erc20.tokens)) {
+            this.erc20.tokens[symbol] = new web3.eth.Contract(
+                contract.options.jsonInterface,
+                contract.options.address
+            );
+        }
+        // todo: tmp hotfix for eth unlock!
+        this.eth = new TokenManagerEth(
+            this.web3,
+            this.abi.token_manager_eth_address,
+            this.abi.token_manager_eth_abi
+        )
+        this.ethERC20 = new EthERC20(
+            this.web3,
+            this.abi.eth_erc20_address,
+            this.abi.eth_erc20_abi
+        )
+    }
+
     async ethBalance(address: string): Promise<string> {
         return await this.ethERC20.balanceOf(address);
     }

@@ -97,4 +97,19 @@ export default class MainnetChain extends BaseChain {
         return await this.web3.eth.getBalance(address);
     }
 
+    updateWeb3(web3: Web3) {
+        this.web3 = web3;
+        for (const [symbol, contract] of Object.entries(this.erc20.tokens)) {
+            this.erc20.tokens[symbol] = new web3.eth.Contract(
+                contract.options.jsonInterface,
+                contract.options.address
+            );
+        }
+        // todo: tmp hotfix for eth unlock!
+        this.eth = new DepositBoxEth(
+            this.web3,
+            this.abi.deposit_box_eth_address,
+            this.abi.deposit_box_eth_abi
+        )
+    }
 }
