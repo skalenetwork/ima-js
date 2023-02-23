@@ -8,6 +8,8 @@
 
 IMA-JS is a Typescript/Javascript library which implements client for SKALE Interchain Messaging Agent (IMA).
 
+ℹ️ IMA-JS v2 is based on [ethers.js](https://github.com/ethers-io/ethers.js/), while v1 was built on top of [web3js](https://github.com/web3/web3.js)
+
 ## Installation
 
 ### Node
