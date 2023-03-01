@@ -62,7 +62,7 @@ function getSigner(provider: providers.Provider, opts: TxOpts): Signer {
     let signer: Signer;
     if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
         signer = new Wallet(opts.privateKey, provider);
-    } else if (provider instanceof providers.Web3Provider) {
+    } else if ((provider.isProvider || provider._isProvider) && provider.getSigner) {
         signer = provider.getSigner();
     } else {
         throw new Error('Invalid provider type, can not send transaction');
