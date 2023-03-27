@@ -31,6 +31,8 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerERC20 extends TokenManager {
 
+    tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC20_MAPPING_LENGTH_SLOT;
+
     async addTokenByOwner(
         originChainName: string,
         erc20OnMainnet: string,
@@ -120,58 +122,5 @@ export class TokenManagerERC20 extends TokenManager {
             opts,
             this.txName('transferToSchainERC20')
         );
-    }
-
-    /**
-    Returns the solidityKeccak256 hash of a concatenation of the chainHash and the TOKEN_MANAGER_MAPPING_LENGTH_SLOT.
-    Internal function.
-    @param {string} chainName - The name of the chain to use in the hash.
-    @returns {string} - The resulting hash.
-    */
-    _getMappingLengthSlot(chainName: string): string {
-        const chainHash = ethers.utils.id(chainName);
-        return ethers.utils.solidityKeccak256(
-            ["bytes32", "uint256"],
-            [chainHash, constants.TOKEN_MANAGER_MAPPING_LENGTH_SLOT]
-        );
-    }
-
-    /**
-    Returns the number of token mappings for a given chain name by reading the storage at the corresponding mapping length slot.
-    @param {string} chainName - The name of the chain for which to get the token mapping length.
-    @returns {Promise<number>} - The number of token mappings.
-    */
-    async getTokenMappingsLength(chainName: string): Promise<number> {
-        const length = await this.provider.getStorageAt(
-            this.address,
-            this._getMappingLengthSlot(chainName)
-        );
-        return parseInt(length, 16);
-    }
-
-    /**
-    Returns an array of Ethereum addresses representing the token mappings for a given chain name within a given range of indices.
-    @param {string} chainName - The name of the chain for which to get the token mappings.
-    @param {number} from - The starting index for the range of token mappings to retrieve.
-    @param {number} to - The ending index for the range of token mappings to retrieve.
-    @returns {Promise<string[]>} - An array of Ethereum addresses representing the token mappings.
-    */
-    async getTokenMappings(
-        chainName: string,
-        from: number,
-        to: number
-    ): Promise<string[]> {
-        let addresses = [];
-        for (let i = from; i < to; i++) {
-            const addressSlotIt = ethers.BigNumber.from(
-                ethers.utils.solidityKeccak256(["bytes32"], [this._getMappingLengthSlot(chainName)])
-            ).add(i).toHexString();
-            const addressData = await this.provider.getStorageAt(
-                this.address, addressSlotIt
-            );
-            const addressRaw = ethers.utils.hexStripZeros(addressData);
-            addresses.push(ethers.utils.hexZeroPad(addressRaw, 20));
-        }
-        return addresses;
     }
 }

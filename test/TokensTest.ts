@@ -136,16 +136,27 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
     it.skip("Test ERC20 S2S token mappings", async () => {
         // TODO: disabled due to the lack of S2S tests ATM
-        const mappingsLength = await ima.schain.erc20.getTokenMappingsLength(
+        const mappingsLengthERC20 = await ima.schain.erc20.getTokenMappingsLength(
             _tu.CHAIN_NAME_SCHAIN_2
         );
-        console.log(mappingsLength);
-        const mappings = await ima.schain.erc20.getTokenMappings(
+        console.log(mappingsLengthERC20);
+        const mappingsERC20 = await ima.schain.erc20.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN_2,
             0,
-            mappingsLength
+            mappingsLengthERC20
         );
-        console.log(mappings);
+        console.log(mappingsERC20);
+
+        const mappingsLengthERC721 = await ima.schain.erc721.getTokenMappingsLength(
+            _tu.CHAIN_NAME_SCHAIN_2
+        );
+        console.log(mappingsLengthERC721);
+        const mappingsERC721 = await ima.schain.erc721.getTokenMappings(
+            _tu.CHAIN_NAME_SCHAIN_2,
+            0,
+            mappingsLengthERC721
+        );
+        console.log(mappingsERC721);
     });
 
     it("Test ERC721 tokens mapping", async () => {
