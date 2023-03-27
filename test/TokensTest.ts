@@ -134,6 +134,20 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.address);
     });
 
+    it.skip("Test ERC20 S2S token mappings", async () => {
+        // TODO: disabled due to the lack of S2S tests ATM
+        const mappingsLength = await ima.schain.erc20.getTokenMappingsLength(
+            _tu.CHAIN_NAME_SCHAIN_2
+        );
+        console.log(mappingsLength);
+        const mappings = await ima.schain.erc20.getTokenMappings(
+            _tu.CHAIN_NAME_SCHAIN_2,
+            0,
+            mappingsLength
+        );
+        console.log(mappings);
+    });
+
     it("Test ERC721 tokens mapping", async () => {
         ima.addERC721Token(erc721Name, testTokens.mainnetERC721, testTokens.schainERC721);
         await ima.linkERC721Token(

@@ -18,6 +18,7 @@ import * as helper from '../src/helper';
 dotenv.config();
 
 export const CHAIN_NAME_SCHAIN = (process.env["CHAIN_NAME_SCHAIN"] as string);
+export const CHAIN_NAME_SCHAIN_2 = (process.env["CHAIN_NAME_SCHAIN_2"] as string);
 export const MAINNET_CHAIN_NAME = 'Mainnet';
 
 const MAINNET_ENDPOINT = (process.env["MAINNET_ENDPOINT"] as string);

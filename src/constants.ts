@@ -47,3 +47,5 @@ export const DEFAULT_ITERATIONS = 30;
 export const MAINNET_CHAIN_NAME = 'Mainnet';
 
 export const DEFAULT_CONFIRMATIONS_NUM = 1;
+
+export const TOKEN_MANAGER_MAPPING_LENGTH_SLOT = 212;
