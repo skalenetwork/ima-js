@@ -22,7 +22,7 @@
  */
 
 import debug from 'debug';
-import { providers, Contract } from 'ethers';
+import { providers, ethers, Contract } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import { ContractsStringMap } from '../../BaseChain';
@@ -35,6 +35,7 @@ import * as helper from '../../helper';
 
 
 export abstract class TokenManager extends BaseContract {
+    abstract tokenMappingLenghtSlot: number | null;
     tokens: ContractsStringMap = {};
 
     addToken(tokenName: string, contract: Contract) {
@@ -118,5 +119,69 @@ export abstract class TokenManager extends BaseContract {
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);
+    }
+
+    /**
+     * Returns the solidityKeccak256 hash of a concatenation of the chainHash and the
+     * tokenMappingLenghtSlot. Internal function.
+     * @param {string} chainName - The name of the chain to use in the hash.
+     * @returns {string} - The resulting hash.
+     */
+    _getMappingLengthSlot(chainName: string): string {
+        const chainHash = ethers.utils.id(chainName);
+        return ethers.utils.solidityKeccak256(
+            ["bytes32", "uint256"],
+            [chainHash, this.tokenMappingLenghtSlot]
+        );
+    }
+
+    /**
+     * Returns the number of token mappings for a given chain name by reading the storage at the
+     * corresponding mapping length slot.
+     * @param {string} chainName - The name of the chain for which to get the token mapping length.
+     * @returns {Promise<number>} - The number of token mappings.
+     */
+    async getTokenMappingsLength(chainName: string): Promise<number> {
+        const length = await this.provider.getStorageAt(
+            this.address,
+            this._getMappingLengthSlot(chainName)
+        );
+        return parseInt(length, 16);
+    }
+
+    /**
+     * Fetches an array of token addresses mapped to a specific chain.
+     *
+     * @param chainName The name of the chain to fetch token addresses for.
+     * @param from The starting index in the token mapping.
+     * @param to The ending index in the token mapping.
+     * @returns A Promise that resolves to an array of token addresses.
+     */
+    async getTokenMappings(
+        chainName: string,
+        from: number,
+        to: number
+    ): Promise<string[]> {
+        const getAddressPromises = Array.from(
+            { length: to - from },
+            (_, i) => this.getMappedTokenAddress(chainName, from + i)
+        );
+        return await Promise.all(getAddressPromises);
+    }
+
+    /**
+     * Fetches a token address mapped to a specific chain at the given index.
+     *
+     * @param chainName The name of the chain to fetch the token address for.
+     * @param index The index in the token mapping.
+     * @returns A Promise that resolves to the token address.
+     */
+    private async getMappedTokenAddress(chainName: string, index: number): Promise<string> {
+        const addressSlot = ethers.BigNumber.from(
+            ethers.utils.solidityKeccak256(["bytes32"], [this._getMappingLengthSlot(chainName)])
+        ).add(index).toHexString();
+        const addressData = await this.provider.getStorageAt(this.address, addressSlot);
+        const addressRaw = ethers.utils.hexStripZeros(addressData);
+        return ethers.utils.hexZeroPad(addressRaw, constants.ADDRESS_LENGTH_BYTES);
     }
 }

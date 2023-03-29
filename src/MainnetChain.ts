@@ -108,8 +108,8 @@ export default class MainnetChain extends BaseChain {
         this.provider = provider;
         for (const [symbol, contract] of Object.entries(this.erc20.tokens)) {
             this.erc20.tokens[symbol] = new Contract(
-                contract.options.jsonInterface,
                 contract.address,
+                contract.options.jsonInterface,
                 provider
             );
         }

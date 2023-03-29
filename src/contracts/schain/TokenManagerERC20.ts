@@ -31,6 +31,8 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerERC20 extends TokenManager {
 
+    tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC20_MAPPING_LENGTH_SLOT;
+
     async addTokenByOwner(
         originChainName: string,
         erc20OnMainnet: string,
@@ -121,5 +123,4 @@ export class TokenManagerERC20 extends TokenManager {
             this.txName('transferToSchainERC20')
         );
     }
-
 }

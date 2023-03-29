@@ -31,6 +31,8 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerERC721 extends TokenManager {
 
+    tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC721_MAPPING_LENGTH_SLOT;
+
     async getTokenCloneAddress(
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME

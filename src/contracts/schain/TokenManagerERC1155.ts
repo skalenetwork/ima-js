@@ -32,6 +32,8 @@ import InvalidArgsException from '../../exceptions/InvalidArgsException';
 
 export class TokenManagerERC1155 extends TokenManager {
 
+    tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC1155_MAPPING_LENGTH_SLOT;
+
     async getTokenCloneAddress(
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
