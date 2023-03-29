@@ -57,13 +57,14 @@ export async function send(
     return txResponse;
 }
 
-
 function getSigner(provider: providers.Provider, opts: TxOpts): Signer {
     let signer: Signer;
     if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
         signer = new Wallet(opts.privateKey, provider);
-    } else if ((provider.isProvider || provider._isProvider) && provider.getSigner) {
-        signer = provider.getSigner();
+    } else if (
+        (provider as providers.Web3Provider)._isProvider
+    ) {
+        signer = (provider as providers.Web3Provider).getSigner();
     } else {
         throw new Error('Invalid provider type, can not send transaction');
     }
