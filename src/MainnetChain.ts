@@ -93,6 +93,51 @@ export default class MainnetChain extends BaseChain {
         )
     }
 
+    initContracts() {
+        // tmp fix
+        this.eth = new DepositBoxEth(
+            this.web3,
+            this.abi.deposit_box_eth_address,
+            this.abi.deposit_box_eth_abi
+        )
+        this.erc20 = new DepositBoxERC20(
+            this.web3,
+            this.abi.deposit_box_erc20_address,
+            this.abi.deposit_box_erc20_abi
+        )
+        this.erc721 = new DepositBoxERC721(
+            this.web3,
+            this.abi.deposit_box_erc721_address,
+            this.abi.deposit_box_erc721_abi
+        )
+        this.erc721meta = new DepositBoxERC721(
+            this.web3,
+            this.abi.deposit_box_erc721_with_metadata_address,
+            this.abi.deposit_box_erc721_with_metadata_abi
+        )
+        this.erc1155 = new DepositBoxERC1155(
+            this.web3,
+            this.abi.deposit_box_erc1155_address,
+            this.abi.deposit_box_erc1155_abi
+        )
+
+        this.communityPool = new CommunityPool(
+            this.web3,
+            this.abi.community_pool_address,
+            this.abi.community_pool_abi
+        )
+        this.linker = new Linker(
+            this.web3,
+            this.abi.linker_address,
+            this.abi.linker_abi
+        )
+        this.messageProxy = new MessageProxy(
+            this.web3,
+            this.abi.message_proxy_mainnet_address,
+            this.abi.message_proxy_mainnet_abi
+        )
+    }
+
     async ethBalance(address: string): Promise<string> {
         return await this.web3.eth.getBalance(address);
     }
@@ -105,11 +150,6 @@ export default class MainnetChain extends BaseChain {
                 contract.options.address
             );
         }
-        // todo: tmp hotfix for eth unlock!
-        this.eth = new DepositBoxEth(
-            this.web3,
-            this.abi.deposit_box_eth_address,
-            this.abi.deposit_box_eth_abi
-        )
+        this.initContracts();
     }
 }
