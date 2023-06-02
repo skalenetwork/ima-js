@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, ethers, BigNumberish } from 'ethers';
+import { ethers, TransactionResponse } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
@@ -38,8 +38,8 @@ export class TokenManagerERC20 extends TokenManager {
         erc20OnMainnet: string,
         erc20OnSchain: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.addERC20TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC20TokenByOwner.populateTransaction(
             originChainName,
             erc20OnMainnet,
             erc20OnSchain
@@ -57,7 +57,7 @@ export class TokenManagerERC20 extends TokenManager {
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {
         return await this.contract.clonesErc20(
-            ethers.utils.solidityKeccak256(['string'], [originChainName]),
+            ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
         );
     }
@@ -67,9 +67,9 @@ export class TokenManagerERC20 extends TokenManager {
         amount: string,
         address: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.approve(address, amount);
+        const txData = await tokenContract.approve.populateTransaction(address, amount);
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
@@ -77,9 +77,9 @@ export class TokenManagerERC20 extends TokenManager {
         tokenName: string,
         amount: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.depositFor(opts.address, amount);
+        const txData = await tokenContract.depositFor.populateTransaction(opts.address, amount);
         return await transactions.send(this.provider, txData, opts, this.txName('depositFor'));
     }
 
@@ -87,18 +87,18 @@ export class TokenManagerERC20 extends TokenManager {
         tokenName: string,
         amount: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.withdrawTo(opts.address, amount);
+        const txData = await tokenContract.withdrawTo.populateTransaction(opts.address, amount);
         return await transactions.send(this.provider, txData, opts, this.txName('withdrawTo'));
     }
 
     async withdraw(
         mainnetTokenAddress: string,
-        amount: BigNumberish,
+        amount: bigint,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.exitToMainERC20(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.exitToMainERC20.populateTransaction(
             mainnetTokenAddress,
             amount
         );
@@ -110,8 +110,8 @@ export class TokenManagerERC20 extends TokenManager {
         mainnetTokenAddress: string,
         amount: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.transferToSchainERC20(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.transferToSchainERC20.populateTransaction(
             targetSchainName,
             mainnetTokenAddress,
             amount

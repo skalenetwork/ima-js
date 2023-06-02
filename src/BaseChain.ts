@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { providers, Contract, BigNumber } from "ethers";
+import { Provider, TransactionResponse, Contract } from "ethers";
 
 import debug from 'debug';
 
@@ -37,19 +37,19 @@ const log = debug('ima:BaseChain');
 export interface ContractsStringMap { [key: string]: Contract; }
 
 export abstract class BaseChain {
-    provider: providers.Provider;
+    provider: Provider;
     chainId?: number;
     abi: any;
 
-    constructor(provider: providers.Provider, abi: any, chainId?: number) {
+    constructor(provider: Provider, abi: any, chainId?: number) {
         this.provider = provider;
         this.abi = abi;
         if (chainId) this.chainId = chainId;
     }
 
-    abstract ethBalance(address: string): Promise<BigNumber>;
+    abstract ethBalance(address: string): any;
 
-    async getERC20Balance(tokenContract: Contract, address: string): Promise<BigNumber> {
+    async getERC20Balance(tokenContract: Contract, address: string): Promise<bigint> {
         return await tokenContract.balanceOf(address);
     }
 
@@ -66,7 +66,7 @@ export abstract class BaseChain {
         tokenContract: Contract,
         address: string,
         tokenId: number
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         return await tokenContract.balanceOf(address, tokenId);
     }
 
@@ -75,18 +75,18 @@ export abstract class BaseChain {
         tokenId: number,
         tokenURI: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await tokenContract.populateTransaction.setTokenURI(tokenId, tokenURI);
+    ): Promise<TransactionResponse> {
+        const txData = await tokenContract.setTokenURI.populateTransaction(tokenId, tokenURI);
         return await transactions.send(this.provider, txData, opts, 'TokenContract::setTokenURI');
     }
 
-    async waitETHBalanceChange(address: string, initial: BigNumber,
+    async waitETHBalanceChange(address: string, initial: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
         for (let i = 1; i <= iterations; i++) {
             let res;
             res = await this.ethBalance(address);
-            if (!initial.eq(res)) {
+            if (initial !== res) {
                 break;
             }
             log('🔎 ' + i + '/' + iterations + ' Waiting for ETH balance change - address: ' +
@@ -100,12 +100,12 @@ export abstract class BaseChain {
         tokenContract: Contract,
         getFunc: any,
         address: string | undefined,
-        initial: string | BigNumber,
+        initial: string | bigint,
         tokenId: number | undefined,
         sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS
     ) {
-        const logData = 'token: ' + tokenContract.address + ', address: ' + address;
+        const logData = 'token: ' + await tokenContract.getAddress() + ', address: ' + address;
         for (let i = 1; i <= iterations; i++) {
             let res;
             if (tokenId === undefined) res = await getFunc(tokenContract, address);
@@ -113,14 +113,8 @@ export abstract class BaseChain {
             if (tokenId !== undefined && address !== undefined) {
                 res = await getFunc(tokenContract, address, tokenId);
             }
-            if (initial instanceof BigNumber) {
-                if (!initial.eq(res)) {
-                    return;
-                }
-            } else {
-                if (initial !== res) {
-                    return;
-                }
+            if (initial !== res) {
+                return;
             }
             log('🔎 ' + i + '/' + iterations + ' Waiting for change - ' + logData +
                 ', sleep ' + sleepInterval + 'ms');
@@ -132,7 +126,7 @@ export abstract class BaseChain {
     async waitERC20BalanceChange(
         tokenContract: Contract,
         address: string,
-        initialBalance: BigNumber,
+        initialBalance: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP
     ): Promise<any> {
         await this.waitForChange(
@@ -148,7 +142,7 @@ export abstract class BaseChain {
     }
 
     async waitERC1155BalanceChange(tokenContract: Contract, address: string, tokenId: number,
-        initialBalance: BigNumber, sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
+        initialBalance: bigint, sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC1155Balance.bind(this), address, initialBalance, tokenId,
             sleepInterval);

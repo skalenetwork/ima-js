@@ -23,10 +23,9 @@
 
 import { BigNumberish } from 'ethers';
 
-
 export default interface TxOpts {
     value?: BigNumberish;
     address: string;
     privateKey?: string;
-    customGasLimit?: BigNumberish;
+    customGasLimit?: bigint;
 }

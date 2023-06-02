@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { ethers, providers, Signer, Wallet } from 'ethers';
+import { ethers, Signer, Wallet, Provider, TransactionRequest, TransactionResponse, BrowserProvider } from 'ethers';
 import debug from 'debug';
 
 import * as constants from './constants';
@@ -32,19 +32,19 @@ const log = debug('ima:transactions');
 
 
 export async function send(
-    provider: providers.Provider,
-    transaction: providers.TransactionRequest,
+    provider: Provider,
+    transaction: TransactionRequest,
     opts: TxOpts,
     name: string,
     wait: boolean = true
-): Promise<providers.TransactionResponse> {
+): Promise<TransactionResponse> {
     if (opts.value) transaction.value = opts.value;
     if (opts.address) transaction.from = opts.address;
 
     const gasLimit = await provider.estimateGas(transaction);
     log('💡 ' + name + ' estimated gasLimit: ' + gasLimit);
 
-    const signer = getSigner(provider, opts);
+    const signer = await getSigner(provider, opts);
 
     log('⏩ ' + name + ' sending - from: ' + transaction.from + ', to: ' +
         transaction.to + ', value: ' + transaction.value);
@@ -52,19 +52,19 @@ export async function send(
 
     log('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
         txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
-    if (wait) await txResponse.wait(constants.DEFAULT_CONFIRMATIONS_NUM);
+    if (wait) await provider.waitForTransaction(txResponse.hash);
     log('✅ ' + name + ' mined - tx: ' + txResponse.hash);
     return txResponse;
 }
 
-function getSigner(provider: providers.Provider, opts: TxOpts): Signer {
+async function getSigner(provider: Provider, opts: TxOpts): Promise<Signer> {
     let signer: Signer;
     if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
         signer = new Wallet(opts.privateKey, provider);
     } else if (
-        (provider as providers.Web3Provider)._isProvider
+        (provider as BrowserProvider).provider
     ) {
-        signer = (provider as providers.Web3Provider).getSigner();
+        signer = await (provider as BrowserProvider).getSigner();
     } else {
         throw new Error('Invalid provider type, can not send transaction');
     }
@@ -73,18 +73,18 @@ function getSigner(provider: providers.Provider, opts: TxOpts): Signer {
 
 
 export async function sendETH(
-    provider: providers.Provider,
+    provider: Provider,
     address: string,
     value: string,
     opts: TxOpts,
     wait: boolean = true
-): Promise<providers.TransactionResponse> {
+): Promise<TransactionResponse> {
     // TODO: add dry run!
     log('⏩ ' + ' sending ETH - from: ' + ', to: ' + address + ', value: ' + value);
-    const signer = getSigner(provider, opts);
+    const signer = await getSigner(provider, opts);
     const txResponse = await signer.sendTransaction({
         to: address,
-        value: ethers.utils.parseEther(value)
+        value: ethers.parseEther(value)
     });
     log('⏳ ' + ' sending ETH - tx: ' + txResponse.hash + ', nonce: ' +
         txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);

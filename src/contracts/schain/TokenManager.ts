@@ -22,7 +22,7 @@
  */
 
 import debug from 'debug';
-import { providers, ethers, Contract } from 'ethers';
+import { ethers, Contract, TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import { ContractsStringMap } from '../../BaseChain';
@@ -47,8 +47,8 @@ export abstract class TokenManager extends BaseContract {
         originChainName: string
     ): Promise<string>;
 
-    async enableAutomaticDeploy(opts: TxOpts): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.enableAutomaticDeploy();
+    async enableAutomaticDeploy(opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.enableAutomaticDeploy.populateTransaction();
         return await transactions.send(
             this.provider,
             txData,
@@ -57,8 +57,8 @@ export abstract class TokenManager extends BaseContract {
         );
     }
 
-    async disableAutomaticDeploy(opts: TxOpts): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.disableAutomaticDeploy();
+    async disableAutomaticDeploy(opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.disableAutomaticDeploy.populateTransaction();
         return await transactions.send(
             this.provider,
             txData,
@@ -75,8 +75,8 @@ export abstract class TokenManager extends BaseContract {
         role: any,
         address: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.grantRole(role, address);
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.grantRole.populateTransaction(role, address);
         return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
@@ -122,14 +122,14 @@ export abstract class TokenManager extends BaseContract {
     }
 
     /**
-     * Returns the solidityKeccak256 hash of a concatenation of the chainHash and the
+     * Returns the solidityPackedKeccak256 hash of a concatenation of the chainHash and the
      * tokenMappingLenghtSlot. Internal function.
      * @param {string} chainName - The name of the chain to use in the hash.
      * @returns {string} - The resulting hash.
      */
     _getMappingLengthSlot(chainName: string): string {
-        const chainHash = ethers.utils.id(chainName);
-        return ethers.utils.solidityKeccak256(
+        const chainHash = ethers.id(chainName);
+        return ethers.solidityPackedKeccak256(
             ["bytes32", "uint256"],
             [chainHash, this.tokenMappingLenghtSlot]
         );
@@ -142,7 +142,7 @@ export abstract class TokenManager extends BaseContract {
      * @returns {Promise<number>} - The number of token mappings.
      */
     async getTokenMappingsLength(chainName: string): Promise<number> {
-        const length = await this.provider.getStorageAt(
+        const length = await this.provider.getStorage(
             this.address,
             this._getMappingLengthSlot(chainName)
         );
@@ -177,11 +177,10 @@ export abstract class TokenManager extends BaseContract {
      * @returns A Promise that resolves to the token address.
      */
     private async getMappedTokenAddress(chainName: string, index: number): Promise<string> {
-        const addressSlot = ethers.BigNumber.from(
-            ethers.utils.solidityKeccak256(["bytes32"], [this._getMappingLengthSlot(chainName)])
-        ).add(index).toHexString();
-        const addressData = await this.provider.getStorageAt(this.address, addressSlot);
-        const addressRaw = ethers.utils.hexStripZeros(addressData);
-        return ethers.utils.hexZeroPad(addressRaw, constants.ADDRESS_LENGTH_BYTES);
+        const encoded = BigInt(ethers.solidityPackedKeccak256(["bytes32"], [this._getMappingLengthSlot(chainName)]));
+        const addressSlot = (encoded + BigInt(index)).toString(16);
+        const addressData = await this.provider.getStorage(this.address, addressSlot);
+        // const addressRaw = ethers.hexStripZeros(addressData);
+        return ethers.zeroPadValue(addressData, constants.ADDRESS_LENGTH_BYTES);
     }
 }

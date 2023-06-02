@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { Contract, BigNumber, providers } from 'ethers';
+import { Provider, TransactionResponse } from 'ethers';
 
 import TxOpts from './TxOpts';
 import * as transactions from './transactions';
@@ -53,7 +53,7 @@ export default class SChain extends BaseChain {
 
     messageProxy: MessageProxy;
 
-    constructor(provider: providers.Provider, abi: any, chainId?: number) {
+    constructor(provider: Provider, abi: any, chainId?: number) {
         super(provider, abi, chainId);
         this.eth = new TokenManagerEth(
             this.provider,
@@ -112,31 +112,7 @@ export default class SChain extends BaseChain {
         )
     }
 
-    updateWeb3(provider: providers.Provider) {
-        this.provider = provider;
-        for (const [symbol, contract] of Object.entries(this.erc20.tokens)) {
-            this.erc20.tokens[symbol] = new Contract(
-                contract.address,
-                contract.options.jsonInterface,
-                provider
-            );
-        }
-        // todo: tmp hotfix for eth unlock!
-        this.eth = new TokenManagerEth(
-            this.provider,
-            this.abi.token_manager_eth_address,
-            this.abi.token_manager_eth_abi,
-            'TokenManagerEth'
-        )
-        this.ethERC20 = new EthERC20(
-            this.provider,
-            this.abi.eth_erc20_address,
-            this.abi.eth_erc20_abi,
-            'EthERC20'
-        )
-    }
-
-    async ethBalance(address: string): Promise<BigNumber> {
+    async ethBalance(address: string): Promise<bigint> {
         return await this.ethERC20.balanceOf(address);
     }
 
@@ -144,7 +120,7 @@ export default class SChain extends BaseChain {
         address: string,
         value: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         return await transactions.sendETH(this.provider, address, value, opts);
     }
 

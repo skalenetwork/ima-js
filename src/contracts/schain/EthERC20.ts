@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, BigNumber } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import TxOpts from '../../TxOpts';
@@ -29,7 +29,7 @@ import * as transactions from '../../transactions';
 
 
 export class EthERC20 extends BaseContract {
-    async balanceOf(address: string): Promise<BigNumber> {
+    async balanceOf(address: string): Promise<bigint> {
         return await this.contract.balanceOf(address);
     }
 
@@ -37,8 +37,8 @@ export class EthERC20 extends BaseContract {
         address: string,
         amount: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.approve(address, amount);
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.approve.populateTransaction(address, amount);
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 }

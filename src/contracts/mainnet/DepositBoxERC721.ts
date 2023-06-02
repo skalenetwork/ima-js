@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, BigNumber, BigNumberish } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
@@ -34,9 +34,9 @@ export class DepositBoxERC721 extends DepositBox {
         tokenName: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.approve(this.address, tokenId);
+        const txData = await tokenContract.approve.populateTransaction(this.address, tokenId);
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
@@ -45,11 +45,11 @@ export class DepositBoxERC721 extends DepositBox {
         tokenName: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const tokenContractAddress = tokenContract.address;
+        const tokenContractAddress = await tokenContract.getAddress();
 
-        const txData = await this.contract.populateTransaction.depositERC721(
+        const txData = await this.contract.depositERC721.populateTransaction(
             chainName,
             tokenContractAddress,
             tokenId
@@ -57,14 +57,14 @@ export class DepositBoxERC721 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('depositERC721'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<BigNumber> {
+    async getTokenMappingsLength(chainName: string): Promise<number> {
         return await this.contract.getSchainToAllERC721Length(chainName);
     }
 
     async getTokenMappings(
         chainName: string,
-        from: BigNumberish,
-        to: BigNumberish
+        from: number,
+        to: number
     ): Promise<string[]> {
         return await this.contract.getSchainToAllERC721(chainName, from, to);
     }
@@ -77,8 +77,8 @@ export class DepositBoxERC721 extends DepositBox {
         chainName: string,
         erc721OnMainnet: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.addERC721TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC721TokenByOwner.populateTransaction(
             chainName,
             erc721OnMainnet
         );

@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Simple TS/JS library to interact with SKALE IMA",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -9,7 +9,7 @@
     "prepack": "tsc --build",
     "clean": "tsc --build --clean",
     "start": "ts-node src/index.ts",
-    "test": "env DEBUG=* TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -t 300000 -r ts-node/register 'test/**/*Test.ts'",
+    "test": "env DEBUG=* TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"target\": \"ES2020\" }' mocha -t 300000 -r ts-node/register 'test/**/*Test.ts'",
     "deploy-tokens": "bash ./scripts/deploy_test_tokens.sh",
     "deploy-s2s-tokens": "bash ./scripts/deploy_s2s_tokens.sh",
     "lint": "tslint -p . -c tslint.json 'src/**/*.ts'",
@@ -38,7 +38,6 @@
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.28",
     "@types/sinon-chai": "^3.2.5",
-    "bignumber.js": "^9.0.0",
     "chai": "^4.2.0",
     "chai-almost": "^1.0.1",
     "chai-arrays": "^2.2.0",
@@ -53,6 +52,6 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "ethers": "5.6.9"
+    "ethers": "6.4.0"
   }
 }

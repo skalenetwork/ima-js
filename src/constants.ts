@@ -21,9 +21,6 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-
-import { BigNumber } from 'ethers';
-
 export const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-f]{64}$/i;
 
 export const errorMessages = {
@@ -33,7 +30,7 @@ export const errorMessages = {
     INVALID_PRIVATEKEY: 'Incorrect privateKey'
 };
 
-export const DEFAULT_GAS_LIMIT = BigNumber.from(10000000);
+export const DEFAULT_GAS_LIMIT = 10000000n;
 export const DEFAULT_GAS_MULTIPLIER = 1.2;
 export const GAS_PRICE_MULTIPLIER = 1.3;
 

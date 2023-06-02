@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, BigNumber } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import debug from 'debug';
 
@@ -36,31 +36,31 @@ import * as helper from '../../helper';
 export class DepositBoxEth extends DepositBox {
 
     async deposit(
-        chainName: string, opts: TxOpts): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.deposit(chainName);
+        chainName: string, opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.deposit.populateTransaction(chainName);
         return await transactions.send(this.provider, txData, opts, this.txName('deposit'));
     }
 
-    async getMyEth(opts: TxOpts): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.getMyEth();
+    async getMyEth(opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.getMyEth.populateTransaction();
         return await transactions.send(this.provider, txData, opts, this.txName('getMyEth'));
     }
 
-    async lockedETHAmount(address: string): Promise<BigNumber> {
+    async lockedETHAmount(address: string): Promise<bigint> {
         return await this.contract.approveTransfers(address);
     }
 
-    async waitLockedETHAmountChange(address: string, initial: BigNumber,
+    async waitLockedETHAmountChange(address: string, initial: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS) {
         for (let i = 1; i <= iterations; i++) {
             let res;
             res = await this.lockedETHAmount(address);
-            if (!initial.eq(res)) {
+            if (initial !== res) {
                 break;
             }
             debug('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
-            address + ', sleep ' + sleepInterval + 'ms');
+                address + ', sleep ' + sleepInterval + 'ms');
             await helper.sleep(sleepInterval);
         }
     }
