@@ -177,7 +177,9 @@ export abstract class TokenManager extends BaseContract {
      * @returns A Promise that resolves to the token address.
      */
     private async getMappedTokenAddress(chainName: string, index: number): Promise<string> {
-        const encoded = BigInt(ethers.solidityPackedKeccak256(["bytes32"], [this._getMappingLengthSlot(chainName)]));
+        const encoded = BigInt(
+            ethers.solidityPackedKeccak256(["bytes32"],
+                [this._getMappingLengthSlot(chainName)]));
         const addressSlot = (encoded + BigInt(index)).toString(16);
         const addressData = await this.provider.getStorage(this.address, addressSlot);
         // const addressRaw = ethers.hexStripZeros(addressData);

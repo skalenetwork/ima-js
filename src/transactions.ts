@@ -21,7 +21,10 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { ethers, Signer, Wallet, Provider, TransactionRequest, TransactionResponse, BrowserProvider } from 'ethers';
+import {
+    ethers, Signer, Wallet, Provider, TransactionRequest,
+    TransactionResponse, BrowserProvider
+} from 'ethers';
 import debug from 'debug';
 
 import * as constants from './constants';
