@@ -10,6 +10,8 @@ if [ "$INSTALL_PACKAGES" == 'True' ]; then
     yarn install
 fi
 
+yarn install
+
 echo "Hardhat version:"
 npx hardhat --version
 
