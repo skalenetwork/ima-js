@@ -10,6 +10,9 @@ if [ "$INSTALL_PACKAGES" == 'True' ]; then
     yarn install
 fi
 
+echo "Hardhat version:"
+npx hardhat --version
+
 bash $DIR/deploy_erc20.sh
 bash $DIR/deploy_erc721.sh
 bash $DIR/deploy_erc721_with_metadata.sh

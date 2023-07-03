@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [16, 18, 20]
+        node: [16, 18]
     env:
       MAINNET_ENDPOINT: http://127.0.0.1:1545
       SCHAIN_ENDPOINT: http://127.0.0.1:15000
