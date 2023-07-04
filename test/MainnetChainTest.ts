@@ -18,8 +18,10 @@ dotenv.config();
 
 chai.should();
 chai.use(chaiAsPromised);
+let expect = require('chai').expect;
 
 const log = debug('ima:test:MainnetChain');
+
 
 describe("Mainnet chain tests", () => {
     let wallet: Wallet;
@@ -59,7 +61,7 @@ describe("Mainnet chain tests", () => {
     it("Deposits ETH from Mainnet to sChain", async () => {
         let mainnetBalanceBefore = await mainnet.ethBalance(wallet.address);
         let sChainBalanceBefore: bigint = await sChain.ethBalance(wallet.address);
-        let expectedSChainBalance: bigint = sChainBalanceBefore + test_utils.TEST_TOKENS_TRANSFER_VALUE;
+        let expectedSChainBalance: bigint = sChainBalanceBefore + test_utils.TEST_WEI_TRANSFER_VALUE;
 
         let txOpts: TxOpts = {
             value: test_utils.TEST_WEI_TRANSFER_VALUE,
@@ -78,7 +80,7 @@ describe("Mainnet chain tests", () => {
         log('mainnet: ' + mainnetBalanceBefore + ' -> ' + mainnetBalanceAfter);
         log('schain: ' + sChainBalanceBefore + ' -> ' + sChainBalanceAfter);
 
-        (sChainBalanceAfter === expectedSChainBalance).should.be.true;
+        expect(sChainBalanceAfter).to.equal(expectedSChainBalance);
     });
 
     it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
