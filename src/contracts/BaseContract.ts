@@ -25,6 +25,9 @@ import { ethers, Provider } from "ethers";
 import debug from 'debug';
 
 
+const log = debug('ima:contracts:BaseContract');
+
+
 export class BaseContract {
     readonly provider: Provider;
     address: string;
@@ -32,7 +35,7 @@ export class BaseContract {
     name: string;
 
     constructor(provider: Provider, address: string, abi: any, name: string) {
-        debug('Initing contract ' + this.constructor.name + ' at ' + address);
+        log('Initing contract ' + this.constructor.name + ' at ' + address);
         this.provider = provider;
         this.address = address;
         this.contract = new ethers.Contract(address, abi, provider);

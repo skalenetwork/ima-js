@@ -34,6 +34,9 @@ import * as transactions from '../../transactions';
 import * as helper from '../../helper';
 
 
+const log = debug('ima:schain:TokenManager');
+
+
 export abstract class TokenManager extends BaseContract {
     abstract tokenMappingLenghtSlot: number | null;
     tokens: ContractsStringMap = {};
@@ -115,7 +118,7 @@ export abstract class TokenManager extends BaseContract {
             if (constants.ZERO_ADDRESS !== address) {
                 return address;
             }
-            debug('Waiting for token clone - ' + logData);
+            log('Waiting for token clone - ' + logData);
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);

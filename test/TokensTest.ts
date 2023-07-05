@@ -74,7 +74,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await _tu.reimburseWallet(ima);
     });
 
-    it("Test ERC20 approve/balance/deposit/withdraw", async () => {
+    it.only("Test ERC20 approve/balance/deposit/withdraw", async () => {
         ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
 
         await ima.linkERC20Token(

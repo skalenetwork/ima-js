@@ -32,6 +32,8 @@ import TxOpts from '../../TxOpts';
 import * as constants from '../../constants';
 import * as helper from '../../helper';
 
+const log = debug('ima:DepositBoxEth');
+
 
 export class DepositBoxEth extends DepositBox {
 
@@ -59,7 +61,7 @@ export class DepositBoxEth extends DepositBox {
             if (initial !== res) {
                 break;
             }
-            debug('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
+            log('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
                 address + ', sleep ' + sleepInterval + 'ms');
             await helper.sleep(sleepInterval);
         }
