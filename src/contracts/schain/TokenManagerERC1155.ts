@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, ethers, BigNumberish } from 'ethers';
+import { ethers, TransactionResponse } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
@@ -39,7 +39,7 @@ export class TokenManagerERC1155 extends TokenManager {
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ) {
         return await this.contract.clonesErc1155(
-            ethers.utils.solidityKeccak256(['string'], [originChainName]),
+            ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
         );
     }
@@ -49,8 +49,8 @@ export class TokenManagerERC1155 extends TokenManager {
         erc1155OnMainnet: string,
         erc1155OnSchain: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.addERC1155TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC1155TokenByOwner.populateTransaction(
             originChainName,
             erc1155OnMainnet,
             erc1155OnSchain
@@ -67,9 +67,9 @@ export class TokenManagerERC1155 extends TokenManager {
         tokenName: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.setApprovalForAll(
+        const txData = await tokenContract.setApprovalForAll.populateTransaction(
             this.address,
             tokenId
         );
@@ -84,19 +84,19 @@ export class TokenManagerERC1155 extends TokenManager {
     async withdraw(
         mainnetTokenAddress: string,
         tokenIds: number | number[],
-        amounts: BigNumberish | BigNumberish[],
+        amounts: bigint | bigint[],
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         let txData: any;
 
         if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
-            txData = await this.contract.populateTransaction.exitToMainERC1155(
+            txData = await this.contract.exitToMainERC1155.populateTransaction(
                 mainnetTokenAddress,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
-            txData = await this.contract.populateTransaction.exitToMainERC1155Batch(
+            txData = await this.contract.exitToMainERC1155Batch.populateTransaction(
                 mainnetTokenAddress,
                 tokenIds,
                 amounts
@@ -119,17 +119,17 @@ export class TokenManagerERC1155 extends TokenManager {
         tokenIds: number | number[],
         amounts: string | string[],
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         let txData: any;
         if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
-            txData = await this.contract.populateTransaction.transferToSchainERC1155(
+            txData = await this.contract.transferToSchainERC1155.populateTransaction(
                 targetSchainName,
                 tokenAddress,
                 tokenIds,
                 amounts
             );
         } else if (tokenIds instanceof Array && amounts instanceof Array) {
-            txData = await this.contract.populateTransaction.transferToSchainERC1155Batch(
+            txData = await this.contract.transferToSchainERC1155Batch.populateTransaction(
                 targetSchainName,
                 tokenAddress,
                 tokenIds,

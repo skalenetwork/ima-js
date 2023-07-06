@@ -1,4 +1,4 @@
-import { Wallet, BigNumber } from "ethers";
+import { Wallet } from "ethers";
 
 import debug from 'debug';
 
@@ -18,14 +18,15 @@ dotenv.config();
 
 chai.should();
 chai.use(chaiAsPromised);
+let expect = require('chai').expect;
 
 const log = debug('ima:test:MainnetChain');
+
 
 describe("Mainnet chain tests", () => {
     let wallet: Wallet;
     let mainnet: MainnetChain;
     let sChain: SChain;
-    let transferValBN: BigNumber;
 
     let opts: TxOpts;
     let ima: IMA;
@@ -36,7 +37,6 @@ describe("Mainnet chain tests", () => {
         sChain = test_utils.initTestSChain();
 
         wallet = new Wallet(test_utils.MAINNET_PRIVATE_KEY);
-        transferValBN = test_utils.TEST_WEI_TRANSFER_VALUE;
 
         opts = {
             address: wallet.address,
@@ -55,14 +55,13 @@ describe("Mainnet chain tests", () => {
 
     it("Requests ETH balance for Mainnet chain", async () => {
         let balance = await mainnet.ethBalance(wallet.address);
-        BigNumber.isBigNumber(balance).should.be.equal(true);
+        (typeof balance === 'bigint').should.be.equal(true);
     });
 
     it("Deposits ETH from Mainnet to sChain", async () => {
         let mainnetBalanceBefore = await mainnet.ethBalance(wallet.address);
-        let sChainBalanceBefore = await sChain.ethBalance(wallet.address);
-        let sChainBalanceBeforeBN = BigNumber.from(sChainBalanceBefore);
-        let expectedSChainBalance = sChainBalanceBeforeBN.add(transferValBN);
+        let sChainBalanceBefore: bigint = await sChain.ethBalance(wallet.address);
+        let expectedSChainBalance: bigint = sChainBalanceBefore + test_utils.TEST_WEI_TRANSFER_VALUE;
 
         let txOpts: TxOpts = {
             value: test_utils.TEST_WEI_TRANSFER_VALUE,
@@ -81,15 +80,14 @@ describe("Mainnet chain tests", () => {
         log('mainnet: ' + mainnetBalanceBefore + ' -> ' + mainnetBalanceAfter);
         log('schain: ' + sChainBalanceBefore + ' -> ' + sChainBalanceAfter);
 
-        sChainBalanceAfter.eq(expectedSChainBalance).should.be.true;
+        expect(sChainBalanceAfter).to.equal(expectedSChainBalance);
     });
 
     it("Tests reimbursement wallet deposit/withdraw/balance", async () => {
         let balanceBefore = await mainnet.communityPool.balance(
             wallet.address, test_utils.CHAIN_NAME_SCHAIN);
 
-        let balanceBeforeBN = BigNumber.from(balanceBefore);
-        let expectedBalanceBN = balanceBeforeBN.add(transferValBN);
+        let expectedBalance = balanceBefore + test_utils.TEST_WEI_TRANSFER_VALUE;
 
         await mainnet.communityPool.recharge(
             test_utils.CHAIN_NAME_SCHAIN,
@@ -105,7 +103,7 @@ describe("Mainnet chain tests", () => {
             wallet.address,
             test_utils.CHAIN_NAME_SCHAIN
         );
-        balanceAfter.eq(expectedBalanceBN).should.be.true;
+        (balanceAfter === expectedBalance).should.be.true;
 
         await mainnet.communityPool.withdraw(
             test_utils.CHAIN_NAME_SCHAIN,
@@ -120,6 +118,6 @@ describe("Mainnet chain tests", () => {
             wallet.address,
             test_utils.CHAIN_NAME_SCHAIN
         );
-        balanceAfterWithdraw.eq(balanceBefore).should.be.true;
+        (balanceAfterWithdraw === balanceBefore).should.be.true;
     });
 });

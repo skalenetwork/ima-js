@@ -1,5 +1,5 @@
 import chaiAsPromised from "chai-as-promised";
-import { ethers, providers, Contract, getDefaultProvider, Wallet } from "ethers";
+import { Provider, JsonRpcProvider, Wallet } from "ethers";
 
 import chai from 'chai';
 
@@ -15,14 +15,14 @@ chai.should();
 chai.use(chaiAsPromised);
 
 describe("Helper test", () => {
-  let provider: providers.BaseProvider;
+  let provider: Provider;
 
   before(async () => {
-    provider = new providers.JsonRpcProvider(MAINNET_ENDPOINT);
+    provider = new JsonRpcProvider(MAINNET_ENDPOINT);
   });
 
   it("Gets account balance", async () => {
-    const wallet = new Wallet (MAINNET_PRIVATE_KEY, provider);
+    const wallet = new Wallet(MAINNET_PRIVATE_KEY, provider);
     let balance = await provider.getBalance(wallet.address);
     console.log('balance: ' + balance);
   });

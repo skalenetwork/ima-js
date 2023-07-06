@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { Contract, BigNumber, providers } from 'ethers';
+import { Provider } from 'ethers';
 import { BaseChain } from './BaseChain';
 
 import { DepositBoxEth } from './contracts/mainnet/DepositBoxEth';
@@ -47,7 +47,7 @@ export default class MainnetChain extends BaseChain {
     linker: Linker;
     messageProxy: MessageProxy;
 
-    constructor(provider: providers.Provider, abi: any, chainId?: number) {
+    constructor(provider: Provider, abi: any, chainId?: number) {
         super(provider, abi, chainId);
         this.eth = new DepositBoxEth(
             this.provider,
@@ -100,25 +100,7 @@ export default class MainnetChain extends BaseChain {
         )
     }
 
-    async ethBalance(address: string): Promise<BigNumber> {
+    async ethBalance(address: string): Promise<bigint> {
         return await this.provider.getBalance(address);
-    }
-
-    updateWeb3(provider: providers.Provider) {
-        this.provider = provider;
-        for (const [symbol, contract] of Object.entries(this.erc20.tokens)) {
-            this.erc20.tokens[symbol] = new Contract(
-                contract.address,
-                contract.options.jsonInterface,
-                provider
-            );
-        }
-        // todo: tmp hotfix for eth unlock!
-        this.eth = new DepositBoxEth(
-            this.provider,
-            this.abi.deposit_box_eth_address,
-            this.abi.deposit_box_eth_abi,
-            'TokenManagerEth'
-        )
     }
 }

@@ -1,7 +1,7 @@
-import { Wallet, BigNumber } from "ethers";
+import { Wallet } from "ethers";
 
 import debug from 'debug';
-
+import { expect } from 'chai';
 import chaiAsPromised from "chai-as-promised";
 import * as chai from 'chai';
 import * as dotenv from "dotenv";
@@ -23,7 +23,7 @@ const log = debug('ima:test:sChain');
 describe("sChain module tests", () => {
     let wallet: Wallet;
     let ima: IMA;
-    let transferValBN: BigNumber;
+    let transferVal: bigint;
 
     before(async () => {
         ima = test_utils.initTestIMA();
@@ -32,7 +32,7 @@ describe("sChain module tests", () => {
             address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
-        transferValBN = test_utils.TEST_WEI_TRANSFER_VALUE;
+        transferVal = test_utils.TEST_WEI_TRANSFER_VALUE;
 
         await test_utils.grantPermissions(ima);
         if (!await ima.mainnet.messageProxy.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)) {
@@ -44,7 +44,7 @@ describe("sChain module tests", () => {
 
     it("Requests ERC20 ETH balance for sChain", async () => {
         let balance = await ima.schain.ethBalance(wallet.address);
-        (balance instanceof BigNumber).should.be.true;
+        (typeof balance === 'bigint').should.be.true;
     });
 
     it("Withdraws ETH from sChain to Mainnet", async () => {
@@ -102,8 +102,8 @@ describe("sChain module tests", () => {
         log('sChainBalanceAfterDeposit: ' + sChainBalanceAfterDeposit);
         log('sChainBalanceAfterWithdraw: ' + sChainBalanceAfterWithdraw);
 
-        sChainBalanceBefore.eq(sChainBalanceAfterWithdraw).should.be.true;
-        sChainBalanceBefore.eq(sChainBalanceAfterDeposit).should.be.false;
+        expect(sChainBalanceBefore).to.equal(sChainBalanceAfterWithdraw);
+        expect(sChainBalanceBefore).to.not.equal(sChainBalanceAfterDeposit);
     });
 
     it("Tests enableAutomaticDeploy/disableAutomaticDeploy", async () => {

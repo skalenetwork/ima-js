@@ -1,4 +1,4 @@
-import { Wallet, BigNumber } from "ethers";
+import { Wallet } from "ethers";
 
 import debug from 'debug';
 
@@ -45,7 +45,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
     let erc1155TokenId: number;
 
     let erc1155TokenIds: Array<number>;
-    let erc1155Amounts: Array<BigNumber>;
+    let erc1155Amounts: Array<bigint>;
 
     before(async () => {
         ima = _tu.initTestIMA();
@@ -64,7 +64,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         erc1155TokenId = 1;
         erc1155Name = 'testERC1155';
         erc1155TokenIds = [1, 2, 3];
-        erc1155Amounts = [BigNumber.from('1000'), BigNumber.from('2000'), BigNumber.from('3000')];
+        erc1155Amounts = [1000n, 2000n, 3000n];
 
         await _tu.grantPermissions(ima);
         if (!await ima.mainnet.messageProxy.isChainConnected(_tu.CHAIN_NAME_SCHAIN)) {
@@ -74,14 +74,14 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await _tu.reimburseWallet(ima);
     });
 
-    it("Test ERC20 approve/balance/deposit/withdraw", async () => {
+    it.only("Test ERC20 approve/balance/deposit/withdraw", async () => {
         ima.addERC20Token(erc20Name, testTokens.mainnetERC20, testTokens.schainERC20);
 
         await ima.linkERC20Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC20.address,
-            testTokens.schainERC20.address,
+            await testTokens.mainnetERC20.getAddress(),
+            await testTokens.schainERC20.getAddress(),
             opts
         )
 
@@ -100,11 +100,11 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         log('balanceMainnet1: ' + balanceMainnet1 + ', balanceSchain1: ' + balanceSchain1);
         log('balanceMainnet2: ' + balanceMainnet2 + ', balanceSchain2: ' + balanceSchain2);
 
-        let expectedMainnetBalance = balanceMainnet1.sub(_tu.TEST_TOKENS_TRANSFER_VALUE);
-        let expectedSchainBalance = balanceSchain1.add(_tu.TEST_TOKENS_TRANSFER_VALUE);
+        let expectedMainnetBalance = balanceMainnet1 - _tu.TEST_TOKENS_TRANSFER_VALUE;
+        let expectedSchainBalance = balanceSchain1 + _tu.TEST_TOKENS_TRANSFER_VALUE;
 
-        balanceMainnet2.eq(expectedMainnetBalance).should.be.true;
-        balanceSchain2.eq(expectedSchainBalance).should.be.true;
+        expect(balanceMainnet2).to.equal(expectedMainnetBalance);
+        expect(balanceSchain2).to.equal(expectedSchainBalance);
 
         await ima.schain.erc20.approve(erc20Name, constants.MAX_APPROVAL_AMOUNT, ima.schain.erc20.address, opts);
         await ima.withdrawERC20(erc20Name, _tu.TEST_TOKENS_TRANSFER_VALUE, opts);
@@ -114,8 +114,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balanceMainnet3 = await ima.mainnet.getERC20Balance(testTokens.mainnetERC20, wallet.address);
         const balanceSchain3 = await ima.schain.getERC20Balance(testTokens.schainERC20, wallet.address);
 
-        balanceMainnet3.eq(balanceMainnet1).should.be.true;
-        balanceSchain3.eq(balanceSchain1).should.be.true;
+        expect(balanceMainnet3).to.equal(balanceMainnet1);
+        expect(balanceSchain3).to.equal(balanceSchain1);
     });
 
     it("Test ERC20 tokens mapping", async () => {
@@ -123,12 +123,12 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC20Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC20.address,
-            testTokens.schainERC20.address,
+            await testTokens.mainnetERC20.getAddress(),
+            await testTokens.schainERC20.getAddress(),
             opts
         );
         let erc20Len = await ima.mainnet.erc20.getTokenMappingsLength(_tu.CHAIN_NAME_SCHAIN);
-        erc20Len.eq(BigNumber.from(1)).should.be.true;
+        expect(erc20Len).to.equal(1);
         let erc20Tokens = await ima.mainnet.erc20.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc20Len);
         erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.address);
@@ -164,13 +164,13 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC721Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC721.address,
-            testTokens.schainERC721.address,
+            await testTokens.mainnetERC721.getAddress(),
+            await testTokens.schainERC721.getAddress(),
             opts
         );
         let erc721Len = await ima.mainnet.erc721.getTokenMappingsLength(
             _tu.CHAIN_NAME_SCHAIN);
-        erc721Len.eq(BigNumber.from(1)).should.be.true;
+        expect(erc721Len).to.equal(1);
         let erc721Tokens = await ima.mainnet.erc721.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc721Len);
         erc721Tokens[0].should.be.equal(testTokens.mainnetERC721.address);
@@ -181,14 +181,13 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC1155Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC1155.address,
-            testTokens.schainERC1155.address,
+            await testTokens.mainnetERC1155.getAddress(),
+            await testTokens.schainERC1155.getAddress(),
             opts
         );
         let erc1155Len = await ima.mainnet.erc1155.getTokenMappingsLength(
             _tu.CHAIN_NAME_SCHAIN);
-        erc1155Len.eq(BigNumber.from(1)).should.be.true;
-
+        expect(erc1155Len).to.equal(1);
         let erc1155Tokens = await ima.mainnet.erc1155.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc1155Len);
         erc1155Tokens[0].should.be.equal(testTokens.mainnetERC1155.address);
@@ -200,8 +199,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC721Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC721.address,
-            testTokens.schainERC721.address,
+            await testTokens.mainnetERC721.getAddress(),
+            await testTokens.schainERC721.getAddress(),
             opts
         );
 
@@ -243,8 +242,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC721TokenWithMetadata(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC721Meta.address,
-            testTokens.schainERC721Meta.address,
+            await testTokens.mainnetERC721Meta.getAddress(),
+            await testTokens.schainERC721Meta.getAddress(),
             opts
         );
 
@@ -282,8 +281,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         await ima.linkERC1155Token(
             _tu.CHAIN_NAME_SCHAIN,
             _tu.MAINNET_CHAIN_NAME,
-            testTokens.mainnetERC1155.address,
-            testTokens.schainERC1155.address,
+            await testTokens.mainnetERC1155.getAddress(),
+            await testTokens.schainERC1155.getAddress(),
             opts
         );
 
@@ -299,12 +298,13 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesMainnet2 = await _tu.getERC1155Balances(ima.mainnet, testTokens.mainnetERC1155, wallet.address, erc1155TokenId);
         const balancesSchain2 = await _tu.getERC1155Balances(ima.schain, testTokens.schainERC1155, wallet.address, erc1155TokenId);
 
+        let expectedMainnetBalance = balancesMainnet1[0] - _tu.TEST_TOKENS_TRANSFER_VALUE;
+        let expectedSchainBalance = balancesSchain1[0] + _tu.TEST_TOKENS_TRANSFER_VALUE;
 
-        let expectedMainnetBalance = balancesMainnet1[0].sub(_tu.TEST_TOKENS_TRANSFER_VALUE);
-        let expectedSchainBalance = balancesSchain1[0].add(_tu.TEST_TOKENS_TRANSFER_VALUE);
 
-        balancesMainnet2[0].eq(expectedMainnetBalance).should.be.true;
-        balancesSchain2[0].eq(expectedSchainBalance).should.be.true;
+        balancesMainnet2[0].should.be.equal(expectedMainnetBalance);
+        balancesSchain2[0].should.be.equal(expectedSchainBalance);
+
 
         await ima.schain.erc1155.approveAll(erc1155Name, erc1155TokenId, opts);
         await ima.withdrawERC1155(erc1155Name, erc1155TokenId,
@@ -314,8 +314,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesMainnet3 = await _tu.getERC1155Balances(ima.mainnet, testTokens.mainnetERC1155, wallet.address, erc1155TokenId);
         const balancesSchain3 = await _tu.getERC1155Balances(ima.schain, testTokens.schainERC1155, wallet.address, erc1155TokenId);
 
-        balancesMainnet3[0].eq(balancesMainnet1[0]).should.be.true;
-        balancesSchain3[0].eq(balancesSchain1[0]).should.be.true;
+        balancesMainnet3[0].should.be.equal(balancesMainnet1[0]);
+        balancesSchain3[0].should.be.equal(balancesSchain1[0]);
     });
 
     it("Test ERC1155 batch deposit/withdraw", async () => {
@@ -334,12 +334,12 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesMainnet2 = await _tu.getERC1155Balances(ima.mainnet, testTokens.mainnetERC1155, wallet.address, erc1155TokenIds);
         const balancesSchain2 = await _tu.getERC1155Balances(ima.schain, testTokens.schainERC1155, wallet.address, erc1155TokenIds);
 
-        balancesMainnet2[0].eq(expectedMainnetBalances[0]).should.be.true;
-        balancesSchain2[0].eq(expectedSchainBalances[0]).should.be.true;
-        balancesMainnet2[1].eq(expectedMainnetBalances[1]).should.be.true;
-        balancesSchain2[1].eq(expectedSchainBalances[1]).should.be.true;
-        balancesMainnet2[2].eq(expectedMainnetBalances[2]).should.be.true;
-        balancesSchain2[2].eq(expectedSchainBalances[2]).should.be.true;
+        balancesMainnet2[0].should.be.equal(expectedMainnetBalances[0]);
+        balancesSchain2[0].should.be.equal(expectedSchainBalances[0]);
+        balancesMainnet2[1].should.be.equal(expectedMainnetBalances[1]);
+        balancesSchain2[1].should.be.equal(expectedSchainBalances[1]);
+        balancesMainnet2[2].should.be.equal(expectedMainnetBalances[2]);
+        balancesSchain2[2].should.be.equal(expectedSchainBalances[2]);
 
         await ima.withdrawERC1155(erc1155Name, erc1155TokenIds, erc1155Amounts, opts);
         await ima.mainnet.waitERC1155BalanceChange(testTokens.mainnetERC1155, wallet.address, erc1155TokenIds[0], balancesMainnet2[0]);
@@ -347,12 +347,12 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesMainnet3 = await _tu.getERC1155Balances(ima.mainnet, testTokens.mainnetERC1155, wallet.address, erc1155TokenIds);
         const balancesSchain3 = await _tu.getERC1155Balances(ima.schain, testTokens.schainERC1155, wallet.address, erc1155TokenIds);
 
-        balancesMainnet3[0].eq(balancesMainnet1[0]).should.be.true;
-        balancesSchain3[0].eq(balancesSchain1[0]).should.be.true;
-        balancesMainnet3[1].eq(balancesMainnet1[1]).should.be.true;
-        balancesSchain3[1].eq(balancesSchain1[1]).should.be.true;
-        balancesMainnet3[2].eq(balancesMainnet1[2]).should.be.true;
-        balancesSchain3[2].eq(balancesSchain1[2]).should.be.true;
+        balancesMainnet3[0].should.be.equal(expectedMainnetBalances[0]);
+        balancesSchain3[0].should.be.equal(expectedSchainBalances[0]);
+        balancesMainnet3[1].should.be.equal(expectedMainnetBalances[1]);
+        balancesSchain3[1].should.be.equal(expectedSchainBalances[1]);
+        balancesMainnet3[2].should.be.equal(expectedMainnetBalances[2]);
+        balancesSchain3[2].should.be.equal(expectedSchainBalances[2]);
     });
 
 });

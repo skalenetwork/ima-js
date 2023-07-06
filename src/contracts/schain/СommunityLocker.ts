@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import TxOpts from '../../TxOpts';
@@ -33,8 +33,8 @@ export class СommunityLocker extends BaseContract {
     async setTimeLimitPerMessage(
         limit: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.setTimeLimitPerMessage(limit);
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.setTimeLimitPerMessage.populateTransaction(limit);
         return await transactions.send(
             this.provider,
             txData,
@@ -51,8 +51,8 @@ export class СommunityLocker extends BaseContract {
         role: any,
         address: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.grantRole(role, address);
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.grantRole.populateTransaction(role, address);
         return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 }

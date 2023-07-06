@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
@@ -30,16 +30,16 @@ import TxOpts from '../../TxOpts';
 
 export class TokenManagerLinker extends BaseContract {
 
-    async connectSchain(schainName: string, opts: TxOpts): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.connectSchain(schainName);
+    async connectSchain(schainName: string, opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.connectSchain.populateTransaction(schainName);
         return await transactions.send(this.provider, txData, opts, this.txName('connectSchain'));
     }
 
     async disconnectSchain(
         schainName: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.disconnectSchain(schainName);
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.disconnectSchain.populateTransaction(schainName);
         return await transactions.send(
             this.provider,
             txData,

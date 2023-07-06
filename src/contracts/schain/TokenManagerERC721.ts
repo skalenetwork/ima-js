@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, ethers } from 'ethers';
+import { ethers, TransactionResponse } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
@@ -38,7 +38,7 @@ export class TokenManagerERC721 extends TokenManager {
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ): Promise<string> {
         return await this.contract.clonesErc721(
-            ethers.utils.solidityKeccak256(['string'], [originChainName]),
+            ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
         );
     }
@@ -48,8 +48,8 @@ export class TokenManagerERC721 extends TokenManager {
         erc721OnMainnet: string,
         erc721OnSchain: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.addERC721TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC721TokenByOwner.populateTransaction(
             originChainName,
             erc721OnMainnet,
             erc721OnSchain
@@ -66,9 +66,9 @@ export class TokenManagerERC721 extends TokenManager {
         tokenName: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.approve(this.address, tokenId);
+        const txData = await tokenContract.approve.populateTransaction(this.address, tokenId);
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
@@ -76,8 +76,8 @@ export class TokenManagerERC721 extends TokenManager {
         mainnetTokenAddress: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.exitToMainERC721(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.exitToMainERC721.populateTransaction(
             mainnetTokenAddress,
             tokenId
         );
@@ -94,8 +94,8 @@ export class TokenManagerERC721 extends TokenManager {
         tokenAddress: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.transferToSchainERC721(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.transferToSchainERC721.populateTransaction(
             targetSchainName,
             tokenAddress,
             tokenId

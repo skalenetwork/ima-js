@@ -1,7 +1,7 @@
 // import Web3 from 'web3';
 // import {AbiItem} from 'web3-utils';
 
-import { Wallet, Contract, BigNumber, BigNumberish, providers } from "ethers";
+import { Wallet, Contract, Provider, JsonRpcProvider } from "ethers";
 
 import * as dotenv from "dotenv";
 
@@ -31,9 +31,9 @@ export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
 
-export const TEST_WEI_TRANSFER_VALUE = BigNumber.from('20000000000000000');
-export const TEST_WEI_REIMBURSEMENT_VALUE = BigNumber.from('5000000000000000000');
-export const TEST_TOKENS_TRANSFER_VALUE = BigNumber.from('1000');
+export const TEST_WEI_TRANSFER_VALUE = 20000000000000000n;
+export const TEST_WEI_REIMBURSEMENT_VALUE = 5000000000000000000n;
+export const TEST_TOKENS_TRANSFER_VALUE = 1000n;
 
 
 const TOKENS_ABI_FOLDER = __dirname + '/../test-tokens/data/';
@@ -43,8 +43,8 @@ const TOKEN_NAME = 'TEST';
 
 
 export function initTestIMA() {
-    const providerMainnet = new providers.JsonRpcProvider(MAINNET_ENDPOINT);
-    const providerSchain = new providers.JsonRpcProvider(SCHAIN_ENDPOINT);
+    const providerMainnet = new JsonRpcProvider(MAINNET_ENDPOINT);
+    const providerSchain = new JsonRpcProvider(SCHAIN_ENDPOINT);
     const mainnetAbi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
     const sChainAbi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new IMA(providerMainnet, providerSchain, mainnetAbi, sChainAbi)
@@ -52,14 +52,14 @@ export function initTestIMA() {
 
 
 export function initTestSChain() {
-    const provider = new providers.JsonRpcProvider(SCHAIN_ENDPOINT);
+    const provider = new JsonRpcProvider(SCHAIN_ENDPOINT);
     const abi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new SChain(provider, abi);
 }
 
 
 export function initTestMainnet() {
-    const provider = new providers.JsonRpcProvider(MAINNET_ENDPOINT);
+    const provider = new JsonRpcProvider(MAINNET_ENDPOINT);
     const abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
     return new MainnetChain(provider, abi);
 }
@@ -110,8 +110,8 @@ export async function grantPermissions(ima: IMA): Promise<any> {
 
 
 export function initTestTokens(
-    providerMainnet: providers.Provider,
-    providerSchain: providers.Provider
+    providerMainnet: Provider,
+    providerSchain: Provider
 ) {
     let testTokens: ContractsStringMap = {};
     for (let tokenName in TokenType) {
@@ -143,12 +143,12 @@ export async function getERC1155Balances(
     chain: BaseChain,
     tokenContract: Contract,
     address: string,
-    tokenIds: BigNumberish | BigNumberish[],
+    tokenIds: number | number[],
     print: boolean = true
-): Promise<BigNumber[]> {
+): Promise<bigint[]> {
     let ids: number[];
-    let balances: BigNumber[] = [];
-    if (typeof tokenIds == 'number') {
+    let balances: bigint[] = [];
+    if (typeof tokenIds == 'bigint') {
         ids = [tokenIds as number];
     } else {
         ids = tokenIds as number[];
@@ -157,7 +157,7 @@ export async function getERC1155Balances(
         let balance = await chain.getERC1155Balance(tokenContract, address, ids[i]);
         balances.push(balance);
         if (print) {
-            console.log(chain.constructor.name + ' - ' + tokenContract.address + 'balance for ' + address + ': ' + balance);
+            console.log(chain.constructor.name + ' - ' + await tokenContract.getAddress() + 'balance for ' + address + ': ' + balance);
         }
     }
     if (print) {
@@ -166,19 +166,27 @@ export async function getERC1155Balances(
     return balances;
 }
 
-export const toNumbers = (arr: BigNumber[]) => arr.map(Number);
+export const toNumbers = (arr: bigint[]) => arr.map(Number);
 export const toStrings = (arr: number[]) => arr.map(String);
 
 
-export function addArrays(array1: BigNumber[], array2: BigNumber[]): BigNumber[] {
-    return array1.map(function (num: BigNumber, idx: number) {
-        return num.add(array2[idx]);
-    });
+export function addArrays(arr1: bigint[], arr2: bigint[]): bigint[] {
+    if (arr1.length !== arr2.length) {
+        throw new Error('Arrays must be of the same length');
+    }
+
+    let result: bigint[] = [];
+
+    for (let i = 0; i < arr1.length; i++) {
+        result[i] = arr1[i] + arr2[i];
+    }
+
+    return result;
 }
 
 
-export function subArrays(array1: BigNumber[], array2: BigNumber[]): BigNumber[] {
-    return array1.map(function (num: BigNumber, idx: number) {
-        return num.sub(array2[idx]);
+export function subArrays(array1: bigint[], array2: bigint[]): bigint[] {
+    return array1.map(function (num: bigint, idx: number) {
+        return num - array2[idx];
     });
 }

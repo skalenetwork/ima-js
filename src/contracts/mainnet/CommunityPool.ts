@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, BigNumberish, BigNumber } from 'ethers';
+import { TransactionResponse } from 'ethers';
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
 import TxOpts from '../../TxOpts';
@@ -29,7 +29,7 @@ import TxOpts from '../../TxOpts';
 
 export class CommunityPool extends BaseContract {
 
-    async balance(address: string, chainName: string): Promise<BigNumber> {
+    async balance(address: string, chainName: string): Promise<bigint> {
         return await this.contract.getBalance(address, chainName);
     }
 
@@ -37,8 +37,8 @@ export class CommunityPool extends BaseContract {
         chainName: string,
         address: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.rechargeUserWallet(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.rechargeUserWallet.populateTransaction(
             chainName,
             address
         );
@@ -47,10 +47,10 @@ export class CommunityPool extends BaseContract {
 
     async withdraw(
         chainName: string,
-        withdrawAmountWei: BigNumberish,
+        withdrawAmountWei: bigint,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.withdrawFunds(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.withdrawFunds.populateTransaction(
             chainName,
             withdrawAmountWei
         );

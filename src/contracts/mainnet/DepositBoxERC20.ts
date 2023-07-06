@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { providers, BigNumberish, BigNumber } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
@@ -34,22 +34,22 @@ export class DepositBoxERC20 extends DepositBox {
         tokenName: string,
         amount: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = await tokenContract.populateTransaction.approve(this.address, amount);
+        const txData = await tokenContract.approve.populateTransaction(this.address, amount);
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
     async deposit(
         chainName: string,
         tokenName: string,
-        amount: BigNumberish,
+        amount: bigint,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const tokenContractAddress = tokenContract.address;
+        const tokenContractAddress = await tokenContract.getAddress();
 
-        const txData = await this.contract.populateTransaction.depositERC20(
+        const txData = await this.contract.depositERC20.populateTransaction(
             chainName,
             tokenContractAddress,
             amount
@@ -57,14 +57,14 @@ export class DepositBoxERC20 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('depositERC20'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<BigNumber> {
+    async getTokenMappingsLength(chainName: string): Promise<number> {
         return await this.contract.getSchainToAllERC20Length(chainName);
     }
 
     async getTokenMappings(
         chainName: string,
-        from: BigNumberish,
-        to: BigNumberish
+        from: number,
+        to: number
     ): Promise<string[]> {
         return await this.contract.getSchainToAllERC20(
             chainName,
@@ -81,8 +81,8 @@ export class DepositBoxERC20 extends DepositBox {
         chainName: string,
         erc20OnMainnet: string,
         opts: TxOpts
-    ): Promise<providers.TransactionResponse> {
-        const txData = await this.contract.populateTransaction.addERC20TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC20TokenByOwner.populateTransaction(
             chainName,
             erc20OnMainnet
         );
