@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { ethers, TransactionResponse } from 'ethers';
+import { ethers, TransactionResponse, BigNumberish } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
@@ -108,7 +108,7 @@ export class TokenManagerERC20 extends TokenManager {
     async transferToSchain(
         targetSchainName: string,
         mainnetTokenAddress: string,
-        amount: string,
+        amount: BigNumberish,
         opts: TxOpts
     ): Promise<TransactionResponse> {
         const txData = await this.contract.transferToSchainERC20.populateTransaction(
