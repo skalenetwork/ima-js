@@ -64,7 +64,7 @@ export class TokenManagerERC20 extends TokenManager {
 
     async approve(
         tokenName: string,
-        amount: string,
+        amount: BigNumberish,
         address: string,
         opts: TxOpts
     ): Promise<TransactionResponse> {
@@ -75,7 +75,7 @@ export class TokenManagerERC20 extends TokenManager {
 
     async wrap(
         tokenName: string,
-        amount: string,
+        amount: BigNumberish,
         opts: TxOpts
     ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
@@ -85,7 +85,7 @@ export class TokenManagerERC20 extends TokenManager {
 
     async unwrap(
         tokenName: string,
-        amount: string,
+        amount: BigNumberish,
         opts: TxOpts
     ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
