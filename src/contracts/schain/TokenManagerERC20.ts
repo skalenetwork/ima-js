@@ -93,6 +93,35 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('withdrawTo'));
     }
 
+    /**
+     * Funds an exit for the given token by sending a transaction.
+     * @param tokenName - The name of the token for which the exit is to be funded.
+     * @param opts - Transaction options including the value to be sent as part of the transaction.
+     * @returns Promise<any> - The Promise that resolves to the transaction receipt.
+     * @remarks
+     * This is a payable transaction and the value should be passed in the opts object.
+     * This function can be executed only for supported tokens.
+     */
+    async fundExit(tokenName: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.tokens[tokenName];
+        const txData = await tokenContract.fundExit.populateTransaction();
+        return await transactions.send(this.provider, txData, opts, this.txName('fundExit'));
+    }
+
+    /**
+     * Reverses a previously funded exit for the given token by sending a transaction.
+     * @param tokenName - The name of the token for which the exit is to be undone.
+     * @param opts - Transaction options.
+     * @returns Promise<any> - The Promise that resolves to the transaction receipt.
+     * @remarks
+     * This function can be executed only for supported tokens.
+     */
+    async undoExit(tokenName: string, opts: TxOpts): Promise<any> {
+        const tokenContract = this.tokens[tokenName];
+        const txData = await tokenContract.undoExit.populateTransaction();
+        return await transactions.send(this.provider, txData, opts, this.txName('undoExit'));
+    }
+
     async withdraw(
         mainnetTokenAddress: string,
         amount: bigint,
