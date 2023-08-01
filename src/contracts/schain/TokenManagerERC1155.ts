@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { ethers, TransactionResponse } from 'ethers';
+import { ethers, TransactionResponse, BigNumberish } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
@@ -117,7 +117,7 @@ export class TokenManagerERC1155 extends TokenManager {
         targetSchainName: string,
         tokenAddress: string,
         tokenIds: number | number[],
-        amounts: string | string[],
+        amounts: BigNumberish | BigNumberish[],
         opts: TxOpts
     ): Promise<TransactionResponse> {
         let txData: any;

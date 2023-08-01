@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { TransactionResponse, BigNumberish } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import TxOpts from '../../TxOpts';
@@ -35,7 +35,7 @@ export class EthERC20 extends BaseContract {
 
     async approve(
         address: string,
-        amount: string,
+        amount: BigNumberish,
         opts: TxOpts
     ): Promise<TransactionResponse> {
         const txData = await this.contract.approve.populateTransaction(address, amount);

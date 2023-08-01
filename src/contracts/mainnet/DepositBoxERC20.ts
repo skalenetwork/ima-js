@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { TransactionResponse, BigNumberish } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
@@ -32,7 +32,7 @@ export class DepositBoxERC20 extends DepositBox {
 
     async approve(
         tokenName: string,
-        amount: string,
+        amount: BigNumberish,
         opts: TxOpts
     ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
