@@ -21,7 +21,6 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import fs from 'fs';
 
 import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
@@ -37,24 +36,6 @@ export function add0x(s: any) {
 export function remove0x(s: any) {
     if (!s.startsWith('0x')) return s;
     return s.slice(2);
-}
-
-export function jsonFileLoad(path: string) {
-    if (!fileExists(path)) {
-        return {}
-    }
-    const s = fs.readFileSync(path);
-    const jo = JSON.parse(s.toString());
-    return jo;
-}
-
-export function fileExists(strPath: string) {
-    if (fs.existsSync(strPath)) {
-        const stats = fs.statSync(strPath);
-        if (stats.isFile())
-            return true;
-    }
-    return false;
 }
 
 export function validatePrivateKey(privateKey: string) {
