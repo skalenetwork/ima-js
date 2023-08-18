@@ -22,10 +22,6 @@
  */
 
 import { ethers, Provider } from "ethers";
-import debug from 'debug';
-
-
-const log = debug('ima:contracts:BaseContract');
 
 
 export class BaseContract {
