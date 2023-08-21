@@ -44,8 +44,9 @@ export async function send(
     if (opts.value) transaction.value = opts.value;
     if (opts.address) transaction.from = opts.address;
 
-    const gasLimit = await provider.estimateGas(transaction);
-    log('💡 ' + name + ' estimated gasLimit: ' + gasLimit);
+    const gasLimit = opts.customGasLimit ?? await provider.estimateGas(transaction);
+    transaction.gasLimit = gasLimit;
+    log('💡 ' + name + ' gasLimit: ' + gasLimit);
 
     const signer = await getSigner(provider, opts);
 
@@ -56,6 +57,7 @@ export async function send(
     log('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
         txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
     if (wait) await provider.waitForTransaction(txResponse.hash);
+    // todo: handle failed tx!
     log('✅ ' + name + ' mined - tx: ' + txResponse.hash);
     return txResponse;
 }
