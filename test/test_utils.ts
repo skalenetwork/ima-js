@@ -1,5 +1,6 @@
 // import Web3 from 'web3';
 // import {AbiItem} from 'web3-utils';
+import fs from 'fs';
 
 import { Wallet, Contract, Provider, JsonRpcProvider } from "ethers";
 
@@ -42,25 +43,44 @@ const NETWORKS = ['mainnet', 'schain'];
 const TOKEN_NAME = 'TEST';
 
 
+
+export function jsonFileLoad(path: string) {
+    if (!fileExists(path)) {
+        return {}
+    }
+    const s = fs.readFileSync(path);
+    const jo = JSON.parse(s.toString());
+    return jo;
+}
+
+export function fileExists(strPath: string) {
+    if (fs.existsSync(strPath)) {
+        const stats = fs.statSync(strPath);
+        if (stats.isFile())
+            return true;
+    }
+    return false;
+}
+
 export function initTestIMA() {
     const providerMainnet = new JsonRpcProvider(MAINNET_ENDPOINT);
     const providerSchain = new JsonRpcProvider(SCHAIN_ENDPOINT);
-    const mainnetAbi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
-    const sChainAbi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
+    const mainnetAbi = jsonFileLoad(MAINNET_ABI_FILEPATH);
+    const sChainAbi = jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new IMA(providerMainnet, providerSchain, mainnetAbi, sChainAbi)
 }
 
 
 export function initTestSChain() {
     const provider = new JsonRpcProvider(SCHAIN_ENDPOINT);
-    const abi = helper.jsonFileLoad(SCHAIN_ABI_FILEPATH);
+    const abi = jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new SChain(provider, abi);
 }
 
 
 export function initTestMainnet() {
     const provider = new JsonRpcProvider(MAINNET_ENDPOINT);
-    const abi = helper.jsonFileLoad(MAINNET_ABI_FILEPATH);
+    const abi = jsonFileLoad(MAINNET_ABI_FILEPATH);
     return new MainnetChain(provider, abi);
 }
 
@@ -118,7 +138,7 @@ export function initTestTokens(
         for (let i in NETWORKS) {
             let network = NETWORKS[i];
             let filepath = TOKENS_ABI_FOLDER + tokenName + 'Example-' + TOKEN_NAME + '-' + network + '.json';
-            let tokenMeta = helper.jsonFileLoad(filepath);
+            let tokenMeta = jsonFileLoad(filepath);
             let keyName = network + tokenName;
 
             let abiKey = tokenName.toLowerCase() + '_abi';
