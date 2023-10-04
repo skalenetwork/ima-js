@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 
 import chaiAsPromised from "chai-as-promised";
 import * as chai from 'chai';
@@ -26,7 +26,7 @@ const assertArrays = require('chai-arrays');
 chai.use(assertArrays);
 let expect = require('chai').expect;
 
-const log = debug('ima:test:tokens');
+const log: Logger<ILogObj> = new Logger();
 
 
 describe("ERC20/ERC721/ERC1155 tokens tests", () => {
@@ -97,8 +97,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balanceMainnet2 = await ima.mainnet.getERC20Balance(testTokens.mainnetERC20, wallet.address);
         const balanceSchain2 = await ima.schain.getERC20Balance(testTokens.schainERC20, wallet.address);
 
-        log('balanceMainnet1: ' + balanceMainnet1 + ', balanceSchain1: ' + balanceSchain1);
-        log('balanceMainnet2: ' + balanceMainnet2 + ', balanceSchain2: ' + balanceSchain2);
+        log.info('balanceMainnet1: ' + balanceMainnet1 + ', balanceSchain1: ' + balanceSchain1);
+        log.info('balanceMainnet2: ' + balanceMainnet2 + ', balanceSchain2: ' + balanceSchain2);
 
         let expectedMainnetBalance = balanceMainnet1 - _tu.TEST_TOKENS_TRANSFER_VALUE;
         let expectedSchainBalance = balanceSchain1 + _tu.TEST_TOKENS_TRANSFER_VALUE;

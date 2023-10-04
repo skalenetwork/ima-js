@@ -25,12 +25,15 @@ export const MAINNET_CHAIN_NAME = 'Mainnet';
 const MAINNET_ENDPOINT = (process.env["MAINNET_ENDPOINT"] as string);
 const MAINNET_ABI_FILEPATH = process.env["MAINNET_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxyMainnet.json';
 
-const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
+export const SCHAIN_ENDPOINT = (process.env["SCHAIN_ENDPOINT"] as string);
+export const SCHAIN_2_ENDPOINT = (process.env["SCHAIN_2_ENDPOINT"] as string);
+
 const SCHAIN_ABI_FILEPATH = process.env["SCHAIN_ABI_FILEPATH"] || __dirname + '/../skale-ima-sdk/contracts_data/proxySchain.json';
 
 export const SDK_PRIVATE_KEY = helper.add0x(process.env.SDK_PRIVATE_KEY);
 export const MAINNET_PRIVATE_KEY = helper.add0x(process.env.TEST_PRIVATE_KEY);
 export const SCHAIN_PRIVATE_KEY = MAINNET_PRIVATE_KEY;
+export const SCHAIN_PRIVATE_KEY_2 = helper.add0x(process.env.TEST_PRIVATE_KEY_2);
 
 export const TEST_WEI_TRANSFER_VALUE = 20000000000000000n;
 export const TEST_WEI_REIMBURSEMENT_VALUE = 5000000000000000000n;
@@ -71,8 +74,8 @@ export function initTestIMA() {
 }
 
 
-export function initTestSChain() {
-    const provider = new JsonRpcProvider(SCHAIN_ENDPOINT);
+export function initTestSChain(endpoint: string = SCHAIN_ENDPOINT): SChain {
+    const provider = new JsonRpcProvider(endpoint);
     const abi = jsonFileLoad(SCHAIN_ABI_FILEPATH);
     return new SChain(provider, abi);
 }

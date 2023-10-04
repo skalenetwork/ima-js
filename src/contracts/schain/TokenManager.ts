@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 import { ethers, Contract, TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
@@ -34,7 +34,7 @@ import * as transactions from '../../transactions';
 import * as helper from '../../helper';
 
 
-const log = debug('ima:schain:TokenManager');
+const log: Logger<ILogObj> = new Logger();
 
 
 export abstract class TokenManager extends BaseContract {
@@ -118,7 +118,7 @@ export abstract class TokenManager extends BaseContract {
             if (constants.ZERO_ADDRESS !== address) {
                 return address;
             }
-            log('Waiting for token clone - ' + logData);
+            log.info('Waiting for token clone - ' + logData);
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);

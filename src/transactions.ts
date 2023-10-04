@@ -25,13 +25,13 @@ import {
     ethers, Signer, Wallet, Provider, TransactionRequest,
     TransactionResponse, BrowserProvider
 } from 'ethers';
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 
 import * as constants from './constants';
 import TxOpts from './TxOpts';
 
 
-const log = debug('ima:transactions');
+const log: Logger<ILogObj> = new Logger();
 
 
 export async function send(
@@ -46,19 +46,19 @@ export async function send(
 
     const gasLimit = opts.customGasLimit ?? await provider.estimateGas(transaction);
     transaction.gasLimit = gasLimit;
-    log('💡 ' + name + ' gasLimit: ' + gasLimit);
+    log.info('💡 ' + name + ' gasLimit: ' + gasLimit);
 
     const signer = await getSigner(provider, opts);
 
-    log('⏩ ' + name + ' sending - from: ' + transaction.from + ', to: ' +
+    log.info('⏩ ' + name + ' sending - from: ' + transaction.from + ', to: ' +
         transaction.to + ', value: ' + transaction.value);
     const txResponse = await signer.sendTransaction(transaction);
 
-    log('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
+    log.info('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
         txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
     if (wait) await provider.waitForTransaction(txResponse.hash);
     // todo: handle failed tx!
-    log('✅ ' + name + ' mined - tx: ' + txResponse.hash);
+    log.info('✅ ' + name + ' mined - tx: ' + txResponse.hash);
     return txResponse;
 }
 
@@ -85,15 +85,15 @@ export async function sendETH(
     wait: boolean = true
 ): Promise<TransactionResponse> {
     // TODO: add dry run!
-    log('⏩ ' + ' sending ETH - from: ' + ', to: ' + address + ', value: ' + value);
+    log.info('⏩ ' + ' sending ETH - from: ' + ', to: ' + address + ', value: ' + value);
     const signer = await getSigner(provider, opts);
     const txResponse = await signer.sendTransaction({
         to: address,
         value: ethers.parseEther(value)
     });
-    log('⏳ ' + ' sending ETH - tx: ' + txResponse.hash + ', nonce: ' +
+    log.info('⏳ ' + ' sending ETH - tx: ' + txResponse.hash + ', nonce: ' +
         txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
     if (wait) await txResponse.wait(constants.DEFAULT_CONFIRMATIONS_NUM);
-    log('✅ ' + ' ETH sent - tx: ' + txResponse.hash);
+    log.info('✅ ' + ' ETH sent - tx: ' + txResponse.hash);
     return txResponse;
 }

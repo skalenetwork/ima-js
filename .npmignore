@@ -46,6 +46,8 @@ abis
 data/
 
 .env-sdk
+.env*
+test.mjs
 
 test-tokens/
 helper-scripts/

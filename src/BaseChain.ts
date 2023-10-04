@@ -23,7 +23,7 @@
 
 import { Provider, TransactionResponse, Contract } from "ethers";
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 
 import * as transactions from './transactions';
 import TxOpts from './TxOpts';
@@ -32,7 +32,7 @@ import * as constants from './constants';
 import * as helper from './helper';
 
 
-const log = debug('ima:BaseChain');
+const log: Logger<ILogObj> = new Logger();
 
 
 export interface ContractsStringMap { [key: string]: Contract; }
@@ -88,13 +88,14 @@ export abstract class BaseChain {
             let res;
             res = await this.ethBalance(address);
             if (initial !== res) {
-                break;
+                return;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for ETH balance change - address: ' +
+            log.info('🔎 ' + i + '/' + iterations + ' Waiting for ETH balance change - address: ' +
                 address + ', sleep: ' + sleepInterval + 'ms, initial: ' + initial + ', current: ' +
                 res);
             await helper.sleep(sleepInterval);
         }
+        throw new TimeoutException('waitETHBalanceChange timeout');
     }
 
     async waitForChange(
@@ -117,7 +118,7 @@ export abstract class BaseChain {
             if (initial !== res) {
                 return;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for change - ' + logData +
+            log.info('🔎 ' + i + '/' + iterations + ' Waiting for change - ' + logData +
                 ', sleep ' + sleepInterval + 'ms');
             await helper.sleep(sleepInterval);
         }

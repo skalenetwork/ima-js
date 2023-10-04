@@ -23,7 +23,7 @@
 
 import { TransactionResponse } from 'ethers';
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
@@ -32,7 +32,7 @@ import TxOpts from '../../TxOpts';
 import * as constants from '../../constants';
 import * as helper from '../../helper';
 
-const log = debug('ima:DepositBoxEth');
+const log: Logger<ILogObj> = new Logger();
 
 
 export class DepositBoxEth extends DepositBox {
@@ -61,7 +61,7 @@ export class DepositBoxEth extends DepositBox {
             if (initial !== res) {
                 break;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
+            log.info('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
                 address + ', sleep ' + sleepInterval + 'ms');
             await helper.sleep(sleepInterval);
         }
