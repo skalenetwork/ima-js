@@ -1,5 +1,5 @@
 
-import { Wallet } from "ethers";
+import { Wallet, Contract } from "ethers";
 import { Logger, ILogObj } from "tslog";
 
 import * as utils from '../test/test_utils';
@@ -16,10 +16,12 @@ async function ethM2S(
     destChainName: string,
     value: bigint = utils.TEST_WEI_TRANSFER_VALUE
 ) {
-    let balanceBefore: bigint = await sChain.ethBalance(wallet.address)
-    let txOpts: TxOpts = { value, address: wallet.address, privateKey: wallet.privateKey }
-    await mainnet.eth.deposit(destChainName, txOpts)
+    const balanceBefore: bigint = await sChain.ethBalance(wallet.address)
+    const txOpts: TxOpts = { value, address: wallet.address, privateKey: wallet.privateKey }
+    const tx = await mainnet.eth.deposit(destChainName, txOpts)
     await sChain.waitETHBalanceChange(wallet.address, balanceBefore)
+    let balanceAfter: bigint = await sChain.ethBalance(wallet.address)
+    return { tx, balanceBefore, balanceAfter }
 }
 
 
@@ -29,10 +31,38 @@ async function ethS2M(
     wallet: Wallet,
     value: bigint = utils.TEST_WEI_TRANSFER_VALUE
 ) {
-    let balanceBefore: bigint = await mainnet.ethBalance(wallet.address)
-    let txOpts: TxOpts = { value, address: wallet.address, privateKey: wallet.privateKey }
-    await sChain.eth.withdraw(value, txOpts)
+    const balanceBefore: bigint = await mainnet.ethBalance(wallet.address)
+    const txOpts: TxOpts = { value, address: wallet.address, privateKey: wallet.privateKey }
+    const tx = await sChain.eth.withdraw(value, txOpts)
     await mainnet.waitETHBalanceChange(wallet.address, balanceBefore)
+    const balanceAfter: bigint = await mainnet.ethBalance(wallet.address)
+    return { tx, balanceBefore, balanceAfter }
+}
+
+
+async function erc20M2S(
+    mainnet: MainnetChain,
+    sChain: SChain,
+    wallet: Wallet,
+    tokenSource: Contract,
+    tokenDest: Contract,
+    destChainName: string,
+    value: bigint = utils.TEST_WEI_TRANSFER_VALUE
+) {
+    const symbol = await tokenSource.symbol()
+    if (!mainnet.erc20.tokens[symbol]) {
+        mainnet.erc20.addToken(symbol, tokenSource)
+    }
+    if (!sChain.erc20.tokens[symbol]) {
+        sChain.erc20.addToken(symbol, tokenDest)
+    }
+
+    let balanceBefore: bigint = await sChain.getERC20Balance(tokenDest, wallet.address)
+    let txOpts: TxOpts = { value, address: wallet.address, privateKey: wallet.privateKey }
+    const tx = await mainnet.erc20.deposit(destChainName, symbol, value, txOpts)
+    await sChain.waitERC20BalanceChange(tokenDest, wallet.address, balanceBefore)
+    let balanceAfter: bigint = await sChain.getERC20Balance(tokenDest, wallet.address)
+    return { tx, balanceBefore, balanceAfter }
 }
 
 
