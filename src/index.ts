@@ -32,6 +32,9 @@ import TxOpts from './TxOpts';
 import * as constants from './constants';
 export * as helper from './helper';
 
+export { default as TimeoutException } from './exceptions/TimeoutException';
+export { ERC_ABIS } from './contracts/tokens'
+
 
 export class IMA {
     mainnet: MainnetChain;

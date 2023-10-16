@@ -17,7 +17,7 @@
  */
 
 /**
- * @file IMAContractException.ts
+ * @file InvalidArgsException.ts
  * @copyright SKALE Labs 2021-Present
  */
 
