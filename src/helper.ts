@@ -24,7 +24,8 @@
 import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
-export function add0x (s: string): string {
+export function add0x (s: string | undefined): string {
+    if (s === undefined) return ''
     if (!s.startsWith('0x')) {
         return '0x' + s;
     }
