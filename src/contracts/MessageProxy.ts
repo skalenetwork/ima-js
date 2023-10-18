@@ -21,24 +21,22 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from "ethers";
+import { type TransactionResponse } from 'ethers';
 
 import { BaseContract } from './BaseContract';
-import TxOpts from './../TxOpts';
+import type TxOpts from './../TxOpts';
 import * as transactions from './../transactions';
 
-
 export class MessageProxy extends BaseContract {
-
-    async isChainConnected(chainName: string): Promise<boolean> {
+    async isChainConnected (chainName: string): Promise<boolean> {
         return await this.contract.isConnectedChain(chainName);
     }
 
-    async CHAIN_CONNECTOR_ROLE(): Promise<string> {
+    async CHAIN_CONNECTOR_ROLE (): Promise<string> {
         return await this.contract.CHAIN_CONNECTOR_ROLE();
     }
 
-    async grantRole(
+    async grantRole (
         role: any,
         address: string,
         opts: TxOpts
@@ -47,7 +45,7 @@ export class MessageProxy extends BaseContract {
         return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
-    async addConnectedChain(
+    async addConnectedChain (
         schainName: string,
         opts: TxOpts
     ): Promise<TransactionResponse> {
@@ -59,5 +57,4 @@ export class MessageProxy extends BaseContract {
             this.txName('addConnectedChain')
         );
     }
-
 }

@@ -21,19 +21,17 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { ethers, TransactionResponse } from 'ethers';
+import { ethers, type TransactionResponse } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerERC721 extends TokenManager {
-
     tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC721_MAPPING_LENGTH_SLOT;
 
-    async getTokenCloneAddress(
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ): Promise<string> {
@@ -43,7 +41,7 @@ export class TokenManagerERC721 extends TokenManager {
         );
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         originChainName: string,
         erc721OnMainnet: string,
         erc721OnSchain: string,
@@ -62,7 +60,7 @@ export class TokenManagerERC721 extends TokenManager {
         );
     }
 
-    async approve(
+    async approve (
         tokenName: string,
         tokenId: number,
         opts: TxOpts
@@ -72,7 +70,7 @@ export class TokenManagerERC721 extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async withdraw(
+    async withdraw (
         mainnetTokenAddress: string,
         tokenId: number,
         opts: TxOpts
@@ -89,7 +87,7 @@ export class TokenManagerERC721 extends TokenManager {
         );
     }
 
-    async transferToSchain(
+    async transferToSchain (
         targetSchainName: string,
         tokenAddress: string,
         tokenId: number,
@@ -107,5 +105,4 @@ export class TokenManagerERC721 extends TokenManager {
             this.txName('transferToSchainERC721')
         );
     }
-
 }

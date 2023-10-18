@@ -21,20 +21,18 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class Linker extends BaseContract {
-
-    async LINKER_ROLE(): Promise<string> {
+    async LINKER_ROLE (): Promise<string> {
         return await this.contract.LINKER_ROLE();
     }
 
-    async grantRole(
+    async grantRole (
         role: any,
         address: string,
         opts: TxOpts
@@ -43,7 +41,7 @@ export class Linker extends BaseContract {
         return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
-    async connectSchain(
+    async connectSchain (
         chainName: string,
         contractAddresses: string[],
         opts: TxOpts

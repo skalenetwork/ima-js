@@ -22,27 +22,25 @@
  */
 
 import {
-    ethers, Signer, Wallet, Provider, TransactionRequest,
-    TransactionResponse, BrowserProvider
+    ethers, type Signer, Wallet, type Provider, type TransactionRequest,
+    type TransactionResponse, type BrowserProvider
 } from 'ethers';
-import { Logger, ILogObj } from "tslog";
+import { Logger, type ILogObj } from 'tslog';
 
 import * as constants from './constants';
-import TxOpts from './TxOpts';
+import type TxOpts from './TxOpts';
 
+const log = new Logger<ILogObj>();
 
-const log: Logger<ILogObj> = new Logger();
-
-
-export async function send(
+export async function send (
     provider: Provider,
     transaction: TransactionRequest,
     opts: TxOpts,
     name: string,
     wait: boolean = true
 ): Promise<TransactionResponse> {
-    if (opts.value) transaction.value = opts.value;
-    if (opts.address) transaction.from = opts.address;
+    transaction.value = opts.value ?? transaction.value;
+    transaction.from = opts.address ?? transaction.from;
 
     const gasLimit = opts.customGasLimit ?? await provider.estimateGas(transaction);
     transaction.gasLimit = gasLimit;
@@ -50,24 +48,21 @@ export async function send(
 
     const signer = await getSigner(provider, opts);
 
-    log.info('⏩ ' + name + ' sending - from: ' + transaction.from + ', to: ' +
-        transaction.to + ', value: ' + transaction.value);
+    log.info(`⏩ ${name} sending - from: ${transaction.from}, to: ${transaction.to as string}, value: ${transaction.value as string}`);
     const txResponse = await signer.sendTransaction(transaction);
-
-    log.info('⏳ ' + name + ' mining - tx: ' + txResponse.hash + ', nonce: ' +
-        txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
+    log.info(`⏳ ${name} mining - tx: ${txResponse.hash}, nonce: ${txResponse.nonce}, gasLimit: ${txResponse.gasLimit}`);
     if (wait) await provider.waitForTransaction(txResponse.hash);
     // todo: handle failed tx!
     log.info('✅ ' + name + ' mined - tx: ' + txResponse.hash);
     return txResponse;
 }
 
-async function getSigner(provider: Provider, opts: TxOpts): Promise<Signer> {
+async function getSigner (provider: Provider, opts: TxOpts): Promise<Signer> {
     let signer: Signer;
-    if (opts.privateKey && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
+    if (opts.privateKey !== undefined && typeof opts.privateKey === 'string' && opts.privateKey.length > 0) {
         signer = new Wallet(opts.privateKey, provider);
     } else if (
-        (provider as BrowserProvider).provider
+        (provider as BrowserProvider).provider !== undefined
     ) {
         signer = await (provider as BrowserProvider).getSigner();
     } else {
@@ -76,8 +71,7 @@ async function getSigner(provider: Provider, opts: TxOpts): Promise<Signer> {
     return signer;
 }
 
-
-export async function sendETH(
+export async function sendETH (
     provider: Provider,
     address: string,
     value: string,
@@ -91,8 +85,7 @@ export async function sendETH(
         to: address,
         value: ethers.parseEther(value)
     });
-    log.info('⏳ ' + ' sending ETH - tx: ' + txResponse.hash + ', nonce: ' +
-        txResponse.nonce + ', gasLimit: ' + txResponse.gasLimit);
+    log.info(`⏳ sending ETH - tx: ${txResponse.hash}, nonce: ${txResponse.nonce}, gasLimit: ${txResponse.gasLimit}`);
     if (wait) await txResponse.wait(constants.DEFAULT_CONFIRMATIONS_NUM);
     log.info('✅ ' + ' ETH sent - tx: ' + txResponse.hash);
     return txResponse;

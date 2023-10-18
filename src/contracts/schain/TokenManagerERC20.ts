@@ -21,19 +21,17 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { ethers, TransactionResponse, BigNumberish } from 'ethers';
+import { ethers, type TransactionResponse, type BigNumberish } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerERC20 extends TokenManager {
-
     tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC20_MAPPING_LENGTH_SLOT;
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         originChainName: string,
         erc20OnMainnet: string,
         erc20OnSchain: string,
@@ -52,17 +50,17 @@ export class TokenManagerERC20 extends TokenManager {
         );
     }
 
-    async getTokenCloneAddress(
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
-    ) {
+    ): Promise<string> {
         return await this.contract.clonesErc20(
             ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
         );
     }
 
-    async approve(
+    async approve (
         tokenName: string,
         amount: BigNumberish,
         address: string,
@@ -73,7 +71,7 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async wrap(
+    async wrap (
         tokenName: string,
         amount: BigNumberish,
         opts: TxOpts
@@ -83,7 +81,7 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('depositFor'));
     }
 
-    async unwrap(
+    async unwrap (
         tokenName: string,
         amount: BigNumberish,
         opts: TxOpts
@@ -102,7 +100,7 @@ export class TokenManagerERC20 extends TokenManager {
      * This is a payable transaction and the value should be passed in the opts object.
      * This function can be executed only for supported tokens.
      */
-    async fundExit(tokenName: string, opts: TxOpts): Promise<any> {
+    async fundExit (tokenName: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.tokens[tokenName];
         const txData = await tokenContract.fundExit.populateTransaction();
         return await transactions.send(this.provider, txData, opts, this.txName('fundExit'));
@@ -116,13 +114,13 @@ export class TokenManagerERC20 extends TokenManager {
      * @remarks
      * This function can be executed only for supported tokens.
      */
-    async undoExit(tokenName: string, opts: TxOpts): Promise<any> {
+    async undoExit (tokenName: string, opts: TxOpts): Promise<any> {
         const tokenContract = this.tokens[tokenName];
         const txData = await tokenContract.undoExit.populateTransaction();
         return await transactions.send(this.provider, txData, opts, this.txName('undoExit'));
     }
 
-    async withdraw(
+    async withdraw (
         mainnetTokenAddress: string,
         amount: bigint,
         opts: TxOpts
@@ -134,7 +132,7 @@ export class TokenManagerERC20 extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('exitToMainERC20'));
     }
 
-    async transferToSchain(
+    async transferToSchain (
         targetSchainName: string,
         mainnetTokenAddress: string,
         amount: BigNumberish,

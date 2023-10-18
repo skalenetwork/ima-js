@@ -21,16 +21,14 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class DepositBoxERC721 extends DepositBox {
-
-    async approve(
+    async approve (
         tokenName: string,
         tokenId: number,
         opts: TxOpts
@@ -40,7 +38,7 @@ export class DepositBoxERC721 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async deposit(
+    async deposit (
         chainName: string,
         tokenName: string,
         tokenId: number,
@@ -57,11 +55,11 @@ export class DepositBoxERC721 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('depositERC721'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<number> {
+    async getTokenMappingsLength (chainName: string): Promise<number> {
         return await this.contract.getSchainToAllERC721Length(chainName);
     }
 
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
         from: number,
         to: number
@@ -69,11 +67,11 @@ export class DepositBoxERC721 extends DepositBox {
         return await this.contract.getSchainToAllERC721(chainName, from, to);
     }
 
-    async isTokenAdded(chainName: string, erc721OnMainnet: string) {
+    async isTokenAdded (chainName: string, erc721OnMainnet: string): Promise<boolean> {
         return await this.contract.getSchainToERC721(chainName, erc721OnMainnet);
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         chainName: string,
         erc721OnMainnet: string,
         opts: TxOpts

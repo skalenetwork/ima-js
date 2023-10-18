@@ -21,41 +21,22 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-
 import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
-
-export function add0x(s: any) {
+export function add0x (s: string): string {
     if (!s.startsWith('0x')) {
-        return '0x' + s
+        return '0x' + s;
     }
     return s;
 }
 
-export function remove0x(s: any) {
-    if (!s.startsWith('0x')) return s;
-    return s.slice(2);
-}
-
-export function validatePrivateKey(privateKey: string) {
+export function validatePrivateKey (privateKey: string): void {
     if (!constants.PRIVATE_KEY_REGEX.test(privateKey)) {
         throw new InvalidCredentialsException(constants.errorMessages.INVALID_PRIVATEKEY);
     }
 }
 
-export function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export function isNode() {
-    let node = false;
-    if (typeof process === 'object') {
-        if (typeof process.versions === 'object') {
-            if (typeof process.versions.node !== 'undefined') {
-                node = true;
-            }
-        }
-    }
-    return node;
+export async function sleep (ms: number): Promise<any> {
+    return await new Promise(resolve => setTimeout(resolve, ms));
 }

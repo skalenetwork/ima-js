@@ -85,4 +85,14 @@ async function transferETH() {
     log.info(await sChain1.ethBalance(wallet.address))
 }
 
-await transferETH()
+
+async function test() {
+    const sChain1 = utils.initTestSChain(utils.SCHAIN_ENDPOINT);
+    const mainnetHash = await sChain1.communityLocker.contract.MAINNET_HASH()
+    const limit = await sChain1.communityLocker.contract.timeLimitPerMessage(mainnetHash)
+    console.log(limit)
+}
+
+// await transferETH()
+
+await test()
