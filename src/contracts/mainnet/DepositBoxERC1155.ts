@@ -21,19 +21,17 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
+import type TxOpts from '../../TxOpts';
 import InvalidArgsException from '../../exceptions/InvalidArgsException';
 
-
 export class DepositBoxERC1155 extends DepositBox {
-
     // todo: add approve single ERC1155!
 
-    async approveAll(tokenName: string, opts: TxOpts): Promise<TransactionResponse> {
+    async approveAll (tokenName: string, opts: TxOpts): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
         const txData = await tokenContract.setApprovalForAll.populateTransaction(
             this.address,
@@ -47,7 +45,7 @@ export class DepositBoxERC1155 extends DepositBox {
         );
     }
 
-    async deposit(
+    async deposit (
         chainName: string,
         tokenName: string,
         tokenIds: number | number[],
@@ -60,7 +58,7 @@ export class DepositBoxERC1155 extends DepositBox {
         let txData: any;
 
         if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
-            txData = await this.contract.depositERC1155(
+            txData = await this.contract.depositERC1155.populateTransaction(
                 chainName,
                 tokenContractAddress,
                 tokenIds,
@@ -80,12 +78,12 @@ export class DepositBoxERC1155 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('depositERC1155'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<number> {
+    async getTokenMappingsLength (chainName: string): Promise<number> {
         return await this.contract.getSchainToAllERC1155Length(
             chainName);
     }
 
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
         from: number,
         to: number
@@ -97,12 +95,12 @@ export class DepositBoxERC1155 extends DepositBox {
         );
     }
 
-    async isTokenAdded(chainName: string, erc1155OnMainnet: string) {
+    async isTokenAdded (chainName: string, erc1155OnMainnet: string): Promise<boolean> {
         return await this.contract.getSchainToERC1155(
             chainName, erc1155OnMainnet);
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         chainName: string,
         erc1155OnMainnet: string,
         opts: TxOpts
@@ -118,5 +116,4 @@ export class DepositBoxERC1155 extends DepositBox {
             this.txName('addERC1155TokenByOwner')
         );
     }
-
 }

@@ -21,19 +21,17 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class CommunityPool extends BaseContract {
-
-    async balance(address: string, chainName: string): Promise<bigint> {
+    async balance (address: string, chainName: string): Promise<bigint> {
         return await this.contract.getBalance(address, chainName);
     }
 
-    async recharge(
+    async recharge (
         chainName: string,
         address: string,
         opts: TxOpts
@@ -45,7 +43,7 @@ export class CommunityPool extends BaseContract {
         return await transactions.send(this.provider, txData, opts, this.txName('recharge'));
     }
 
-    async withdraw(
+    async withdraw (
         chainName: string,
         withdrawAmountWei: bigint,
         opts: TxOpts
@@ -56,5 +54,4 @@ export class CommunityPool extends BaseContract {
         );
         return await transactions.send(this.provider, txData, opts, this.txName('withdraw'));
     }
-
 }

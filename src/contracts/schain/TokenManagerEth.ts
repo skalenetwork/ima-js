@@ -21,18 +21,16 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerEth extends TokenManager {
-
     tokenMappingLenghtSlot = null;
 
-    async withdraw(
+    async withdraw (
         withdrawValue: bigint,
         opts: TxOpts
     ): Promise<TransactionResponse> {
@@ -40,19 +38,19 @@ export class TokenManagerEth extends TokenManager {
         return await transactions.send(this.provider, txData, opts, this.txName('exitToMain'));
     }
 
-    throwFunctionDoesNotExistError() {
+    throwFunctionDoesNotExistError (): void {
         throw new Error('Function does not exsist for this token manager');
     }
 
-    async getTokenCloneAddress(
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string
-    ) {
+    ): Promise<string> {
         this.throwFunctionDoesNotExistError();
         return '';
     }
 
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
         from: number,
         to: number
@@ -61,9 +59,8 @@ export class TokenManagerEth extends TokenManager {
         return [];
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<number> {
+    async getTokenMappingsLength (chainName: string): Promise<number> {
         this.throwFunctionDoesNotExistError();
         return 0;
     }
-
 }

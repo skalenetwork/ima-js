@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 
 import chaiAsPromised from "chai-as-promised";
 import * as chai from 'chai';
@@ -20,7 +20,7 @@ chai.should();
 chai.use(chaiAsPromised);
 let expect = require('chai').expect;
 
-const log = debug('ima:test:MainnetChain');
+const log: Logger<ILogObj> = new Logger();
 
 
 describe("Mainnet chain tests", () => {
@@ -77,8 +77,8 @@ describe("Mainnet chain tests", () => {
         let sChainBalanceAfter = await sChain.ethBalance(wallet.address);
         let mainnetBalanceAfter = await mainnet.ethBalance(wallet.address);
 
-        log('mainnet: ' + mainnetBalanceBefore + ' -> ' + mainnetBalanceAfter);
-        log('schain: ' + sChainBalanceBefore + ' -> ' + sChainBalanceAfter);
+        log.info('mainnet: ' + mainnetBalanceBefore + ' -> ' + mainnetBalanceAfter);
+        log.info('schain: ' + sChainBalanceBefore + ' -> ' + sChainBalanceAfter);
 
         expect(sChainBalanceAfter).to.equal(expectedSChainBalance);
     });

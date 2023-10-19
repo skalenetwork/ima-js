@@ -21,27 +21,26 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { Contract, TransactionResponse } from "ethers";
+import { type Contract, type TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
-import { ContractsStringMap } from '../../BaseChain';
+import { type ContractsStringMap } from '../../BaseChain';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class DepositBox extends BaseContract {
     tokens: ContractsStringMap = {};
 
-    addToken(tokenName: string, contract: Contract) {
+    addToken (tokenName: string, contract: Contract): void {
         this.tokens[tokenName] = contract;
     }
 
-    async enableWhitelist(chainName: string, opts: TxOpts): Promise<TransactionResponse> {
+    async enableWhitelist (chainName: string, opts: TxOpts): Promise<TransactionResponse> {
         const txData = await this.contract.enableWhitelist.populateTransaction(chainName);
         return await transactions.send(this.provider, txData, opts, this.txName('enableWhitelist'));
     }
 
-    async disableWhitelist(
+    async disableWhitelist (
         chainName: string,
         opts: TxOpts
     ): Promise<TransactionResponse> {
@@ -53,5 +52,4 @@ export class DepositBox extends BaseContract {
             this.txName('disableWhitelist')
         );
     }
-
 }

@@ -21,16 +21,14 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse, BigNumberish } from 'ethers';
+import { type TransactionResponse, type BigNumberish } from 'ethers';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class DepositBoxERC20 extends DepositBox {
-
-    async approve(
+    async approve (
         tokenName: string,
         amount: BigNumberish,
         opts: TxOpts
@@ -40,7 +38,7 @@ export class DepositBoxERC20 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async deposit(
+    async deposit (
         chainName: string,
         tokenName: string,
         amount: bigint,
@@ -57,11 +55,11 @@ export class DepositBoxERC20 extends DepositBox {
         return await transactions.send(this.provider, txData, opts, this.txName('depositERC20'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<number> {
+    async getTokenMappingsLength (chainName: string): Promise<number> {
         return await this.contract.getSchainToAllERC20Length(chainName);
     }
 
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
         from: number,
         to: number
@@ -73,11 +71,11 @@ export class DepositBoxERC20 extends DepositBox {
         );
     }
 
-    async isTokenAdded(chainName: string, erc20OnMainnet: string) {
+    async isTokenAdded (chainName: string, erc20OnMainnet: string): Promise<boolean> {
         return await this.contract.getSchainToERC20(chainName, erc20OnMainnet);
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         chainName: string,
         erc20OnMainnet: string,
         opts: TxOpts
@@ -93,5 +91,4 @@ export class DepositBoxERC20 extends DepositBox {
             this.txName('addERC20TokenByOwner')
         );
     }
-
 }

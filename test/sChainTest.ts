@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 
-import debug from 'debug';
+import { Logger, ILogObj } from "tslog";
 import { expect } from 'chai';
 import chaiAsPromised from "chai-as-promised";
 import * as chai from 'chai';
@@ -17,7 +17,7 @@ dotenv.config();
 chai.should();
 chai.use(chaiAsPromised);
 
-const log = debug('ima:test:sChain');
+const log: Logger<ILogObj> = new Logger();
 
 
 describe("sChain module tests", () => {
@@ -94,13 +94,13 @@ describe("sChain module tests", () => {
         let sChainBalanceAfterWithdraw = await ima.schain.ethBalance(wallet.address);
         let mainnetBalanceAfterWithdraw = await ima.mainnet.ethBalance(wallet.address);
 
-        log('mainnetBalanceBefore: ' + mainnetBalanceBefore);
-        log('mainnetBalanceAfterDeposit: ' + mainnetBalanceAfterDeposit);
-        log('mainnetBalanceAfterWithdraw: ' + mainnetBalanceAfterWithdraw);
+        log.info('mainnetBalanceBefore: ' + mainnetBalanceBefore);
+        log.info('mainnetBalanceAfterDeposit: ' + mainnetBalanceAfterDeposit);
+        log.info('mainnetBalanceAfterWithdraw: ' + mainnetBalanceAfterWithdraw);
 
-        log('sChainBalanceBefore: ' + sChainBalanceBefore);
-        log('sChainBalanceAfterDeposit: ' + sChainBalanceAfterDeposit);
-        log('sChainBalanceAfterWithdraw: ' + sChainBalanceAfterWithdraw);
+        log.info('sChainBalanceBefore: ' + sChainBalanceBefore);
+        log.info('sChainBalanceAfterDeposit: ' + sChainBalanceAfterDeposit);
+        log.info('sChainBalanceAfterWithdraw: ' + sChainBalanceAfterWithdraw);
 
         expect(sChainBalanceBefore).to.equal(sChainBalanceAfterWithdraw);
         expect(sChainBalanceBefore).to.not.equal(sChainBalanceAfterDeposit);

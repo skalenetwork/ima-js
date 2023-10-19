@@ -21,30 +21,28 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { ethers, TransactionResponse, BigNumberish } from 'ethers';
+import { ethers, type TransactionResponse, type BigNumberish } from 'ethers';
 
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
+import type TxOpts from '../../TxOpts';
 import InvalidArgsException from '../../exceptions/InvalidArgsException';
 
-
 export class TokenManagerERC1155 extends TokenManager {
-
     tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC1155_MAPPING_LENGTH_SLOT;
 
-    async getTokenCloneAddress(
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
-    ) {
+    ): Promise<string> {
         return await this.contract.clonesErc1155(
             ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
         );
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         originChainName: string,
         erc1155OnMainnet: string,
         erc1155OnSchain: string,
@@ -63,7 +61,7 @@ export class TokenManagerERC1155 extends TokenManager {
         );
     }
 
-    async approveAll(
+    async approveAll (
         tokenName: string,
         tokenId: number,
         opts: TxOpts
@@ -81,7 +79,7 @@ export class TokenManagerERC1155 extends TokenManager {
         );
     }
 
-    async withdraw(
+    async withdraw (
         mainnetTokenAddress: string,
         tokenIds: number | number[],
         amounts: bigint | bigint[],
@@ -113,7 +111,7 @@ export class TokenManagerERC1155 extends TokenManager {
         );
     }
 
-    async transferToSchain(
+    async transferToSchain (
         targetSchainName: string,
         tokenAddress: string,
         tokenIds: number | number[],
@@ -146,5 +144,4 @@ export class TokenManagerERC1155 extends TokenManager {
             this.txName('transferToSchainERC1155')
         );
     }
-
 }

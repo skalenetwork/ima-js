@@ -21,36 +21,34 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import debug from 'debug';
-import { ethers, Contract, TransactionResponse } from 'ethers';
+import { Logger, type ILogObj } from 'tslog';
+import { ethers, type Contract, type TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
-import { ContractsStringMap } from '../../BaseChain';
-import TxOpts from '../../TxOpts';
+import { type ContractsStringMap } from '../../BaseChain';
+import type TxOpts from '../../TxOpts';
 import TimeoutException from '../../exceptions/TimeoutException';
 
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
 import * as helper from '../../helper';
 
-
-const log = debug('ima:schain:TokenManager');
-
+const log = new Logger<ILogObj>();
 
 export abstract class TokenManager extends BaseContract {
     abstract tokenMappingLenghtSlot: number | null;
     tokens: ContractsStringMap = {};
 
-    addToken(tokenName: string, contract: Contract) {
+    addToken (tokenName: string, contract: Contract): void {
         this.tokens[tokenName] = contract;
     }
 
-    abstract getTokenCloneAddress(
+    abstract getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string
     ): Promise<string>;
 
-    async enableAutomaticDeploy(opts: TxOpts): Promise<TransactionResponse> {
+    async enableAutomaticDeploy (opts: TxOpts): Promise<TransactionResponse> {
         const txData = await this.contract.enableAutomaticDeploy.populateTransaction();
         return await transactions.send(
             this.provider,
@@ -60,7 +58,7 @@ export abstract class TokenManager extends BaseContract {
         );
     }
 
-    async disableAutomaticDeploy(opts: TxOpts): Promise<TransactionResponse> {
+    async disableAutomaticDeploy (opts: TxOpts): Promise<TransactionResponse> {
         const txData = await this.contract.disableAutomaticDeploy.populateTransaction();
         return await transactions.send(
             this.provider,
@@ -70,11 +68,11 @@ export abstract class TokenManager extends BaseContract {
         );
     }
 
-    async automaticDeploy(): Promise<string> {
+    async automaticDeploy (): Promise<string> {
         return await this.contract.automaticDeploy();
     }
 
-    async grantRole(
+    async grantRole (
         role: any,
         address: string,
         opts: TxOpts
@@ -83,19 +81,19 @@ export abstract class TokenManager extends BaseContract {
         return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
-    async AUTOMATIC_DEPLOY_ROLE(): Promise<string> {
+    async AUTOMATIC_DEPLOY_ROLE (): Promise<string> {
         return await this.contract.AUTOMATIC_DEPLOY_ROLE();
     }
 
-    async TOKEN_REGISTRAR_ROLE(): Promise<string> {
+    async TOKEN_REGISTRAR_ROLE (): Promise<string> {
         return await this.contract.TOKEN_REGISTRAR_ROLE();
     }
 
-    async hasTokenManager(chainName: string): Promise<boolean> {
+    async hasTokenManager (chainName: string): Promise<boolean> {
         return await this.contract.hasTokenManager(chainName);
     }
 
-    async ownerOf(tokenName: string, tokenId: number | string): Promise<string> {
+    async ownerOf (tokenName: string, tokenId: number | string): Promise<string> {
         const contract = this.tokens[tokenName];
         try {
             if (typeof tokenId === 'string') tokenId = Number(tokenId);
@@ -105,7 +103,7 @@ export abstract class TokenManager extends BaseContract {
         }
     }
 
-    async waitForTokenClone(
+    async waitForTokenClone (
         originTokenAddress: string,
         originChainName: string,
         sleepInterval: number = constants.DEFAULT_SLEEP,
@@ -118,7 +116,7 @@ export abstract class TokenManager extends BaseContract {
             if (constants.ZERO_ADDRESS !== address) {
                 return address;
             }
-            log('Waiting for token clone - ' + logData);
+            log.info('Waiting for token clone - ' + logData);
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);
@@ -130,10 +128,10 @@ export abstract class TokenManager extends BaseContract {
      * @param {string} chainName - The name of the chain to use in the hash.
      * @returns {string} - The resulting hash.
      */
-    _getMappingLengthSlot(chainName: string): string {
+    _getMappingLengthSlot (chainName: string): string {
         const chainHash = ethers.id(chainName);
         return ethers.solidityPackedKeccak256(
-            ["bytes32", "uint256"],
+            ['bytes32', 'uint256'],
             [chainHash, this.tokenMappingLenghtSlot]
         );
     }
@@ -144,7 +142,7 @@ export abstract class TokenManager extends BaseContract {
      * @param {string} chainName - The name of the chain for which to get the token mapping length.
      * @returns {Promise<number>} - The number of token mappings.
      */
-    async getTokenMappingsLength(chainName: string): Promise<number> {
+    async getTokenMappingsLength (chainName: string): Promise<number> {
         const length = await this.provider.getStorage(
             this.address,
             this._getMappingLengthSlot(chainName)
@@ -160,14 +158,14 @@ export abstract class TokenManager extends BaseContract {
      * @param to The ending index in the token mapping.
      * @returns A Promise that resolves to an array of token addresses.
      */
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
         from: number,
         to: number
     ): Promise<string[]> {
         const getAddressPromises = Array.from(
             { length: to - from },
-            (_, i) => this.getMappedTokenAddress(chainName, from + i)
+            async (_, i) => await this.getMappedTokenAddress(chainName, from + i)
         );
         return await Promise.all(getAddressPromises);
     }
@@ -179,9 +177,9 @@ export abstract class TokenManager extends BaseContract {
      * @param index The index in the token mapping.
      * @returns A Promise that resolves to the token address.
      */
-    private async getMappedTokenAddress(chainName: string, index: number): Promise<string> {
+    private async getMappedTokenAddress (chainName: string, index: number): Promise<string> {
         const encoded = BigInt(
-            ethers.solidityPackedKeccak256(["bytes32"],
+            ethers.solidityPackedKeccak256(['bytes32'],
                 [this._getMappingLengthSlot(chainName)]));
         const addressSlot = (encoded + BigInt(index)).toString(16);
         const addressData = await this.provider.getStorage(this.address, addressSlot);

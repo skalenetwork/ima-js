@@ -21,48 +21,45 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
-import debug from 'debug';
+import { Logger, type ILogObj } from 'tslog';
 
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
+import type TxOpts from '../../TxOpts';
 
 import * as constants from '../../constants';
 import * as helper from '../../helper';
 
-const log = debug('ima:DepositBoxEth');
-
+const log = new Logger<ILogObj>();
 
 export class DepositBoxEth extends DepositBox {
-
-    async deposit(
+    async deposit (
         chainName: string, opts: TxOpts): Promise<TransactionResponse> {
         const txData = await this.contract.deposit.populateTransaction(chainName);
         return await transactions.send(this.provider, txData, opts, this.txName('deposit'));
     }
 
-    async getMyEth(opts: TxOpts): Promise<TransactionResponse> {
+    async getMyEth (opts: TxOpts): Promise<TransactionResponse> {
         const txData = await this.contract.getMyEth.populateTransaction();
         return await transactions.send(this.provider, txData, opts, this.txName('getMyEth'));
     }
 
-    async lockedETHAmount(address: string): Promise<bigint> {
+    async lockedETHAmount (address: string): Promise<bigint> {
         return await this.contract.approveTransfers(address);
     }
 
-    async waitLockedETHAmountChange(address: string, initial: bigint,
+    async waitLockedETHAmountChange (address: string, initial: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP,
-        iterations: number = constants.DEFAULT_ITERATIONS) {
+        iterations: number = constants.DEFAULT_ITERATIONS): Promise<void> {
         for (let i = 1; i <= iterations; i++) {
-            let res;
-            res = await this.lockedETHAmount(address);
+            const res = await this.lockedETHAmount(address);
             if (initial !== res) {
                 break;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for locked ETH change - address: ' +
-                address + ', sleep ' + sleepInterval + 'ms');
+            log.info('🔎 ' + i.toString() + '/' + iterations.toString() + ' Waiting for locked ETH change - address: ' +
+                address + ', sleep ' + sleepInterval.toString() + 'ms');
             await helper.sleep(sleepInterval);
         }
     }

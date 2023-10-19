@@ -21,40 +21,38 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { Provider, TransactionResponse, Contract } from "ethers";
+import { type Provider, type TransactionResponse, type Contract } from 'ethers';
 
-import debug from 'debug';
+import { Logger, type ILogObj } from 'tslog';
 
 import * as transactions from './transactions';
-import TxOpts from './TxOpts';
+import type TxOpts from './TxOpts';
 import TimeoutException from './exceptions/TimeoutException';
 import * as constants from './constants';
 import * as helper from './helper';
 
+const log = new Logger<ILogObj>();
 
-const log = debug('ima:BaseChain');
-
-
-export interface ContractsStringMap { [key: string]: Contract; }
+export type ContractsStringMap = Record<string, Contract>;
 
 export abstract class BaseChain {
     provider: Provider;
     chainId?: number;
     abi: any;
 
-    constructor(provider: Provider, abi: any, chainId?: number) {
+    constructor (provider: Provider, abi: any, chainId?: number) {
         this.provider = provider;
         this.abi = abi;
-        if (chainId) this.chainId = chainId;
+        if (chainId !== undefined) this.chainId = chainId;
     }
 
-    abstract ethBalance(address: string): any;
+    abstract ethBalance (address: string): Promise<bigint>;
 
-    async getERC20Balance(tokenContract: Contract, address: string): Promise<bigint> {
+    async getERC20Balance (tokenContract: Contract, address: string): Promise<bigint> {
         return await tokenContract.balanceOf(address);
     }
 
-    async getERC721OwnerOf(tokenContract: Contract, tokenId: number | string): Promise<string> {
+    async getERC721OwnerOf (tokenContract: Contract, tokenId: number | string): Promise<string> {
         try {
             if (typeof tokenId === 'string') tokenId = Number(tokenId);
             return await tokenContract.ownerOf(tokenId);
@@ -63,7 +61,7 @@ export abstract class BaseChain {
         }
     }
 
-    async getERC1155Balance(
+    async getERC1155Balance (
         tokenContract: Contract,
         address: string,
         tokenId: number
@@ -71,7 +69,7 @@ export abstract class BaseChain {
         return await tokenContract.balanceOf(address, tokenId);
     }
 
-    async setTokenURI(
+    async setTokenURI (
         tokenContract: Contract,
         tokenId: number,
         tokenURI: string,
@@ -81,23 +79,22 @@ export abstract class BaseChain {
         return await transactions.send(this.provider, txData, opts, 'TokenContract::setTokenURI');
     }
 
-    async waitETHBalanceChange(address: string, initial: bigint,
+    async waitETHBalanceChange (address: string, initial: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP,
-        iterations: number = constants.DEFAULT_ITERATIONS) {
+        iterations: number = constants.DEFAULT_ITERATIONS): Promise<void> {
         for (let i = 1; i <= iterations; i++) {
-            let res;
-            res = await this.ethBalance(address);
+            const res = await this.ethBalance(address);
             if (initial !== res) {
-                break;
+                return;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for ETH balance change - address: ' +
-                address + ', sleep: ' + sleepInterval + 'ms, initial: ' + initial + ', current: ' +
-                res);
+            log.info(`🔎 ${i}/${iterations} Waiting for ETH balance change - address: ` +
+                `${address}, sleep: ${sleepInterval}ms, initial: ${initial}, current: ${res}`);
             await helper.sleep(sleepInterval);
         }
+        throw new TimeoutException('waitETHBalanceChange timeout');
     }
 
-    async waitForChange(
+    async waitForChange (
         tokenContract: Contract,
         getFunc: any,
         address: string | undefined,
@@ -105,8 +102,8 @@ export abstract class BaseChain {
         tokenId: number | undefined,
         sleepInterval: number = constants.DEFAULT_SLEEP,
         iterations: number = constants.DEFAULT_ITERATIONS
-    ) {
-        const logData = 'token: ' + await tokenContract.getAddress() + ', address: ' + address;
+    ): Promise<void> {
+        const logData = 'token: ' + await tokenContract.getAddress() + ', address: ' + (address ?? '');
         for (let i = 1; i <= iterations; i++) {
             let res;
             if (tokenId === undefined) res = await getFunc(tokenContract, address);
@@ -117,32 +114,31 @@ export abstract class BaseChain {
             if (initial !== res) {
                 return;
             }
-            log('🔎 ' + i + '/' + iterations + ' Waiting for change - ' + logData +
-                ', sleep ' + sleepInterval + 'ms');
+            log.info(`🔎 ${i}/${iterations} Waiting for change - ${logData}, sleep ${sleepInterval}ms`);
             await helper.sleep(sleepInterval);
         }
         throw new TimeoutException('waitForTokenClone timeout - ' + logData);
     }
 
-    async waitERC20BalanceChange(
+    async waitERC20BalanceChange (
         tokenContract: Contract,
         address: string,
         initialBalance: bigint,
         sleepInterval: number = constants.DEFAULT_SLEEP
-    ): Promise<any> {
+    ): Promise<void> {
         await this.waitForChange(
             tokenContract, this.getERC20Balance.bind(this), address, initialBalance, undefined,
             sleepInterval);
     }
 
-    async waitERC721OwnerChange(tokenContract: Contract, tokenId: number, initialOwner: string,
+    async waitERC721OwnerChange (tokenContract: Contract, tokenId: number, initialOwner: string,
         sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC721OwnerOf.bind(this), undefined, initialOwner, tokenId,
             sleepInterval);
     }
 
-    async waitERC1155BalanceChange(tokenContract: Contract, address: string, tokenId: number,
+    async waitERC1155BalanceChange (tokenContract: Contract, address: string, tokenId: number,
         initialBalance: bigint, sleepInterval: number = constants.DEFAULT_SLEEP): Promise<any> {
         await this.waitForChange(
             tokenContract, this.getERC1155Balance.bind(this), address, initialBalance, tokenId,

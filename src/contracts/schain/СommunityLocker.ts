@@ -21,16 +21,14 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { TransactionResponse } from 'ethers';
+import { type TransactionResponse } from 'ethers';
 
 import { BaseContract } from '../BaseContract';
-import TxOpts from '../../TxOpts';
+import type TxOpts from '../../TxOpts';
 import * as transactions from '../../transactions';
 
-
 export class СommunityLocker extends BaseContract {
-
-    async setTimeLimitPerMessage(
+    async setTimeLimitPerMessage (
         limit: number,
         opts: TxOpts
     ): Promise<TransactionResponse> {
@@ -43,11 +41,11 @@ export class СommunityLocker extends BaseContract {
         );
     }
 
-    async CONSTANT_SETTER_ROLE(): Promise<string> {
+    async CONSTANT_SETTER_ROLE (): Promise<string> {
         return await this.contract.CONSTANT_SETTER_ROLE();
     }
 
-    async grantRole(
+    async grantRole (
         role: any,
         address: string,
         opts: TxOpts

@@ -20,7 +20,7 @@ set_vars () {
     export PRIVATE_KEY_FOR_SCHAIN=$TEST_PRIVATE_KEY
     export URL_W3_S_CHAIN=$SCHAIN_ENDPOINT
 
-    export MINT_AMOUNT='1000'
+    export MINT_AMOUNT='100000'
     export TOKEN_NAME='TEST'
     export TOKEN_SYMBOL='TST'
 

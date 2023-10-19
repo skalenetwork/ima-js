@@ -21,8 +21,7 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import { ethers, Provider } from "ethers";
-
+import { ethers, type Provider } from 'ethers';
 
 export class BaseContract {
     readonly provider: Provider;
@@ -30,14 +29,14 @@ export class BaseContract {
     contract: ethers.Contract;
     name: string;
 
-    constructor(provider: Provider, address: string, abi: any, name: string) {
+    constructor (provider: Provider, address: string, abi: any, name: string) {
         this.provider = provider;
         this.address = address;
         this.contract = new ethers.Contract(address, abi, provider);
         this.name = name;
     }
 
-    txName(funcName: string): string {
+    txName (funcName: string): string {
         return this.name + '::' + funcName;
     }
 }
