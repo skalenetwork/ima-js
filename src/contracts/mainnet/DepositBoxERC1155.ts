@@ -58,7 +58,7 @@ export class DepositBoxERC1155 extends DepositBox {
         let txData: any;
 
         if (typeof tokenIds === 'number' && !(amounts instanceof Array)) {
-            txData = await this.contract.depositERC1155(
+            txData = await this.contract.depositERC1155.populateTransaction(
                 chainName,
                 tokenContractAddress,
                 tokenIds,

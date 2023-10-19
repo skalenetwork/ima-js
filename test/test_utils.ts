@@ -171,7 +171,7 @@ export async function getERC1155Balances(
 ): Promise<bigint[]> {
     let ids: number[];
     let balances: bigint[] = [];
-    if (typeof tokenIds == 'bigint') {
+    if (typeof tokenIds == 'number') {
         ids = [tokenIds as number];
     } else {
         ids = tokenIds as number[];
@@ -183,33 +183,22 @@ export async function getERC1155Balances(
             console.log(chain.constructor.name + ' - ' + await tokenContract.getAddress() + 'balance for ' + address + ': ' + balance);
         }
     }
-    if (print) {
-        console.log();
-    }
     return balances;
 }
 
 export const toNumbers = (arr: bigint[]) => arr.map(Number);
 export const toStrings = (arr: number[]) => arr.map(String);
 
-
 export function addArrays(arr1: bigint[], arr2: bigint[]): bigint[] {
     if (arr1.length !== arr2.length) {
-        throw new Error('Arrays must be of the same length');
+        throw new Error("Arrays must have the same length");
     }
-
-    let result: bigint[] = [];
-
-    for (let i = 0; i < arr1.length; i++) {
-        result[i] = arr1[i] + arr2[i];
-    }
-
-    return result;
+    return arr1.map((value, index) => value + arr2[index]);
 }
 
-
-export function subArrays(array1: bigint[], array2: bigint[]): bigint[] {
-    return array1.map(function (num: bigint, idx: number) {
-        return num - array2[idx];
-    });
+export function subArrays(arr1: bigint[], arr2: bigint[]): bigint[] {
+    if (arr1.length !== arr2.length) {
+        throw new Error("Arrays must have the same length");
+    }
+    return arr1.map((value, index) => value - arr2[index]);
 }

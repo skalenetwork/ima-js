@@ -128,10 +128,10 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
             opts
         );
         let erc20Len = await ima.mainnet.erc20.getTokenMappingsLength(_tu.CHAIN_NAME_SCHAIN);
-        expect(erc20Len).to.equal(1);
+        expect(erc20Len).to.equal(1n);
         let erc20Tokens = await ima.mainnet.erc20.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc20Len);
-        erc20Tokens[0].should.be.equal(testTokens.mainnetERC20.address);
+        erc20Tokens[0].should.be.equal(await testTokens.mainnetERC20.getAddress());
     });
 
     it.skip("Test ERC20 S2S token mappings", async () => {
@@ -170,10 +170,10 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         );
         let erc721Len = await ima.mainnet.erc721.getTokenMappingsLength(
             _tu.CHAIN_NAME_SCHAIN);
-        expect(erc721Len).to.equal(1);
+        expect(erc721Len).to.equal(1n);
         let erc721Tokens = await ima.mainnet.erc721.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc721Len);
-        erc721Tokens[0].should.be.equal(testTokens.mainnetERC721.address);
+        erc721Tokens[0].should.be.equal(await testTokens.mainnetERC721.getAddress());
     });
 
     it("Test ERC1155 tokens mapping", async () => {
@@ -187,10 +187,10 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         );
         let erc1155Len = await ima.mainnet.erc1155.getTokenMappingsLength(
             _tu.CHAIN_NAME_SCHAIN);
-        expect(erc1155Len).to.equal(1);
+        expect(erc1155Len).to.equal(1n);
         let erc1155Tokens = await ima.mainnet.erc1155.getTokenMappings(
             _tu.CHAIN_NAME_SCHAIN, 0, erc1155Len);
-        erc1155Tokens[0].should.be.equal(testTokens.mainnetERC1155.address);
+        erc1155Tokens[0].should.be.equal(await testTokens.mainnetERC1155.getAddress());
     });
 
     it("Test ERC721 approve/balance/deposit/withdraw", async () => {
@@ -291,7 +291,7 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
 
         await ima.mainnet.erc1155.approveAll(erc1155Name, opts);
 
-        await ima.depositERC1155(_tu.CHAIN_NAME_SCHAIN, erc1155Name,
+        await ima.mainnet.erc1155.deposit(_tu.CHAIN_NAME_SCHAIN, erc1155Name,
             erc1155TokenId, _tu.TEST_TOKENS_TRANSFER_VALUE, opts);
         await ima.schain.waitERC1155BalanceChange(testTokens.schainERC1155, wallet.address, erc1155TokenId, balancesSchain1[0]);
 
@@ -301,10 +301,8 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         let expectedMainnetBalance = balancesMainnet1[0] - _tu.TEST_TOKENS_TRANSFER_VALUE;
         let expectedSchainBalance = balancesSchain1[0] + _tu.TEST_TOKENS_TRANSFER_VALUE;
 
-
         balancesMainnet2[0].should.be.equal(expectedMainnetBalance);
         balancesSchain2[0].should.be.equal(expectedSchainBalance);
-
 
         await ima.schain.erc1155.approveAll(erc1155Name, erc1155TokenId, opts);
         await ima.withdrawERC1155(erc1155Name, erc1155TokenId,
@@ -347,12 +345,12 @@ describe("ERC20/ERC721/ERC1155 tokens tests", () => {
         const balancesMainnet3 = await _tu.getERC1155Balances(ima.mainnet, testTokens.mainnetERC1155, wallet.address, erc1155TokenIds);
         const balancesSchain3 = await _tu.getERC1155Balances(ima.schain, testTokens.schainERC1155, wallet.address, erc1155TokenIds);
 
-        balancesMainnet3[0].should.be.equal(expectedMainnetBalances[0]);
-        balancesSchain3[0].should.be.equal(expectedSchainBalances[0]);
-        balancesMainnet3[1].should.be.equal(expectedMainnetBalances[1]);
-        balancesSchain3[1].should.be.equal(expectedSchainBalances[1]);
-        balancesMainnet3[2].should.be.equal(expectedMainnetBalances[2]);
-        balancesSchain3[2].should.be.equal(expectedSchainBalances[2]);
+        balancesMainnet3[0].should.be.equal(balancesMainnet1[0]);
+        balancesSchain3[0].should.be.equal(balancesSchain1[0]);
+        balancesMainnet3[1].should.be.equal(balancesMainnet1[1]);
+        balancesSchain3[1].should.be.equal(balancesSchain1[1]);
+        balancesMainnet3[2].should.be.equal(balancesMainnet1[2]);
+        balancesSchain3[2].should.be.equal(balancesSchain1[2]);
     });
 
 });
