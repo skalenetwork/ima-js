@@ -21,65 +21,88 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { ethers, type TransactionResponse } from 'ethers';
+
 import { TokenManager } from './TokenManager';
 import * as constants from '../../constants';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerERC721 extends TokenManager {
+    tokenMappingLenghtSlot = constants.TOKEN_MANAGER_ERC721_MAPPING_LENGTH_SLOT;
 
-    async getTokenCloneAddress(
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string = constants.MAINNET_CHAIN_NAME
     ): Promise<string> {
-        return await this.contract.methods.clonesErc721(
-            this.web3.utils.soliditySha3(originChainName),
+        return await this.contract.clonesErc721(
+            ethers.solidityPackedKeccak256(['string'], [originChainName]),
             originTokenAddress
-        ).call();
+        );
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         originChainName: string,
         erc721OnMainnet: string,
         erc721OnSchain: string,
         opts: TxOpts
-    ):
-        Promise<any> {
-        const txData = this.contract.methods.addERC721TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC721TokenByOwner.populateTransaction(
             originChainName,
             erc721OnMainnet,
             erc721OnSchain
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('addERC721TokenByOwner')
+        );
     }
 
-    async approve(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async approve (
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = tokenContract.methods.approve(this.address, tokenId);
-        return await transactions.send(this.web3, txData, opts);
+        const txData = await tokenContract.approve.populateTransaction(this.address, tokenId);
+        return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async withdraw(mainnetTokenAddress: string, tokenId: number, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.exitToMainERC721(
+    async withdraw (
+        mainnetTokenAddress: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.exitToMainERC721.populateTransaction(
             mainnetTokenAddress,
             tokenId
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('exitToMainERC721')
+        );
     }
 
-    async transferToSchain(
+    async transferToSchain (
         targetSchainName: string,
         tokenAddress: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<any> {
-        const txData = this.contract.methods.transferToSchainERC721(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.transferToSchainERC721.populateTransaction(
             targetSchainName,
             tokenAddress,
             tokenId
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('transferToSchainERC721')
+        );
     }
-
 }

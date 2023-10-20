@@ -21,29 +21,40 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { BaseContract } from './BaseContract';
-import TxOpts from './../TxOpts';
+import type TxOpts from './../TxOpts';
 import * as transactions from './../transactions';
 
-
 export class MessageProxy extends BaseContract {
-
-    async isChainConnected(chainName: string): Promise<boolean> {
-        return await this.contract.methods.isConnectedChain(chainName).call();
+    async isChainConnected (chainName: string): Promise<boolean> {
+        return await this.contract.isConnectedChain(chainName);
     }
 
-    async CHAIN_CONNECTOR_ROLE(): Promise<string> {
-        return await this.contract.methods.CHAIN_CONNECTOR_ROLE().call();
+    async CHAIN_CONNECTOR_ROLE (): Promise<string> {
+        return await this.contract.CHAIN_CONNECTOR_ROLE();
     }
 
-    async grantRole(role: any, address: string, opts: TxOpts) {
-        const txData = this.contract.methods.grantRole(role, address);
-        return await transactions.send(this.web3, txData, opts);
+    async grantRole (
+        role: any,
+        address: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.grantRole.populateTransaction(role, address);
+        return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
-    async addConnectedChain(schainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.addConnectedChain(schainName);
-        return await transactions.send(this.web3, txData, opts);
+    async addConnectedChain (
+        schainName: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addConnectedChain.populateTransaction(schainName);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('addConnectedChain')
+        );
     }
-
 }

@@ -21,28 +21,35 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { Contract } from 'web3-eth-contract';
-import { BaseContract } from '../BaseContract';
-import { ContractsStringMap } from '../../BaseChain';
-import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
+import { type Contract, type TransactionResponse } from 'ethers';
 
+import { BaseContract } from '../BaseContract';
+import { type ContractsStringMap } from '../../BaseChain';
+import * as transactions from '../../transactions';
+import type TxOpts from '../../TxOpts';
 
 export class DepositBox extends BaseContract {
     tokens: ContractsStringMap = {};
 
-    addToken(tokenName: string, contract: Contract) {
+    addToken (tokenName: string, contract: Contract): void {
         this.tokens[tokenName] = contract;
     }
 
-    async enableWhitelist(chainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.enableWhitelist(chainName);
-        return await transactions.send(this.web3, txData, opts);
+    async enableWhitelist (chainName: string, opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.enableWhitelist.populateTransaction(chainName);
+        return await transactions.send(this.provider, txData, opts, this.txName('enableWhitelist'));
     }
 
-    async disableWhitelist(chainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.disableWhitelist(chainName);
-        return await transactions.send(this.web3, txData, opts);
+    async disableWhitelist (
+        chainName: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.disableWhitelist.populateTransaction(chainName);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('disableWhitelist')
+        );
     }
-
 }

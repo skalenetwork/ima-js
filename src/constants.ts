@@ -30,15 +30,23 @@ export const errorMessages = {
     INVALID_PRIVATEKEY: 'Incorrect privateKey'
 };
 
-export const DEFAULT_GAS_LIMIT = 10000000;
-export const DEFAULT_GAS_MULTIPLIER = 1.5;
+export const DEFAULT_GAS_LIMIT = 10000000n;
+export const DEFAULT_GAS_MULTIPLIER = 1.2;
 export const GAS_PRICE_MULTIPLIER = 1.3;
 
-export const MAX_APPROVAL_AMOUNT = '999999999999000000000000000000'; // todo: replace with max uint256!
+export const MAX_APPROVAL_AMOUNT = '999999999999000000000000000000'; // todo: use max uint256!
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const DEFAULT_SLEEP = 6000;
-export const DEFAULT_ITERATIONS = 30;
+export const DEFAULT_ITERATIONS = 60;
 
 export const MAINNET_CHAIN_NAME = 'Mainnet';
+
+export const DEFAULT_CONFIRMATIONS_NUM = 1;
+
+export const TOKEN_MANAGER_ERC20_MAPPING_LENGTH_SLOT = 212;
+export const TOKEN_MANAGER_ERC721_MAPPING_LENGTH_SLOT = 211;
+export const TOKEN_MANAGER_ERC1155_MAPPING_LENGTH_SLOT = 211;
+
+export const ADDRESS_LENGTH_BYTES = 20;

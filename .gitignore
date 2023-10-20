@@ -48,3 +48,10 @@ data/
 .env-sdk
 .env*
 test.mjs
+
+test-tokens/
+helper-scripts/
+skale-ima-sdk/
+.github/
+.env-sample
+.gitmodules/

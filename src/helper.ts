@@ -21,70 +21,23 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
-import fs from 'fs';
-
 import * as constants from './constants';
 import InvalidCredentialsException from './exceptions/InvalidCredentialsException';
 
-
-export function privateKeyToAccount(web3: Web3, privateKey: string) {
-    return web3.eth.accounts.privateKeyToAccount(privateKey);
-}
-
-export function privateKeyToAddress(web3: Web3, privateKey: string) {
-    const account = privateKeyToAccount(web3, privateKey);
-    return account.address;
-}
-
-export function add0x(s: any) {
+export function add0x (s: string | undefined): string {
+    if (s === undefined) return ''
     if (!s.startsWith('0x')) {
-        return '0x' + s
+        return '0x' + s;
     }
     return s;
 }
 
-export function remove0x(s: any) {
-    if (!s.startsWith('0x')) return s;
-    return s.slice(2);
-}
-
-export function jsonFileLoad(path: string) {
-    if (!fileExists(path)) {
-        return {}
-    }
-    const s = fs.readFileSync(path);
-    const jo = JSON.parse(s.toString());
-    return jo;
-}
-
-export function fileExists(strPath: string) {
-    if (fs.existsSync(strPath)) {
-        const stats = fs.statSync(strPath);
-        if (stats.isFile())
-            return true;
-    }
-    return false;
-}
-
-export function validatePrivateKey(privateKey: string) {
+export function validatePrivateKey (privateKey: string): void {
     if (!constants.PRIVATE_KEY_REGEX.test(privateKey)) {
         throw new InvalidCredentialsException(constants.errorMessages.INVALID_PRIVATEKEY);
     }
 }
 
-export function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export function isNode() {
-    let node = false;
-    if (typeof process === 'object') {
-        if (typeof process.versions === 'object') {
-            if (typeof process.versions.node !== 'undefined') {
-                node = true;
-            }
-        }
-    }
-    return node;
+export async function sleep (ms: number): Promise<any> {
+    return await new Promise(resolve => setTimeout(resolve, ms));
 }

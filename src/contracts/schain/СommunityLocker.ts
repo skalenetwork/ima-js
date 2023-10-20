@@ -21,25 +21,36 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { BaseContract } from '../BaseContract';
-import TxOpts from '../../TxOpts';
+import type TxOpts from '../../TxOpts';
 import * as transactions from '../../transactions';
 
-
 export class СommunityLocker extends BaseContract {
-
-    async setTimeLimitPerMessage(limit: number, opts: TxOpts): Promise<any> {
-        const txData = await this.contract.methods.setTimeLimitPerMessage(limit);
-        return await transactions.send(this.web3, txData, opts);
+    async setTimeLimitPerMessage (
+        limit: number,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.setTimeLimitPerMessage.populateTransaction(limit);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('setTimeLimitPerMessage')
+        );
     }
 
-    async CONSTANT_SETTER_ROLE(): Promise<string> {
-        return await this.contract.methods.CONSTANT_SETTER_ROLE().call();
+    async CONSTANT_SETTER_ROLE (): Promise<string> {
+        return await this.contract.CONSTANT_SETTER_ROLE();
     }
 
-    async grantRole(role: any, address: string, opts: TxOpts) {
-        const txData = this.contract.methods.grantRole(role, address);
-        return await transactions.send(this.web3, txData, opts);
+    async grantRole (
+        role: any,
+        address: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.grantRole.populateTransaction(role, address);
+        return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
-
 }

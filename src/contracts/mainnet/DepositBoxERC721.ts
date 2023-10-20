@@ -21,63 +21,70 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { DepositBox } from './DepositBox';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class DepositBoxERC721 extends DepositBox {
-
-    async approve(tokenName: string, tokenId: number, opts: TxOpts): Promise<any> {
+    async approve (
+        tokenName: string,
+        tokenId: number,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const txData = tokenContract.methods.approve(this.address, tokenId);
-        return await transactions.send(this.web3, txData, opts);
+        const txData = await tokenContract.approve.populateTransaction(this.address, tokenId);
+        return await transactions.send(this.provider, txData, opts, this.txName('approve'));
     }
 
-    async deposit(
+    async deposit (
         chainName: string,
         tokenName: string,
         tokenId: number,
         opts: TxOpts
-    ): Promise<any> {
+    ): Promise<TransactionResponse> {
         const tokenContract = this.tokens[tokenName];
-        const tokenContractAddress = tokenContract.options.address;
+        const tokenContractAddress = await tokenContract.getAddress();
 
-        const txData = this.contract.methods.depositERC721(
+        const txData = await this.contract.depositERC721.populateTransaction(
             chainName,
             tokenContractAddress,
             tokenId
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(this.provider, txData, opts, this.txName('depositERC721'));
     }
 
-    async getTokenMappingsLength(chainName: string): Promise<string> {
-        return await this.contract.methods.getSchainToAllERC721Length(
-            chainName).call();
+    async getTokenMappingsLength (chainName: string): Promise<number> {
+        return await this.contract.getSchainToAllERC721Length(chainName);
     }
 
-    async getTokenMappings(
+    async getTokenMappings (
         chainName: string,
-        from: number | string,
-        to: number | string
+        from: number,
+        to: number
     ): Promise<string[]> {
-        return await this.contract.methods.getSchainToAllERC721(chainName, from, to).call();
+        return await this.contract.getSchainToAllERC721(chainName, from, to);
     }
 
-    async isTokenAdded(chainName: string, erc721OnMainnet: string) {
-        return await this.contract.methods.getSchainToERC721(
-            chainName, erc721OnMainnet).call();
+    async isTokenAdded (chainName: string, erc721OnMainnet: string): Promise<boolean> {
+        return await this.contract.getSchainToERC721(chainName, erc721OnMainnet);
     }
 
-    async addTokenByOwner(
+    async addTokenByOwner (
         chainName: string,
         erc721OnMainnet: string,
         opts: TxOpts
-    ): Promise<any> {
-        const txData = this.contract.methods.addERC721TokenByOwner(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.addERC721TokenByOwner.populateTransaction(
             chainName,
             erc721OnMainnet
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('addERC721TokenByOwner')
+        );
     }
 }

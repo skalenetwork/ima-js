@@ -1,11 +1,14 @@
+import { Wallet } from "ethers";
+
+import { Logger, ILogObj } from "tslog";
+import { expect } from 'chai';
 import chaiAsPromised from "chai-as-promised";
-import chai = require("chai");
+import * as chai from 'chai';
 import * as dotenv from "dotenv";
 
 import TxOpts from "../src/TxOpts";
 import { IMA } from '../src/index';
 
-import * as helper from '../src/helper';
 import * as test_utils from './test_utils';
 
 
@@ -14,24 +17,25 @@ dotenv.config();
 chai.should();
 chai.use(chaiAsPromised);
 
+const log: Logger<ILogObj> = new Logger();
+
 
 describe("sChain module tests", () => {
-    let address: string;
+    let wallet: Wallet;
     let ima: IMA;
-    let transferValBN: any;
+    let transferVal: bigint;
 
     before(async () => {
         ima = test_utils.initTestIMA();
-        address = helper.privateKeyToAddress(ima.schain.web3, test_utils.SCHAIN_PRIVATE_KEY);
-        transferValBN = ima.mainnet.web3.utils.toBN(test_utils.TEST_WEI_TRANSFER_VALUE);
-
+        wallet = new Wallet(test_utils.MAINNET_PRIVATE_KEY);
         const opts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
+        transferVal = test_utils.TEST_WEI_TRANSFER_VALUE;
 
         await test_utils.grantPermissions(ima);
-        if (!await ima.mainnet.messageProxy.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)){
+        if (!await ima.mainnet.messageProxy.isChainConnected(test_utils.CHAIN_NAME_SCHAIN)) {
             await ima.connectSchain(test_utils.CHAIN_NAME_SCHAIN, opts);
         }
         await ima.schain.communityLocker.setTimeLimitPerMessage(1, opts);
@@ -39,23 +43,23 @@ describe("sChain module tests", () => {
     });
 
     it("Requests ERC20 ETH balance for sChain", async () => {
-        let balance = await ima.schain.ethBalance(address);
-        balance.should.be.a('string');
+        let balance = await ima.schain.ethBalance(wallet.address);
+        (typeof balance === 'bigint').should.be.true;
     });
 
     it("Withdraws ETH from sChain to Mainnet", async () => {
         let txOpts: TxOpts = {
             value: test_utils.TEST_WEI_TRANSFER_VALUE,
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
 
-        let mainnetBalanceBefore = await ima.mainnet.ethBalance(address);
-        let sChainBalanceBefore = await ima.schain.ethBalance(address);
+        let mainnetBalanceBefore = await ima.mainnet.ethBalance(wallet.address);
+        let sChainBalanceBefore = await ima.schain.ethBalance(wallet.address);
 
         await ima.mainnet.communityPool.recharge(
             test_utils.CHAIN_NAME_SCHAIN,
-            address,
+            wallet.address,
             txOpts
         );
 
@@ -63,47 +67,48 @@ describe("sChain module tests", () => {
             test_utils.CHAIN_NAME_SCHAIN,
             txOpts
         );
-        await ima.schain.waitETHBalanceChange(address, sChainBalanceBefore);
 
-        let mainnetBalanceAfterDeposit = await ima.mainnet.ethBalance(address);
-        let sChainBalanceAfterDeposit = await ima.schain.ethBalance(address);
+        await ima.schain.waitETHBalanceChange(wallet.address, sChainBalanceBefore);
 
-        let lockedETHAmount = await ima.mainnet.eth.lockedETHAmount(address);
+        let mainnetBalanceAfterDeposit = await ima.mainnet.ethBalance(wallet.address);
+        let sChainBalanceAfterDeposit = await ima.schain.ethBalance(wallet.address);
+
+        let lockedETHAmount = await ima.mainnet.eth.lockedETHAmount(wallet.address);
 
         await ima.schain.eth.withdraw(
             test_utils.TEST_WEI_TRANSFER_VALUE,
             {
-                address: address,
+                address: wallet.address,
                 privateKey: test_utils.SCHAIN_PRIVATE_KEY
             }
         );
 
-        await ima.mainnet.eth.waitLockedETHAmountChange(address, lockedETHAmount);
+        await ima.mainnet.eth.waitLockedETHAmountChange(wallet.address, lockedETHAmount);
         await ima.mainnet.eth.getMyEth(
             {
-                address: address,
+                address: wallet.address,
                 privateKey: test_utils.SCHAIN_PRIVATE_KEY
             }
         );
 
-        let sChainBalanceAfterWithdraw = await ima.schain.ethBalance(address);
-        let mainnetBalanceAfterWithdraw = await ima.mainnet.ethBalance(address);
+        let sChainBalanceAfterWithdraw = await ima.schain.ethBalance(wallet.address);
+        let mainnetBalanceAfterWithdraw = await ima.mainnet.ethBalance(wallet.address);
 
-        console.log(mainnetBalanceBefore, mainnetBalanceAfterDeposit, mainnetBalanceAfterWithdraw);
-        console.log(sChainBalanceBefore, sChainBalanceAfterDeposit, sChainBalanceAfterWithdraw);
+        log.info('mainnetBalanceBefore: ' + mainnetBalanceBefore);
+        log.info('mainnetBalanceAfterDeposit: ' + mainnetBalanceAfterDeposit);
+        log.info('mainnetBalanceAfterWithdraw: ' + mainnetBalanceAfterWithdraw);
 
-        sChainBalanceBefore.should.be.equal(sChainBalanceAfterWithdraw);
-        
-        let mainnetBalanceAfterDepositBN = ima.mainnet.web3.utils.toBN(mainnetBalanceAfterDeposit);
-        let expectedMainnetBalanceAfterWithdraw = mainnetBalanceAfterDepositBN.add(transferValBN);
+        log.info('sChainBalanceBefore: ' + sChainBalanceBefore);
+        log.info('sChainBalanceAfterDeposit: ' + sChainBalanceAfterDeposit);
+        log.info('sChainBalanceAfterWithdraw: ' + sChainBalanceAfterWithdraw);
 
-        // TODO: improve test - check mainnet balance after!
-        // mainnetBalanceAfterWithdraw.should.be.equal(expectedMainnetBalanceAfterWithdraw.toString(10));
+        expect(sChainBalanceBefore).to.equal(sChainBalanceAfterWithdraw);
+        expect(sChainBalanceBefore).to.not.equal(sChainBalanceAfterDeposit);
     });
 
     it("Tests enableAutomaticDeploy/disableAutomaticDeploy", async () => {
         let txOpts: TxOpts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         let automaticDeploy;
@@ -119,7 +124,7 @@ describe("sChain module tests", () => {
 
     it.skip("Transfers ERC20 between chains", async () => {
         let txOpts: TxOpts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         await ima.schain.erc20.enableAutomaticDeploy(txOpts);
@@ -133,7 +138,7 @@ describe("sChain module tests", () => {
 
     it.skip("Transfers ERC721 between chains", async () => {
         let txOpts: TxOpts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         await ima.schain.erc721.enableAutomaticDeploy(txOpts);
@@ -147,7 +152,7 @@ describe("sChain module tests", () => {
 
     it.skip("Transfers ERC1155 between chains", async () => {
         let txOpts: TxOpts = {
-            address: address,
+            address: wallet.address,
             privateKey: test_utils.SCHAIN_PRIVATE_KEY
         };
         await ima.schain.erc1155.transferToSchain(

@@ -21,27 +21,34 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerLinker extends BaseContract {
-
-    async connectSchain(schainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.connectSchain(schainName);
-        return await transactions.send(this.web3, txData, opts);
+    async connectSchain (schainName: string, opts: TxOpts): Promise<TransactionResponse> {
+        const txData = await this.contract.connectSchain.populateTransaction(schainName);
+        return await transactions.send(this.provider, txData, opts, this.txName('connectSchain'));
     }
 
-    async disconnectSchain(schainName: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.disconnectSchain(schainName);
-        return await transactions.send(this.web3, txData, opts);
+    async disconnectSchain (
+        schainName: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.disconnectSchain.populateTransaction(schainName);
+        return await transactions.send(
+            this.provider,
+            txData,
+            opts,
+            this.txName('disconnectSchain')
+        );
     }
 
-    async hasSchain(schainName: string): Promise<boolean> {
-        return await this.contract.methods.hasSchain(
+    async hasSchain (schainName: string): Promise<boolean> {
+        return await this.contract.hasSchain(
             schainName
-        ).call();
+        );
     }
-
 }
