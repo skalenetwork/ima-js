@@ -21,22 +21,22 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
-import { Logger } from "tslog";
-
-const log: Logger = new Logger();
-
+import { ethers, type Provider } from 'ethers';
 
 export class BaseContract {
-    readonly web3: Web3;
-    address: any;
-    contract: Contract;
+    readonly provider: Provider;
+    address: string;
+    contract: ethers.Contract;
+    name: string;
 
-    constructor(web3: Web3, address: string, abi: any) {
-        log.info('Initing contract ' + this.constructor.name + ' at ' + address);
-        this.web3 = web3;
+    constructor (provider: Provider, address: string, abi: any, name: string) {
+        this.provider = provider;
         this.address = address;
-        this.contract = new this.web3.eth.Contract(abi, address);
+        this.contract = new ethers.Contract(address, abi, provider);
+        this.name = name;
+    }
+
+    txName (funcName: string): string {
+        return this.name + '::' + funcName;
     }
 }

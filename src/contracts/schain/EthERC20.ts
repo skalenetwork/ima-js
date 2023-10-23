@@ -21,13 +21,23 @@
  * @copyright SKALE Labs 2022-Present
  */
 
-import { BaseContract } from '../BaseContract';
+import { type TransactionResponse, type BigNumberish } from 'ethers';
 
+import { BaseContract } from '../BaseContract';
+import type TxOpts from '../../TxOpts';
+import * as transactions from '../../transactions';
 
 export class EthERC20 extends BaseContract {
-
-    async balanceOf(address: string): Promise<string> {
-        return await this.contract.methods.balanceOf(address).call({ from: address });
+    async balanceOf (address: string): Promise<bigint> {
+        return await this.contract.balanceOf(address);
     }
 
+    async approve (
+        address: string,
+        amount: BigNumberish,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.approve.populateTransaction(address, amount);
+        return await transactions.send(this.provider, txData, opts, this.txName('approve'));
+    }
 }

@@ -21,32 +21,35 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class Linker extends BaseContract {
-
-    async LINKER_ROLE(): Promise<string> {
-        return await this.contract.methods.LINKER_ROLE().call();
+    async LINKER_ROLE (): Promise<string> {
+        return await this.contract.LINKER_ROLE();
     }
 
-    async grantRole(role: any, address: string, opts: TxOpts) {
-        const txData = this.contract.methods.grantRole(role, address);
-        return await transactions.send(this.web3, txData, opts);
+    async grantRole (
+        role: any,
+        address: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.grantRole.populateTransaction(role, address);
+        return await transactions.send(this.provider, txData, opts, this.txName('grantRole'));
     }
 
-    async connectSchain(
+    async connectSchain (
         chainName: string,
         contractAddresses: string[],
         opts: TxOpts
-    ): Promise<any> {
-        const txData = this.contract.methods.connectSchain(
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.connectSchain.populateTransaction(
             chainName,
             contractAddresses
         );
-        return await transactions.send(this.web3, txData, opts);
+        return await transactions.send(this.provider, txData, opts, this.txName('connectSchain'));
     }
-
 }

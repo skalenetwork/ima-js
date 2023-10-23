@@ -21,27 +21,37 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
 import { BaseContract } from '../BaseContract';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class CommunityPool extends BaseContract {
-
-    async balance(address: string, chainName: string): Promise<string> {
-        return await this.contract.methods.getBalance(address, chainName).call();
+    async balance (address: string, chainName: string): Promise<bigint> {
+        return await this.contract.getBalance(address, chainName);
     }
 
-    async recharge(chainName: string, address: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.rechargeUserWallet(chainName, address);
-        return await transactions.send(this.web3, txData, opts);
+    async recharge (
+        chainName: string,
+        address: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.rechargeUserWallet.populateTransaction(
+            chainName,
+            address
+        );
+        return await transactions.send(this.provider, txData, opts, this.txName('recharge'));
     }
 
-    async withdraw(
-        chainName: string, withdrawAmountWei: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.withdrawFunds(
-            chainName, withdrawAmountWei);
-        return await transactions.send(this.web3, txData, opts);
+    async withdraw (
+        chainName: string,
+        withdrawAmountWei: bigint,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.withdrawFunds.populateTransaction(
+            chainName,
+            withdrawAmountWei
+        );
+        return await transactions.send(this.provider, txData, opts, this.txName('withdraw'));
     }
-
 }

@@ -17,12 +17,12 @@
  */
 
 /**
- * @file IMAContractException.ts
+ * @file InvalidArgsException.ts
  * @copyright SKALE Labs 2021-Present
  */
 
 export default class InvalidArgsException extends Error {
-    constructor(message: string) {
+    constructor (message: string) {
         super(message);
         this.name = this.constructor.name;
         Error.captureStackTrace(this, this.constructor);

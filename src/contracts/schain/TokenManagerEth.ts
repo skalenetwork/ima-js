@@ -21,24 +21,46 @@
  * @copyright SKALE Labs 2022-Present
  */
 
+import { type TransactionResponse } from 'ethers';
+
 import { TokenManager } from './TokenManager';
 import * as transactions from '../../transactions';
-import TxOpts from '../../TxOpts';
-
+import type TxOpts from '../../TxOpts';
 
 export class TokenManagerEth extends TokenManager {
+    tokenMappingLenghtSlot = null;
 
-    async withdraw(withdrawValue: string, opts: TxOpts): Promise<any> {
-        const txData = this.contract.methods.exitToMain(withdrawValue);
-        return await transactions.send(this.web3, txData, opts);
+    async withdraw (
+        withdrawValue: bigint,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        const txData = await this.contract.exitToMain.populateTransaction(withdrawValue);
+        return await transactions.send(this.provider, txData, opts, this.txName('exitToMain'));
     }
 
-    async getTokenCloneAddress(
+    throwFunctionDoesNotExistError (): void {
+        throw new Error('Function does not exsist for this token manager');
+    }
+
+    async getTokenCloneAddress (
         originTokenAddress: string,
         originChainName: string
-    ) {
-        throw new Error('Function does not exsist for this token manager');
+    ): Promise<string> {
+        this.throwFunctionDoesNotExistError();
         return '';
     }
 
+    async getTokenMappings (
+        chainName: string,
+        from: number,
+        to: number
+    ): Promise<string[]> {
+        this.throwFunctionDoesNotExistError();
+        return [];
+    }
+
+    async getTokenMappingsLength (chainName: string): Promise<number> {
+        this.throwFunctionDoesNotExistError();
+        return 0;
+    }
 }

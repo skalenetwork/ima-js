@@ -21,9 +21,9 @@
  * @copyright SKALE Labs 2021-Present
  */
 
-import Web3 from 'web3';
+import { type Provider, type TransactionResponse } from 'ethers';
 
-import TxOpts from './TxOpts';
+import type TxOpts from './TxOpts';
 import * as transactions from './transactions';
 
 import { BaseChain } from './BaseChain';
@@ -38,9 +38,7 @@ import { EthERC20 } from './contracts/schain/EthERC20';
 import { СommunityLocker } from './contracts/schain/СommunityLocker';
 import { TokenManagerLinker } from './contracts/schain/TokenManagerLinker';
 
-
 export default class SChain extends BaseChain {
-
     eth: TokenManagerEth;
     erc20: TokenManagerERC20;
     erc721: TokenManagerERC721;
@@ -53,62 +51,74 @@ export default class SChain extends BaseChain {
 
     messageProxy: MessageProxy;
 
-    constructor(web3: Web3, abi: any, chainId?: number) {
-        super(web3, abi, chainId);
+    constructor (provider: Provider, abi: any, chainId?: number) {
+        super(provider, abi, chainId);
         this.eth = new TokenManagerEth(
-            this.web3,
+            this.provider,
             this.abi.token_manager_eth_address,
-            this.abi.token_manager_eth_abi
-        )
+            this.abi.token_manager_eth_abi,
+            'TokenManagerEth'
+        );
         this.erc20 = new TokenManagerERC20(
-            this.web3,
+            this.provider,
             this.abi.token_manager_erc20_address,
-            this.abi.token_manager_erc20_abi
-        )
+            this.abi.token_manager_erc20_abi,
+            'TokenManagerERC20'
+        );
         this.erc721 = new TokenManagerERC721(
-            this.web3,
+            this.provider,
             this.abi.token_manager_erc721_address,
-            this.abi.token_manager_erc721_abi
-        )
+            this.abi.token_manager_erc721_abi,
+            'TokenManagerERC721'
+        );
         this.erc721meta = new TokenManagerERC721(
-            this.web3,
+            this.provider,
             this.abi.token_manager_erc721_with_metadata_address,
-            this.abi.token_manager_erc721_with_metadata_abi
-        )
+            this.abi.token_manager_erc721_with_metadata_abi,
+            'TokenManagerERC721'
+        );
         this.erc1155 = new TokenManagerERC1155(
-            this.web3,
+            this.provider,
             this.abi.token_manager_erc1155_address,
-            this.abi.token_manager_erc1155_abi
-        )
+            this.abi.token_manager_erc1155_abi,
+            'TokenManagerERC1155'
+        );
 
         this.ethERC20 = new EthERC20(
-            this.web3,
+            this.provider,
             this.abi.eth_erc20_address,
-            this.abi.eth_erc20_abi
-        )
+            this.abi.eth_erc20_abi,
+            'EthERC20'
+        );
         this.communityLocker = new СommunityLocker(
-            this.web3,
+            this.provider,
             this.abi.community_locker_address,
-            this.abi.community_locker_abi
-        )
+            this.abi.community_locker_abi,
+            'СommunityLocker'
+        );
         this.tokenManagerLinker = new TokenManagerLinker(
-            this.web3,
+            this.provider,
             this.abi.token_manager_linker_address,
-            this.abi.token_manager_linker_abi
-        )
+            this.abi.token_manager_linker_abi,
+            'TokenManagerLinker'
+        );
         this.messageProxy = new MessageProxy(
-            this.web3,
+            this.provider,
             this.abi.message_proxy_chain_address,
-            this.abi.message_proxy_chain_abi
-        )
+            this.abi.message_proxy_chain_abi,
+            'MessageProxy'
+        );
     }
 
-    async ethBalance(address: string): Promise<string> {
+    async ethBalance (address: string): Promise<bigint> {
         return await this.ethERC20.balanceOf(address);
     }
 
-    async sendSFuel(address: string, value: string, opts: TxOpts): Promise<any> {
-        return await transactions.sendETH(this.web3, address, value, opts);
+    async sendSFuel (
+        address: string,
+        value: string,
+        opts: TxOpts
+    ): Promise<TransactionResponse> {
+        return await transactions.sendETH(this.provider, address, value, opts);
     }
-
 }
