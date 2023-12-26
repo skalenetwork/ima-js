@@ -34,6 +34,8 @@ export * as helper from './helper';
 
 export { default as TimeoutException } from './exceptions/TimeoutException';
 export { ERC_ABIS } from './contracts/tokens';
+export { default as SCHAIN_ABI } from './abi/schain';
+export { send } from './transactions';
 
 export class IMA {
     mainnet: MainnetChain;

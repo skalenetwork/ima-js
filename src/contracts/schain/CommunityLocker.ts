@@ -27,7 +27,7 @@ import { BaseContract } from '../BaseContract';
 import type TxOpts from '../../TxOpts';
 import * as transactions from '../../transactions';
 
-export class СommunityLocker extends BaseContract {
+export class CommunityLocker extends BaseContract {
     async setTimeLimitPerMessage (
         limit: number,
         opts: TxOpts
