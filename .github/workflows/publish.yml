@@ -46,16 +46,16 @@ jobs:
       - name: Yarn build
         run: |
           yarn prepack
-      - name: Publish on npm
-        run: |
-          if [[ "$BRANCH" == "stable" ]]; then
-            npm publish --access public
-          else
-            npm version --no-git-tag-version ${{ env.VERSION }} --allow-same-version
-            npm publish --access public --tag ${{ env.BRANCH }}
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish on npm
+      #   run: |
+      #     if [[ "$BRANCH" == "stable" ]]; then
+      #       npm publish --access public
+      #     else
+      #       npm version --no-git-tag-version ${{ env.VERSION }} --allow-same-version
+      #       npm publish --access public --tag ${{ env.BRANCH }}
+      #     fi
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build CLI
         run: |
           bun build:exec
