@@ -10,57 +10,23 @@ on:
       - test-publish
 
 jobs:
-  build:
+  create_release:
     if: github.event.pull_request.merged
-    runs-on: ubuntu-latest
+    name: Create release
+    runs-on: ubuntu-20.04
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.export_outputs.outputs.version }}
+      branch: ${{ steps.export_outputs.outputs.branch }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-      - uses: oven-sh/setup-bun@v1
-      - name: Install dependencies
+      - name: Set Versions
         run: |
-          yarn install
-      - name: Set version and branch
-        run: |
-          export BRANCH=${GITHUB_REF##*/}
-          export VERSION=$(npm run --silent version)
-          echo "Branch: $BRANCH"
-          echo "Base version: $VERSION"
-          export VERSION=$(bash ./helper-scripts/calculate_version.sh)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
-          echo "Version $VERSION"
-      - name: Set release
-        run: |
-          if [[ "$BRANCH" == "stable" ]]; then
-            export PRERELEASE=false
-          else
-            export PRERELEASE=true
-          fi
-          echo "PRERELEASE=$PRERELEASE" >> $GITHUB_ENV
-      - name: Yarn build
-        run: |
-          yarn prepack
-      - name: Publish on npm
-        run: |
-          if [[ "$BRANCH" == "stable" ]]; then
-            npm publish --access public
-          else
-            npm version --no-git-tag-version ${{ env.VERSION }} --allow-same-version
-            npm publish --access public --tag ${{ env.BRANCH }}
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Build CLI
-        run: |
-          bun build:exec
-          mv ima ima-${{ env.VERSION }}
+          bash ./scripts/set_versions_ga.sh
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,11 +34,78 @@ jobs:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
           draft: false
-          prerelease: ${{ env.PRERELEASE }}
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.VERSION }}
-          name: ${{ env.VERSION }}
-          files: ima-${{ env.VERSION }}
-          prerelease: ${{ env.PRERELEASE }}
+          prerelease: true
+      - name: Export outputs
+        id: export_outputs
+        run: |
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=branch::$BRANCH"
+  build_and_publish:
+    if: github.event.pull_request.merged
+    needs: create_release
+    name: Build and publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            asset_name: ima-${{ needs.create_release.outputs.version }}-Linux-x86_64
+          - os: macos-latest
+            asset_name: ima-${{ needs.create_release.outputs.version }}-Darwin-x86_64
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '18.x'
+        registry-url: 'https://registry.npmjs.org'
+    - uses: oven-sh/setup-bun@v1
+    - name: Install dependencies
+      run: |
+        yarn install
+    
+    - name: Yarn build
+      if: matrix.os == 'ubuntu-20.04'
+      run: |
+        yarn prepack
+    - name: Publish on npm
+      if: matrix.os == 'ubuntu-20.04'
+      run: |
+        if [[ "$BRANCH" == "stable" ]]; then
+          npm publish --access public
+        else
+          npm version --no-git-tag-version ${{ env.VERSION }} --allow-same-version
+          npm publish --access public --tag ${{ env.BRANCH }}
+        fi
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Build CLI
+      run: |
+        bun build:exec
+        mv ima ima-${{ env.VERSION }}
+
+    - name: Upload Release Asset Ubuntu
+      if: matrix.os == 'ubuntu-20.04'
+      id: upload-release-asset-ubuntu
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: ${{ matrix.asset_name }}
+        asset_name: ${{ matrix.asset_name }}
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset Mac
+      if: matrix.os == 'macos-latest'
+      id: upload-release-asset-mac
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: ${{ matrix.asset_name }}
+        asset_name: ${{ matrix.asset_name }}
+        asset_content_type: application/octet-stream

@@ -36,11 +36,32 @@ Full usage documentation with examples can be found on our docs portal: https://
 git clone --recurse-submodules --remote-submodules https://github.com/skalenetwork/ima-js
 ```
 
-### IMA-SDK
+## CLI usage
 
-Version `0.3.0` is compatible with ima-sdk `0.2.1`
+IMA-JS now also available as a standalone command line tool
 
-### Testing
+### Installation
+
+```bash
+VERSION_NUM={RELEASE_NAME_HERE} && sudo -E bash -c "curl -L https://github.com/skalenetwork/ima-js/releases/download/$VERSION_NUM/ima-$VERSION_NUM >  /usr/local/bin/ima"
+sudo chmod +x /usr/local/bin/ima
+```
+
+### Usage
+
+```bash
+ima --help
+```
+
+#### Connect chains
+
+Example:
+
+```bash
+ima connect -n1 chain1 -n2 chain2 -pk1 456 -pk2 123 -e1 http://0.0.0.0:10001 -e2 http://0.0.0.0:10002
+```
+
+## Testing
 
 > Check out GA test workflow in `.github/workflows/test.yml` to see all steps.
 
