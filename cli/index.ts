@@ -43,8 +43,14 @@ program.command('connect')
     .requiredOption('-e1, --endpoint-1 <string>', 'sChain 1 endpoint')
     .requiredOption('-e2, --endpoint-2 <string>', 'sChain 2 endpoint')
     .action(async (options) => {
-        const opts = options.opts()
-        await connect(opts.name1, opts.name2, opts.privateKey1, opts.privateKey2, opts.endpoint1, opts.endpoint2)
+        await connect(
+            options.name1,
+            options.name2,
+            options.privateKey1,
+            options.privateKey2,
+            options.endpoint1,
+            options.endpoint2
+        )
     });
 
 program.parse();
