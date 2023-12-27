@@ -84,7 +84,7 @@ jobs:
     - name: Build CLI
       run: |
         bun build:exec
-        mv ima ima-${{ needs.create_release.outputs.version }}
+        mv ima ima-${{ needs.create_release.outputs.version }}-`uname -s`-`uname -m`
 
     - name: Upload Release Asset Ubuntu
       if: matrix.os == 'ubuntu-20.04'
