@@ -14,7 +14,7 @@
     "deploy-s2s-tokens": "bash ./scripts/deploy_s2s_tokens.sh",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx --fix src/",
     "version": "node -e \"console.log(require('./package.json').version);\"",
-    "build:exec": "bun build cli/connect.ts --compile --outfile=ima"
+    "build:exec": "bun build cli/index.ts --compile --outfile=ima"
   },
   "keywords": [
     "skale",
