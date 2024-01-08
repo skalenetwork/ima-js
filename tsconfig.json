@@ -76,6 +76,7 @@
     "typings/browser.d.ts",
     "typings/browser/**",
     "test-tokens",
-    "skale-ima-sdk"
+    "skale-ima-sdk",
+    "cli"
   ]
 }
