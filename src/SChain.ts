@@ -35,7 +35,7 @@ import { TokenManagerERC721 } from './contracts/schain/TokenManagerERC721';
 import { TokenManagerERC1155 } from './contracts/schain/TokenManagerERC1155';
 
 import { EthERC20 } from './contracts/schain/EthERC20';
-import { СommunityLocker } from './contracts/schain/СommunityLocker';
+import { CommunityLocker } from './contracts/schain/CommunityLocker';
 import { TokenManagerLinker } from './contracts/schain/TokenManagerLinker';
 
 export default class SChain extends BaseChain {
@@ -46,12 +46,12 @@ export default class SChain extends BaseChain {
     erc1155: TokenManagerERC1155;
 
     ethERC20: EthERC20;
-    communityLocker: СommunityLocker;
+    communityLocker: CommunityLocker;
     tokenManagerLinker: TokenManagerLinker;
 
     messageProxy: MessageProxy;
 
-    constructor (provider: Provider, abi: any, chainId?: number) {
+    constructor(provider: Provider, abi: any, chainId?: number) {
         super(provider, abi, chainId);
         this.eth = new TokenManagerEth(
             this.provider,
@@ -90,11 +90,11 @@ export default class SChain extends BaseChain {
             this.abi.eth_erc20_abi,
             'EthERC20'
         );
-        this.communityLocker = new СommunityLocker(
+        this.communityLocker = new CommunityLocker(
             this.provider,
             this.abi.community_locker_address,
             this.abi.community_locker_abi,
-            'СommunityLocker'
+            'CommunityLocker'
         );
         this.tokenManagerLinker = new TokenManagerLinker(
             this.provider,
@@ -110,11 +110,11 @@ export default class SChain extends BaseChain {
         );
     }
 
-    async ethBalance (address: string): Promise<bigint> {
+    async ethBalance(address: string): Promise<bigint> {
         return await this.ethERC20.balanceOf(address);
     }
 
-    async sendSFuel (
+    async sendSFuel(
         address: string,
         value: string,
         opts: TxOpts
