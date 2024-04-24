@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/ima-js",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Simple TS/JS library to interact with SKALE IMA",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -60,7 +60,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "ethers": "6.7.1",
+    "ethers": "6.12.0",
     "tslog": "^4.9.2"
   }
 }
